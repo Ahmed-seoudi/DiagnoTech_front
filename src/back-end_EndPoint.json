@@ -1,0 +1,132 @@
+GET
+getAllusers
+http://127.0.0.1:5000/api/users ✅
+
+
+POST
+register
+http://127.0.0.1:5000/api/users/register   ✅
+Body
+raw (json)
+json
+{
+    "fullName":"Mahmoud Mostafa",
+    "email":"mhmodmost121222@gmail.com",
+    "gender":"male",
+    "age": 22 , 
+    "password":"12345"
+}
+
+
+POST
+login
+http://127.0.0.1:5000/api/users/login   ✅
+Body
+raw (json)
+json
+{
+    "email":"mhmodmost121222@gmail.com",
+    "password":"123"
+}
+
+
+POST
+logout
+http://127.0.0.1:5000/api/users/logout  ✅
+
+
+GET
+singleUser
+http://127.0.0.1:5000/api/profile/user  ✅
+Request Headers
+Authorization
+Bearer {{JWT}}
+
+
+PUT
+editProfile
+http://127.0.0.1:5000/api/profile/update?= ✅
+Request Headers
+Authorization
+Bearer {{JWT}}
+Query Params
+Body
+raw (json)
+json
+{
+    "fullName":"MM",
+    "email":"test@gmail.com",
+    "gender":"male",
+    "age": 27 , 
+    "password":"asd"
+}
+
+
+
+POST
+profilePicture
+http://127.0.0.1:5000/api/profile/uploadProfilePicture 
+Request Headers
+Authorization
+Bearer {{JWT}}
+Body
+form-data
+profilePicture
+/C:/Users/an/Pictures/vlcsnap-2024-04-20-11h41m22s635.png
+
+
+PUT
+changePassword
+http://127.0.0.1:5000/api/profile/changePassword ✅
+Request Headers
+Authorization
+Bearer {{JWT}}
+Body
+raw (json)
+json
+{
+    "oldPassword":"12345",
+    "newPassword":"789"
+}
+
+
+
+
+DELETE
+deleteAccount
+http://127.0.0.1:5000/api/profile/deleteAccount ✅
+Request Headers
+Authorization
+Bearer {{JWT}}
+
+POST
+ForgotPassword
+http://127.0.0.1:5000/api/users/forgotpassword  ✅
+Body
+raw (json)
+json
+{
+    "email":"mhmodmost121222@gmail.com"
+}
+
+
+POST
+verifyResetCode
+http://127.0.0.1:5000/api/users/verifyResetCode  ✅
+Body
+raw (json)
+json
+{
+    "code":"312694"
+}
+
+
+PUT
+resetPassword
+http://127.0.0.1:5000/api/users/resetPassword  ✅
+Body
+raw (json)
+json
+{
+    "newPassword": "123"
+}

@@ -1,0 +1,24 @@
+  /* Doctor Profile Page */
+  .bg-DoctorProfile{ 
+    background-Image: url('/public/img/doctor_profile.jpg');
+    background-size: cover ; 
+  }
+  
+  
+  
+  /* User Profile And Update-info , Header and Footer */
+  
+  .profile-bg {
+    background-image: url("/public/img/SL-120219-25650-27.jpg");
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    height: 10px; 
+  }
+  
+  
+  /* profile page */
+  .mp{
+    margin-top: 120px;
+  }
+  

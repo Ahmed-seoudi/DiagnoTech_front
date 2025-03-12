@@ -1,0 +1,160 @@
+.custom-symptom-body {
+    background-image: url(/public/img/symptoms-bg.jpg);
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    min-height: 100vh; /* Optional: to ensure it fills space */
+  }
+  
+
+  .form-wrapper {
+    width: 50%; 
+    margin-bottom: 200px;
+  }
+  
+
+  @media (max-width: 768px) {
+    .container-Symptoms {
+      width: 100%;
+      padding: 0 10px;
+    }
+  
+    .form-wrapper {
+      width: 100%; 
+    }
+  }
+  
+  .images-wrapper {
+  margin-right: 13%;
+  padding-top: 10px;
+  }
+  
+  .image-100 {
+    height: 140px;
+    width: 140px;
+    object-fit: cover;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    transition:  0.3s ease;
+    transform: translate(3px, 81px);
+  }
+
+  .image-100:hover{
+    height: 145px;
+    width:  145px;
+  }
+  
+  .image-150 {
+    height: 200px;
+    width: 200px;
+    object-fit: cover;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease;
+  }
+  
+  .image-200 {
+    height: 250px;
+    width: 250px;
+    object-fit: cover;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease;
+  }
+  
+  .images-wrapper img {
+    border-radius: 50%;
+  }
+  
+  .image-150:hover,.image-200:hover {
+    transform: scale(1.05);
+  }
+  
+  @media (max-width: 768px) {
+    .images-wrapper {
+      display: none;
+    }
+  }
+  
+/* //////////////////////////////////////////////////////////////////////////// */
+.custom-report-body{
+    background-image: url(/public//img/1440.jpg);
+    background-size: cover;
+}
+
+.custom-report {
+    background-color: #e6f3ff;
+    border-radius: 10px;
+    padding: 30px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    margin-top: 30px;
+    margin-bottom: 120px;
+  }
+  
+  .report-title {
+    color: #1877f2;
+    font-weight: bold;
+  }
+  
+  .custom-label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: 500;
+    color: #1877f2;
+    font-size: 15px;
+  }
+  
+  .custom-input, .custom-textarea {
+    width: 100%;
+    padding: 10px 15px;
+    border: 1.5px solid #1877f2;
+    border-radius: 8px;
+    font-size: 16px;
+    color: #333;
+    background-color: white;
+  }
+  
+  .custom-input:disabled, .custom-textarea:disabled {
+    background-color: #f0f8ff;
+    color: #333;
+  }
+  
+  .custom-btn-primary {
+    background-color: #1877f2;
+    color: white;
+    border: none;
+    padding: 12px;
+    border-radius: 8px;
+    font-size: 16px;
+    width: 100%;
+  }
+  
+  .custom-btn-secondary {
+    background-color: white;
+    color: #1877f2;
+    border: 2px solid #1877f2;
+    padding: 12px;
+    border-radius: 8px;
+    font-size: 16px;
+    width: 100%;
+  }
+  
+  .custom-btn-primary:hover, .custom-btn-secondary:hover {
+    opacity: 0.9;
+  }
+  
+  .custom-image {
+    width: 300px;
+    height: 200px;
+    object-fit: cover;
+  }
+  
+  .custom-textarea{
+    resize: none;
+  }
+
+  .img2{
+   transform: translate(40px, 11px);
+  }
+
+  
+  .img1{
+    transform: translate(-20px, 155px);
+   }
