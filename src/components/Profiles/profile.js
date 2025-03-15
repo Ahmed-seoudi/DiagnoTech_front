@@ -44,6 +44,7 @@ const fetchUserData = async () => {
     if (response.data) {
       setUserData(response.data.data);
     setProfilePicture(`http://127.0.0.1:5000${response.data.data.profilePicture}` || "/img/user.png") 
+    localStorage.setItem('username', response.data.data.fullName);
 
     }
     setError(null);

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import "../style.css";
@@ -10,7 +10,15 @@ import { BsArrowUpRightCircle } from "react-icons/bs";
 const DoctorProfile = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const doctorDetails = location.state?.doctor; 
+  const doctorDetails = location.state?.doctor;
+
+  useEffect(() => {
+    document.body.classList.add('doctor-profile-body');
+
+    return () => {
+      document.body.classList.remove('doctor-profile-body');
+    };
+  }, []);
 
   if (!doctorDetails) {
     return (

@@ -3,16 +3,16 @@ import React, { useState, useEffect } from "react";
 import "../style.css";
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { useNavigate } from "react-router-dom";
-import "./Sign.css"
-
+import "./Sign.css";
+import { useAuth } from "../../context/AuthContext";
 
 const Sign = () => {
   const [isLogin, setIsLogin] = useState(false);
-  const [, setIsLoggedIn] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
-
+  const [message, setMessage] = useState({ type: "", text: "" });
   const navigate = useNavigate();
+  const { login } = useAuth(); 
 
   const [formData, setFormData] = useState({
     fullName: "",
@@ -36,7 +36,6 @@ const Sign = () => {
     const rememberedPasswordExpiry = localStorage.getItem("rememberedPasswordExpiry");
 
     if (rememberedEmail && rememberedPasswordExpiry) {
-
       if (Date.now() < parseInt(rememberedPasswordExpiry)) {
         setLoginData({
           email: rememberedEmail,
@@ -44,16 +43,10 @@ const Sign = () => {
         });
         setRememberMe(true);
       } else {
-        
         localStorage.removeItem("rememberedEmail");
         localStorage.removeItem("rememberedPassword");
         localStorage.removeItem("rememberedPasswordExpiry");
       }
-    }
-
-    const token = localStorage.getItem('jwt');
-    if (token) {
-      setIsLoggedIn(true);
     }
   }, []);
 
@@ -73,13 +66,9 @@ const Sign = () => {
     });
   };
 
-  const handleRememberMe = (e) => {
-    setRememberMe(e.target.checked);
-  };
+  const handleRememberMe = (e) => setRememberMe(e.target.checked);
 
-  const handleForgotPassword = () => {
-    navigate("/forgot");
-  };
+  const handleForgotPassword = () => navigate("/forgot");
 
   const validateForm = () => {
     let errors = {};
@@ -91,7 +80,6 @@ const Sign = () => {
     if (formData.password.length < 6) errors.password = "Password must be at least 6 characters.";
     if (formData.password !== formData.confirmPassword) errors.confirmPassword = "Passwords do not match.";
     if (!formData.agreeToTerms) errors.agreeToTerms = "You must agree to the terms.";
-
     setErrors(errors);
     return Object.keys(errors).length === 0;
   };
@@ -101,7 +89,6 @@ const Sign = () => {
     if (!loginData.email.trim()) errors.email = "Email is required.";
     if (!/^\S+@\S+\.\S+$/.test(loginData.email)) errors.email = "Invalid email format.";
     if (!loginData.password.trim()) errors.password = "Password is required.";
-
     setErrors(errors);
     return Object.keys(errors).length === 0;
   };
@@ -120,8 +107,7 @@ const Sign = () => {
 
       if (!response.ok) throw new Error("Registration failed. Please try again.");
 
-      alert("Registration successful!");
-
+      setMessage({ type: "success", text: "Registration successful!" });
       navigate("/");
 
       setFormData({
@@ -134,7 +120,7 @@ const Sign = () => {
         agreeToTerms: false,
       });
     } catch (error) {
-      alert(error.message || "An error occurred!");
+        setMessage({ type: "error", text: error.message || "An error occurred!" });
     } finally {
       setIsLoading(false);
     }
@@ -155,35 +141,30 @@ const Sign = () => {
       if (!response.ok) throw new Error("Login failed. Please try again.");
 
       const res = await response.json();
-      localStorage.setItem('jwt', res.data.token); 
-      setIsLoggedIn(true);
+      login(res.data.token); 
 
       if (rememberMe) {
-      
-        const expiryDate = Date.now() + (7 * 24 * 60 * 60 * 1000);
+        const expiryDate = Date.now() + (7 * 24 * 60 * 60 * 1000); 
         localStorage.setItem("rememberedEmail", loginData.email);
         localStorage.setItem("rememberedPassword", loginData.password);
         localStorage.setItem("rememberedPasswordExpiry", expiryDate.toString());
       } else {
-      
         localStorage.removeItem("rememberedEmail");
         localStorage.removeItem("rememberedPassword");
         localStorage.removeItem("rememberedPasswordExpiry");
       }
 
-      alert("Login successful!");
+      setMessage({ type: "success", text: "Login successful!" });
       navigate("/");
 
-      setLoginData({
-        email: "",
-        password: "",
-      });
+      setLoginData({ email: "", password: "" });
     } catch (error) {
-      alert(error.message || "An error occurred!");
+      setMessage({ type: "error", text: error.message || "An error occurred!" });
     } finally {
       setIsLoading(false);
     }
   };
+
 
   return (
     <div className={`auth-container-sign ${isLogin ? "login-bg" : "register-bg"}`}>
@@ -191,6 +172,18 @@ const Sign = () => {
         <form className="auth-form login-page" onSubmit={handleLoginSubmit}>
           <h2>Login</h2>
           <p className="login-fp">Login to access your account</p>
+
+           {message.text && (
+              <div style={{
+                color: message.type === "error" ? "red" : "green",
+                padding: "10px",
+                borderRadius: "5px",
+                marginBottom: "10px",
+                textAlign: "center"
+              }}>
+                {message.text}
+              </div>
+            )}
           <div className="login-input">
             <label>Email</label>
             <input type="email" name="email" value={loginData.email} onChange={handleLoginChange} required />
@@ -223,6 +216,17 @@ const Sign = () => {
           <div className="signup-title">
             <h2>Sign up</h2>
             <p>Let's get you all set up so you can access your personal account.</p>
+            {message.text && (
+              <div style={{
+                color: message.type === "error" ? "red" : "green",
+                padding: "10px",
+                borderRadius: "5px",
+                marginBottom: "10px",
+                textAlign: "center"
+              }}>
+                {message.text}
+              </div>
+            )}
           </div>
           <div className="input-box">
             <label className="label-signup">Full Name</label>

@@ -83,12 +83,12 @@ const SymptomForm = () => {
         const result = await response.json(); 
         console.log('API Response:', result);
 
-        // Make sure we're passing the data correctly to the report page
+       
          navigate("/disease-report", { 
           state: { 
             reportData: {
-              ...result.diagnosis.diagnosisResult[0], // المرض
-              doctors: result.doctors                 // الدكاترة
+              ...result.diagnosis.diagnosisResult[0], 
+              doctors: result.doctors                 
             }
           } 
         });
