@@ -14,7 +14,7 @@ const UpdateInfo = () => {
     gender: "",
     age: "",
     medicalHistory: "",
-    profilePicture: "/img/user.png", // Direct path to public folder
+    profilePicture: "/img/user.png", 
   });
   const [newprofilePicture, setNewprofilePicture] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -32,7 +32,7 @@ const UpdateInfo = () => {
         if (response.data) {
           setUserData({
             ...response.data.data,
-            profilePicture: response.data.profilePicture || "/img/user.png"
+            profilePicture: `http://127.0.0.1:5000${response.data.data.profilePicture}` || "/img/user.png"
           });
         }
         setError(null);

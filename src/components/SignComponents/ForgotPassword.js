@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import "./Sign.css"
+import "./Sign.css"; 
 import "../style.css"
 
 const ForgotPassword = () => {
@@ -23,13 +23,10 @@ const ForgotPassword = () => {
         body: JSON.stringify({ email }),
       });
 
-      if (!response.ok) {
-        throw new Error("Failed to reset password. Try again.");
-      }
+      if (!response.ok) throw new Error("Failed to reset password. Try again.");
 
       alert("Check your email.");
-      navigate("/verify-code"); 
-
+      navigate("/verify-code");
     } catch (error) {
       alert(error.message || "An error occurred.");
     } finally {
@@ -39,18 +36,25 @@ const ForgotPassword = () => {
 
   return (
     <div className="forgot-password-container">
-      <h2>Forgot Password</h2>
-      <p>Enter your email to receive a verification code</p>
-      <input
-        type="email"
-        placeholder="Enter your email"
-        value={email}
-        onChange={(e) => setEmail(e.target.value)}
-        required
-      />
-      <button onClick={handleForgotPassword} disabled={isLoading}>
-        {isLoading ? "Sending..." : "Send Code"}
-      </button>
+      <div className="forgot-password-card">
+        <h3>Enter your email to confirm that this is you</h3>
+        <input
+            type="email"
+            name="email"
+            placeholder="john.doe@gmail.com"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            autoComplete="email"
+            required
+        />
+        <button
+          className="forgot-password-btn"
+          onClick={handleForgotPassword}
+          disabled={isLoading}
+        >
+          {isLoading ? "Sending..." : "Confirm"}
+        </button>
+      </div>
     </div>
   );
 };

@@ -2,7 +2,7 @@ import React from "react";
 import { useNavigate } from "react-router-dom";
 import "./HomePage.css"
 import "../style.css";
-
+import 'bootstrap/dist/css/bootstrap.min.css';
 
 const HomePage = () => {
   // eslint-disable-next-line no-unused-vars
@@ -15,11 +15,8 @@ const HomePage = () => {
       <div className="home-img-cover"></div>
       <div className="home-main-content">
           <h1>Welcome to our website</h1>
-          <button onClick={() => navigate("/symptom-form")}>Enter Symptom</button>
-          <button onClick={() => navigate("/disease-report")}>Disease Report</button>
-          <button onClick={() => navigate("/forgot")}>Forgot Password</button>
-          <button onClick={() => navigate("/verify-code")}>Verify Code</button>
-          <button onClick={() => navigate("/reset-password")}>Reset Password</button>
+          <button variant="primary" className="px-4 fw-semibold shadow" onClick={() => navigate("/symptom-form")}>Enter Symptom</button>
+          <button variant="primary" className="px-4 fw-semibold shadow" onClick={() => navigate("/disease-report")}> Symptom</button>
       </div>
     </div>
     </>

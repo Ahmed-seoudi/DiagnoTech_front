@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import "./Sign.css"
+import "./Sign.css"; 
 import "../style.css"
 
 const VerifyCode = () => {
@@ -23,14 +23,16 @@ const VerifyCode = () => {
         body: JSON.stringify({ code }),
       });
 
-      if (!response.ok) {
-        throw new Error("Invalid code. Please try again.");
-      }
+      const data = await response.json();
+      console.log("Server response:", data);
+
+      if (!response.ok) throw new Error(data.message || "Invalid code. Please try again.");
 
       alert("Code verified successfully!");
-      navigate("/reset-password"); 
+      navigate("/reset-password");
 
     } catch (error) {
+      console.error("Error verifying code:", error);
       alert(error.message || "An error occurred.");
     } finally {
       setIsLoading(false);
@@ -39,18 +41,24 @@ const VerifyCode = () => {
 
   return (
     <div className="verify-code-container">
-      <h2>Verify Code</h2>
-      <p>Enter the code sent to your email</p>
-      <input
-        type="text"
-        placeholder="Enter verification code"
-        value={code}
-        onChange={(e) => setCode(e.target.value)}
-        required
-      />
-      <button onClick={handleVerifyCode} disabled={isLoading}>
-        {isLoading ? "Verifying..." : "Verify Code"}
-      </button>
+      <div className="verify-code-card">
+        <h2>Verify Code</h2>
+        <p>Enter the code sent to your email</p>
+        <input
+          type="text"
+          placeholder="Enter verification code"
+          value={code}
+          onChange={(e) => setCode(e.target.value)}
+          required
+        />
+        <button
+          className="verify-code-btn"
+          onClick={handleVerifyCode}
+          disabled={isLoading}
+        >
+          {isLoading ? "Verifying..." : "Verify Code"}
+        </button>
+      </div>
     </div>
   );
 };

@@ -1,9 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import "./Sign.css"
+import "./Sign.css"; 
 import "../style.css"
-
-
 
 const ResetPassword = () => {
   const [newPassword, setNewPassword] = useState("");
@@ -25,12 +23,10 @@ const ResetPassword = () => {
         body: JSON.stringify({ newPassword }),
       });
 
-      if (!response.ok) {
-        throw new Error("Failed to reset password. Try again.");
-      }
+      if (!response.ok) throw new Error("Failed to reset password. Try again.");
 
       alert("Password changed successfully!");
-      navigate("/login"); 
+      navigate("/login");
 
     } catch (error) {
       alert(error.message || "An error occurred.");
@@ -41,18 +37,24 @@ const ResetPassword = () => {
 
   return (
     <div className="reset-password-container">
-      <h2>Reset Password</h2>
-      <p>Enter your new password</p>
-      <input
-        type="password"
-        placeholder="Enter new password"
-        value={newPassword}
-        onChange={(e) => setNewPassword(e.target.value)}
-        required
-      />
-      <button onClick={handleResetPassword} disabled={isLoading}>
-        {isLoading ? "Updating..." : "Reset Password"}
-      </button>
+      <div className="reset-password-card">
+        <h2>Reset Password</h2>
+        <p>Enter your new password</p>
+        <input
+          type="password"
+          placeholder="Enter new password"
+          value={newPassword}
+          onChange={(e) => setNewPassword(e.target.value)}
+          required
+        />
+        <button
+          className="reset-password-btn"
+          onClick={handleResetPassword}
+          disabled={isLoading}
+        >
+          {isLoading ? "Updating..." : "Reset Password"}
+        </button>
+      </div>
     </div>
   );
 };

@@ -4,12 +4,15 @@
     background-size: cover ; 
   }
   
+  input:focus {
+    box-shadow: none !important;
+  }
   
   
   /* User Profile And Update-info , Header and Footer */
   
   .profile-bg {
-    background-image: url("/public/img/SL-120219-25650-27.jpg");
+    background-color: rgb(206, 232, 251);
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
@@ -22,3 +25,11 @@
     margin-top: 120px;
   }
   
+  .ProfileInformation-H{
+    background-color: rgb(7, 87, 161);
+
+  }
+
+  .medical-h{
+    max-height: 675px;
+  }
