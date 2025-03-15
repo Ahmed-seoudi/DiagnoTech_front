@@ -16,7 +16,6 @@ const HomePage = () => {
       <div className="home-main-content">
           <h1>Welcome to our website</h1>
           <button variant="primary" className="px-4 fw-semibold shadow" onClick={() => navigate("/symptom-form")}>Enter Symptom</button>
-          <button variant="primary" className="px-4 fw-semibold shadow" onClick={() => navigate("/disease-report")}> Symptom</button>
       </div>
     </div>
     </>
