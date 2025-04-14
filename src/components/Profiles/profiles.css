@@ -37,3 +37,10 @@
   .medical-h{
     max-height: 675px;
   }
+
+  .warning-delete{
+    color: rgb(137, 12, 12);
+    font-size: 9px;
+    text-align: center;
+    margin: auto;
+  }

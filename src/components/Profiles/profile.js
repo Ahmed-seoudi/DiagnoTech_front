@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from "react";
-import { Container, Card, Button, Spinner, Modal, Form, Row, Col, Badge } from "react-bootstrap";
-import { FaEdit, FaTrash, FaKey, FaUser, FaEnvelope, FaVenusMars, FaBirthdayCake, FaHistory } from "react-icons/fa";
+import {Container,Card,Button,Spinner,Modal,Form,Row,Col,Badge,} from "react-bootstrap";
+import {FaEdit,FaTrash,FaKey,FaUser,FaEnvelope,FaVenusMars,FaBirthdayCake,FaHistory,} from "react-icons/fa";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import 'bootstrap/dist/css/bootstrap.min.css';
-import { BsChevronDown, BsChevronUp, BsCalendarDate, BsExclamationCircle, BsShieldCheck , BsClipboard2Fill  } from "react-icons/bs";
+import "bootstrap/dist/css/bootstrap.min.css";
+import {BsChevronDown,BsChevronUp,BsCalendarDate,BsExclamationCircle,BsShieldCheck,BsClipboard2Fill,} from "react-icons/bs";
 import axios from "axios";
 import "./profiles.css";
 import "../style.css";
@@ -17,128 +17,192 @@ const Profile = () => {
     gender: "Not Available",
     age: 0,
     medicalHistory: "Not Available",
-    profilePicture: ""
+    profilePicture: "",
   });
-  const [profilePicture, setProfilePicture] = useState("/img/user.png");
+  const [profilePicture, setProfilePicture] = useState(
+    "http://127.0.0.1:5000/uploads/defaultProfilePic.png"
+  );
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [showConfirmModal, setShowConfirmModal] = useState(false); 
-  const [showPasswordModal, setShowPasswordModal] = useState(false); 
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
+  const [showPasswordModal, setShowPasswordModal] = useState(false);
   const [oldPassword, setOldPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [deletePassword, setDeletePassword] = useState("");
   const [showFinalConfirm, setShowFinalConfirm] = useState(false);
   const [medicalHistory, setMedicalHistory] = useState([]);
-  const [openIndex, setOpenIndex] = useState(null); 
+  const [openIndex, setOpenIndex] = useState(null);
   const [visibleCount, setVisibleCount] = useState(2);
+  const [passwordError, setPasswordError] = useState("");
+  const [deleteError, setDeleteError] = useState("");
 
-const fetchUserData = async () => {
-  setLoading(true);
-  try {
-    const response = await axios.get('http://127.0.0.1:5000/api/profile/user', {
-      headers: {
-        'Authorization': `Bearer ${localStorage.getItem('jwt')}`
+  const fetchUserData = async () => {
+    setLoading(true);
+    try {
+      const response = await axios.get(
+        "http://127.0.0.1:5000/api/profile/user",
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("jwt")}`,
+          },
+        }
+      );
+
+      if (response.data) {
+        setUserData(response.data.data);
+        setProfilePicture(
+          response.data.data.profilePicture
+            ? `http://127.0.0.1:5000${response.data.data.profilePicture}`
+            : "http://127.0.0.1:5000/uploads/defaultProfilePic.png"
+        );
+
+        localStorage.setItem("username", response.data.data.fullName);
       }
-    });
-
-    if (response.data) {
-      setUserData(response.data.data);
-    setProfilePicture(`http://127.0.0.1:5000${response.data.data.profilePicture}` || "/img/user.png") 
-    localStorage.setItem('username', response.data.data.fullName);
-
+      setError(null);
+    } catch (err) {
+      console.error("Error fetching user data:", err);
+      setError("Failed to load profile data. Please try again later.");
+    } finally {
+      setLoading(false);
     }
-    setError(null);
-  } catch (err) {
-    console.error("Error fetching user data:", err);
-    setError("Failed to load profile data. Please try again later.");
-  } finally {
-    setLoading(false);
-  }
-};
-
+  };
 
   const handleDeleteAccount = async () => {
+    // Clear previous error
+    setDeleteError("");
+    
     if (!deletePassword) {
-      alert("Please enter your password to confirm deletion.");
+      setDeleteError("Please enter your password to confirm deletion.");
       return;
     }
 
     try {
-      await axios.delete('http://127.0.0.1:5000/api/profile/deleteAccount', {
+      await axios.delete("http://127.0.0.1:5000/api/profile/deleteAccount", {
         headers: {
-          'Authorization': `Bearer ${localStorage.getItem('jwt')}`
+          Authorization: `Bearer ${localStorage.getItem("jwt")}`,
         },
         data: {
-          password: deletePassword 
-        }
+          password: deletePassword,
+        },
       });
-      localStorage.removeItem('jwt');
-      alert("Account deleted successfully!");
-      navigate("/login");
+      localStorage.removeItem("jwt");
+      
+      
+      setShowConfirmModal(false);
+      setShowFinalConfirm(true);
+      
+     
+      setTimeout(() => {
+        navigate("/login");
+      }, 4000);
     } catch (err) {
       console.error("Error deleting account:", err);
-      alert("Failed to delete account. Please check your password and try again.");
+      setDeleteError(
+        err.response?.data?.message || 
+        "Failed to delete account. Please check your password and try again."
+      );
     }
   };
 
   const handleChangePassword = async () => {
+    // Clear previous error
+    setPasswordError("");
+    
+    if (!oldPassword) {
+      setPasswordError("Please enter your current password.");
+      return;
+    }
+    
+    if (!newPassword) {
+      setPasswordError("Please enter a new password.");
+      return;
+    }
+    
+    if (newPassword.length < 8) {
+      setPasswordError("New password should be at least 8 characters long.");
+      return;
+    }
+    
     try {
-      await axios.put('http://127.0.0.1:5000/api/profile/changePassword', {
-        oldPassword,
-        newPassword
-      }, {
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('jwt')}`
+      await axios.put(
+        "http://127.0.0.1:5000/api/profile/changePassword",
+        {
+          oldPassword,
+          newPassword,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("jwt")}`,
+          },
         }
-      });
-      alert("Password changed successfully!");
+      );
+      
+      
       setShowPasswordModal(false);
       setOldPassword("");
       setNewPassword("");
+      
+      const successDiv = document.createElement("div");
+      successDiv.className = "alert alert-success position-fixed top-0 start-50 translate-middle-x mt-4 shadow-lg";
+      successDiv.style.zIndex = "9999";
+      successDiv.style.maxWidth = "400px";
+      successDiv.innerHTML = "<strong>Success!</strong> Password changed successfully.";
+      document.body.appendChild(successDiv);
+      
+      setTimeout(() => {
+        successDiv.remove();
+      }, 3500);
+      
     } catch (err) {
       console.error("Error changing password:", err);
-      alert("Failed to change password. Please check your old password and try again.");
+      setPasswordError(
+        err.response?.data?.message || 
+        "Failed to change password. Please check your old password and try again."
+      );
     }
   };
 
   const fetchMedicalHistory = async () => {
     try {
-      const response = await axios.get('http://127.0.0.1:5000/api/diagnosis/history', {
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('jwt')}`
+      const response = await axios.get(
+        "http://127.0.0.1:5000/api/diagnosis/history",
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("jwt")}`,
+          },
         }
-      });
+      );
 
       if (response.data && Array.isArray(response.data)) {
         setMedicalHistory(response.data);
-        console.log(response.data); 
+        console.log(response.data);
       } else {
         setMedicalHistory([]);
       }
     } catch (err) {
       console.error("Error fetching medical history:", err);
-      setMedicalHistory([]); 
+      setMedicalHistory([]);
     }
   };
 
   useEffect(() => {
-    document.body.classList.add('profile-bg');
+    document.body.classList.add("profile-bg");
     fetchUserData();
     fetchMedicalHistory();
 
-    const reloadProfile = sessionStorage.getItem('reloadProfile');
-    if (reloadProfile === 'true') {
-      sessionStorage.removeItem('reloadProfile');
+    const reloadProfile = sessionStorage.getItem("reloadProfile");
+    if (reloadProfile === "true") {
+      sessionStorage.removeItem("reloadProfile");
     }
 
     return () => {
-      document.body.classList.remove('profile-bg');
+      document.body.classList.remove("profile-bg");
     };
   }, [location]);
 
   // Format date function
   const formatDate = (dateString) => {
-    const options = { year: 'numeric', month: 'short', day: 'numeric' };
+    const options = { year: "numeric", month: "short", day: "numeric" };
     return new Date(dateString).toLocaleDateString(undefined, options);
   };
 
@@ -156,7 +220,14 @@ const fetchUserData = async () => {
   if (error) {
     return (
       <Container className="mt-5 d-flex justify-content-center">
-        <Card className="p-4 shadow-lg border-0 rounded-3 text-center" style={{ maxWidth: "700px", width: "100%", backgroundColor: "#f8f9fa" }}>
+        <Card
+          className="p-4 shadow-lg border-0 rounded-3 text-center"
+          style={{
+            maxWidth: "700px",
+            width: "100%",
+            backgroundColor: "#f8f9fa",
+          }}
+        >
           <div className="text-danger mb-4">
             <h4>Error</h4>
             <p>{error}</p>
@@ -266,7 +337,7 @@ const fetchUserData = async () => {
         
 <Col lg={4}>
   <Card 
-    className="medical-h  shadow-lg border-0 rounded-3 " 
+    className="medical-h shadow-lg border-0 rounded-3" 
     style={{ backgroundColor: "#f8f9fa", overflowY: "auto" }} 
   >
     <Card.Header className="ProfileInformation-H text-white py-3 rounded-top-3 d-flex justify-content-between align-items-center">
@@ -274,10 +345,10 @@ const fetchUserData = async () => {
       <FaHistory size={18} />
     </Card.Header>
 
-    <Card.Body className="medical-h  p-3">
+    <Card.Body className="medical-h p-3">
       {medicalHistory.length ? (
         <div 
-          style={{overflowY: "auto" }} 
+          style={{ overflowY: "auto" }} 
           className="custom-scrollbar pr-2"
         >
           {medicalHistory.slice(0, visibleCount).map((item, index) => {
@@ -393,12 +464,23 @@ const fetchUserData = async () => {
       
       {/* Modals */}
       {/* Modal Confirm Delete */}
-      <Modal show={showConfirmModal} onHide={() => setShowConfirmModal(false)} centered>
+      <Modal show={showConfirmModal} onHide={() => {
+        setShowConfirmModal(false);
+        setDeletePassword("");
+        setDeleteError("");
+      }} centered>
         <Modal.Header closeButton className="bg-light py-3">
           <Modal.Title className="text-danger" style={{ fontSize: "1.2rem" }}>Confirm Account Deletion</Modal.Title>
         </Modal.Header>
         <Modal.Body className="py-4">
           <p className="mb-4">Please enter your password to confirm account deletion.</p>
+          
+          {deleteError && (
+            <div className="alert alert-danger mb-3">
+              {deleteError}
+            </div>
+          )}
+          
           <Form.Group className="mb-4">
             <Form.Label>Password:</Form.Label>
             <Form.Control
@@ -417,45 +499,30 @@ const fetchUserData = async () => {
           <Button variant="secondary" onClick={() => {
             setShowConfirmModal(false);
             setDeletePassword(""); 
-          }}>Cancel</Button>
-          <Button variant="danger" onClick={() => {
-            if (deletePassword.trim() === "") {
-              alert("Please enter your password.");
-            } else {
-              setShowConfirmModal(false);
-              setShowFinalConfirm(true); 
-            }
-          }}>Proceed</Button>
-        </Modal.Footer>
-      </Modal>
-
-      {/* Final Confirmation */}
-      <Modal show={showFinalConfirm} onHide={() => setShowFinalConfirm(false)} centered>
-        <Modal.Header closeButton className="bg-light py-3">
-          <Modal.Title className="text-danger" style={{ fontSize: "1.2rem" }}>Final Confirmation</Modal.Title>
-        </Modal.Header>
-        <Modal.Body className="text-center py-4">
-          <div className="mb-3 text-danger">
-            <FaTrash size={40} />
-          </div>
-          <h5 className="mb-3">Are you absolutely sure?</h5>
-          <p>This will permanently delete your account and all associated data. This action <strong>cannot</strong> be reversed.</p>
-        </Modal.Body>
-        <Modal.Footer className="py-3">
-          <Button variant="secondary" onClick={() => {
-            setShowFinalConfirm(false);
-            setDeletePassword(""); 
+            setDeleteError("");
           }}>Cancel</Button>
           <Button variant="danger" onClick={handleDeleteAccount}>Yes, Delete My Account</Button>
+          <p className="warning-delete">If you click Delete, your account will be deleted immediately.</p>
         </Modal.Footer>
       </Modal>
 
       {/* Modal Reset Password */}
-      <Modal show={showPasswordModal} onHide={() => setShowPasswordModal(false)} centered>
+      <Modal show={showPasswordModal} onHide={() => {
+        setShowPasswordModal(false);
+        setOldPassword("");
+        setNewPassword("");
+        setPasswordError("");
+      }} centered>
         <Modal.Header closeButton className="bg-light py-3">
           <Modal.Title style={{ fontSize: "1.2rem" }}>Change Password</Modal.Title>
         </Modal.Header>
         <Modal.Body className="py-4">
+          {passwordError && (
+            <div className="alert alert-danger mb-4">
+              {passwordError}
+            </div>
+          )}
+          
           <Form>
             <Form.Group className="mb-4">
               <Form.Label>Current Password</Form.Label>
@@ -481,9 +548,29 @@ const fetchUserData = async () => {
           </Form>
         </Modal.Body>
         <Modal.Footer className="py-3">
-          <Button variant="secondary" onClick={() => setShowPasswordModal(false)}>Cancel</Button>
+          <Button variant="secondary" onClick={() => {
+            setShowPasswordModal(false);
+            setOldPassword("");
+            setNewPassword("");
+            setPasswordError("");
+          }}>Cancel</Button>
           <Button variant="primary" onClick={handleChangePassword}>Update Password</Button>
         </Modal.Footer>
+      </Modal>
+      
+      {/* شكل بيحصل بعد حذف الاكونت قبل ميوديه علي صفحة التسجيل */}
+      <Modal show={showFinalConfirm} backdrop="static" keyboard={false} centered>
+        <Modal.Body className="text-center py-5">
+          <div className="mb-4 text-success">
+            <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" fill="currentColor" className="bi bi-check-circle" viewBox="0 0 16 16">
+              <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
+              <path d="M10.97 4.97a.235.235 0 0 0-.02.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-1.071-1.05z"/>
+            </svg>
+          </div>
+          <h5 className="mb-3">Account Deleted Successfully</h5>
+          <p className="text-muted">You will be redirected to the login page shortly.</p>
+          <Spinner animation="border" variant="primary" size="sm" className="mt-3" />
+        </Modal.Body>
       </Modal>
     </Container>
   );

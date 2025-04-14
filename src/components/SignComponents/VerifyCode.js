@@ -6,11 +6,17 @@ import "../style.css"
 const VerifyCode = () => {
   const [code, setCode] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
   const navigate = useNavigate();
 
   const handleVerifyCode = async () => {
+    
+    setError("");
+    setSuccess("");
+
     if (!code.trim()) {
-      alert("Please enter the verification code.");
+      setError("Please enter the verification code.");
       return;
     }
 
@@ -24,16 +30,19 @@ const VerifyCode = () => {
       });
 
       const data = await response.json();
-      console.log("Server response:", data);
+      
+      if (!response.ok) {
+        throw new Error(data.message || "Invalid code. Please try again.");
+      }
 
-      if (!response.ok) throw new Error(data.message || "Invalid code. Please try again.");
-
-      alert("Code verified successfully!");
-      navigate("/reset-password");
-
+      setSuccess("Code verified successfully!");
+      setTimeout(() => {
+        navigate("/reset-password");
+      }, 2000); 
+      
     } catch (error) {
       console.error("Error verifying code:", error);
-      alert(error.message || "An error occurred.");
+      setError(error.message || "An error occurred.");
     } finally {
       setIsLoading(false);
     }
@@ -44,6 +53,10 @@ const VerifyCode = () => {
       <div className="verify-code-card">
         <h2>Verify Code</h2>
         <p>Enter the code sent to your email</p>
+        
+        {error && <div className="error-message">{error}</div>}
+        {success && <div className="success-message">{success}</div>}
+        
         <input
           type="text"
           placeholder="Enter verification code"

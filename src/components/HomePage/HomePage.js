@@ -82,7 +82,7 @@ export const Header = () => {
   const [scrolled, setScrolled] = useState(false);
   const { isLoggedIn, logout } = useAuth(); 
   const navigate = useNavigate();
-  const username = localStorage.getItem('username');
+  const [username, setUsername] = useState(localStorage.getItem('username'));
 
   // Handle scrolling effect
   useEffect(() => {
@@ -97,6 +97,19 @@ export const Header = () => {
     logout(); 
     navigate('/'); 
   };
+
+  useEffect(() => {
+  const handleStorageChange = () => {
+    setUsername(localStorage.getItem('username'));
+  };
+ 
+  window.addEventListener('storage', handleStorageChange);
+
+  handleStorageChange();
+
+  return () => window.removeEventListener('storage', handleStorageChange);
+}, []);
+
 
   return (
     <Navbar 
@@ -180,7 +193,7 @@ export const Header = () => {
             style={{ fontWeight: 'bold', color: '#ffff', cursor: 'pointer' }}
             onClick={() => navigate('/profile')}
           >
-            {username.split(' ')[0]}
+            {username}
          </span>
 
        </div>
@@ -201,8 +214,16 @@ export const Header = () => {
 };
 // ////////////////////////////////////////////HeroImg-section///////////////////////////////////////////////
 export const HeroImg = () => {
-  
+  const { isLoggedIn } = useAuth(); // خد حالة تسجيل الدخول من السياق
   const navigate = useNavigate();
+
+  const handleStartClick = () => {
+    if (isLoggedIn) {
+      navigate('/symptom-form');
+    } else {
+      navigate('/login');
+    }
+  };
 
   return (
     <div className="container-fluid hero-img d-flex align-items-center">
@@ -212,10 +233,11 @@ export const HeroImg = () => {
           speed={50} 
         />
       </div>
-<button className="start-button" onClick={() => navigate('/symptom-form')}> Start Checking</button>
+      <button className="start-button" onClick={handleStartClick}>Start Checking</button>
     </div>
   );
 };
+
 ////////////////////////////Why-choose-us-section////////////////////////////////////////
 export const Whu = () => {
   return (

@@ -1,16 +1,22 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import "./Sign.css"; 
-import "../style.css"
+import "./Sign.css";
+import "../style.css";
 
 const ResetPassword = () => {
   const [newPassword, setNewPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
   const navigate = useNavigate();
 
   const handleResetPassword = async () => {
+    // Clear previous messages
+    setError("");
+    setSuccess("");
+
     if (newPassword.length < 6) {
-      alert("Password must be at least 6 characters.");
+      setError("Password must be at least 6 characters.");
       return;
     }
 
@@ -23,40 +29,51 @@ const ResetPassword = () => {
         body: JSON.stringify({ newPassword }),
       });
 
-      if (!response.ok) throw new Error("Failed to reset password. Try again.");
+      const data = await response.json();
+      
+      if (!response.ok) {
+        // Get specific error message from backend if available
+        throw new Error(data.message || "Failed to reset password. Try again.");
+      }
 
-      alert("Password changed successfully!");
-      navigate("/login");
-
+      setSuccess("Password changed successfully!");
+      setTimeout(() => {
+        navigate("/login");
+      }, 2000); // Navigate after showing success message for 2 seconds
     } catch (error) {
-      alert(error.message || "An error occurred.");
+      setError(error.message || "An error occurred.");
     } finally {
       setIsLoading(false);
     }
   };
 
   return (
-    <div className="reset-password-container">
-      <div className="reset-password-card">
-        <h2>Reset Password</h2>
-        <p>Enter your new password</p>
+  <div className="reset-password-container">
+    <div className="reset-password-card">
+      <h2>Reset Password</h2>
+      
+      {error && <div className="error-message">{error}</div>}
+      {success && <div className="success-message">{success}</div>}
+      
+      <div className="input-group">
+        <label>Enter your new password</label>
         <input
           type="password"
-          placeholder="Enter new password"
           value={newPassword}
           onChange={(e) => setNewPassword(e.target.value)}
           required
         />
-        <button
-          className="reset-password-btn"
-          onClick={handleResetPassword}
-          disabled={isLoading}
-        >
-          {isLoading ? "Updating..." : "Reset Password"}
-        </button>
       </div>
+      
+      <button 
+        className="reset-password-btn" 
+        onClick={handleResetPassword} 
+        disabled={isLoading}
+      >
+        {isLoading ? "Updating..." : "Reset Password"}
+      </button>
     </div>
-  );
+  </div>
+);
 };
-
 export default ResetPassword;

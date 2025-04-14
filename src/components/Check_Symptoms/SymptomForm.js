@@ -8,13 +8,18 @@ import { useNavigate } from "react-router-dom";
 const SymptomForm = () => {
   const [symptoms, setSymptoms] = useState([null, null, null]);
   const [symptomOptions, setSymptomOptions] = useState([]);
-  const [isSubmitting, setIsSubmitting] = useState(false); 
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState("");
+  const [fetchError, setFetchError] = useState("");
   const navigate = useNavigate();
 
   useEffect(() => {
     const fetchSymptoms = async () => {
       try {
         const response = await fetch('http://localhost:5000/api/symptoms/allsymptoms');
+        if (!response.ok) {
+          throw new Error("Failed to fetch symptoms");
+        }
         const data = await response.json();
 
         const formattedData = data.map(symptom => ({
@@ -25,6 +30,7 @@ const SymptomForm = () => {
         setSymptomOptions(formattedData);
       } catch (error) {
         console.error("Error fetching symptoms:", error);
+        setFetchError("Failed to load symptoms. Please refresh the page.");
       }
     };
 
@@ -60,6 +66,9 @@ const SymptomForm = () => {
     e.preventDefault();
     if (isSubmitDisabled) return;
 
+    // Clear any previous errors
+    setError("");
+
     const selectedSymptoms = symptoms
       .filter(sym => sym?.value)
       .map(sym => sym.value);
@@ -83,8 +92,7 @@ const SymptomForm = () => {
         const result = await response.json(); 
         console.log('API Response:', result);
 
-       
-         navigate("/disease-report", { 
+        navigate("/disease-report", { 
           state: { 
             reportData: {
               ...result.diagnosis.diagnosisResult[0], 
@@ -95,12 +103,13 @@ const SymptomForm = () => {
 
         setSymptoms([null, null, null]); 
       } else {
+        const errorData = await response.json().catch(() => ({}));
         console.error('Error submitting symptoms:', response.statusText);
-        alert('Failed to submit symptoms. Please try again.');
+        setError(errorData.message || 'Failed to submit symptoms. Please try again.');
       }
     } catch (error) {
       console.error('Error:', error);
-      alert('An error occurred. Please try again.');
+      setError('An error occurred. Please try again.');
     } finally {
       setIsSubmitting(false); 
     }
@@ -111,6 +120,19 @@ const SymptomForm = () => {
       {/* Form Section */}
       <div className="form-wrapper">
         <h2 className="text-primary text-center mb-4">Enter your symptoms:</h2>
+        
+        {fetchError && (
+          <div className="alert alert-danger mb-3" role="alert">
+            {fetchError}
+          </div>
+        )}
+        
+        {error && (
+          <div className="alert alert-danger mb-3" role="alert">
+            {error}
+          </div>
+        )}
+        
         <form onSubmit={handleSubmit} className="p-4 border rounded bg-light shadow">
           {symptoms.map((symptom, index) => (
             <div className="mb-3 d-flex align-items-center" key={index}>
