@@ -205,8 +205,8 @@ const Sign = () => {
         return;
       }
 
-      setMessage({ type: "success", text: "Registration successful!" });
-      navigate("/");
+    setMessage({ type: "success", text: "Registration successful!" });
+    setIsLogin(true);
 
       setFormData({
         fullName: "",
