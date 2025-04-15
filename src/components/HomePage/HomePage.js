@@ -40,6 +40,7 @@ import 'bootstrap/dist/js/bootstrap.bundle.min.js';
 import { Navbar, Nav, NavDropdown, Form, InputGroup } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
+import axios from "axios";
 
 
 
@@ -82,8 +83,7 @@ export const Header = () => {
   const [scrolled, setScrolled] = useState(false);
   const { isLoggedIn, logout } = useAuth(); 
   const navigate = useNavigate();
-  const [username, setUsername] = useState(localStorage.getItem('username'));
-
+const [username, setUsername] = useState("");
   // Handle scrolling effect
   useEffect(() => {
     const handleScroll = () => {
@@ -98,17 +98,38 @@ export const Header = () => {
     navigate('/'); 
   };
 
-  useEffect(() => {
-  const handleStorageChange = () => {
-    setUsername(localStorage.getItem('username'));
-  };
- 
-  window.addEventListener('storage', handleStorageChange);
+ useEffect(() => {
+    const fetchUser = async () => {
+      try {
+        const token = localStorage.getItem("jwt");
+        if (!token) {
+          console.warn("No token found");
+          return;
+        }
 
-  handleStorageChange();
+        const response = await axios.get(
+          "http://127.0.0.1:5000/api/profile/user",
+          {
+            headers: {
+            Authorization: `Bearer ${token}`,
+            },
+          }
+        );
 
-  return () => window.removeEventListener('storage', handleStorageChange);
-}, []);
+        if (response) {
+          console.log(response);
+
+          const fullName = response.data.data.fullName.trim();
+          const firstName = fullName.split(" ")[0];
+          setUsername(firstName);
+        }
+      } catch (error) {
+        console.error("Error fetching user:", error);
+      }
+    };
+
+    fetchUser();
+  }, []);
 
 
   return (
@@ -198,7 +219,6 @@ export const Header = () => {
 
        </div>
 
-              
 
               </>
             ) : (

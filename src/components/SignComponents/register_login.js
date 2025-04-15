@@ -250,7 +250,6 @@ const Sign = () => {
       }
 
       login(responseData.data.token); 
-      localStorage.setItem("username", responseData.data.username);
     
       if (rememberMe) {
         const expiryDate = Date.now() + (7 * 24 * 60 * 60 * 1000); 
