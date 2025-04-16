@@ -22,6 +22,16 @@ const UpdateInfo = () => {
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState(null);
 
+    useEffect(() => {
+      
+      document.body.classList.add("update-info-body");
+    
+      return () => {
+        document.body.classList.remove("update-info-body");
+      };
+    }, []);
+
+
   useEffect(() => {
     const fetchUserData = async () => {
       setFetchLoading(true);
@@ -100,7 +110,6 @@ const handleSubmit = async (e) => {
     setLoading(false);
   }
 };
-
 
     if (fetchLoading) {
     return (
