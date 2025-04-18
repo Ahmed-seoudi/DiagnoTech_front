@@ -33,36 +33,32 @@ import faq from "../../img/9a1a0d69ebfa79f4228d2db72e15bde9.png";
 import { Carousel, Modal, Button } from "react-bootstrap";
 import footerImage from "../../img/530242319709347d08f803e333bc5d01.jpg";
 import { FaArrowUp, FaArrowDown } from "react-icons/fa";
-import Typewriter from './Typewriter';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faCaretDown , faUserCircle ,faSearch } from '@fortawesome/free-solid-svg-icons';
+import { faCaretDown , faUserCircle  } from '@fortawesome/free-solid-svg-icons';
 import 'bootstrap/dist/js/bootstrap.bundle.min.js';
 import { Navbar, Nav, NavDropdown, Form, InputGroup } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import axios from "axios";
-
-
-
+import heroImage from "../../img/modified_image_blue.jpg"
+import { faCheckCircle, faChartBar, faNewspaper, faHandshake, faQuestionCircle, faArrowCircleDown } from '@fortawesome/free-solid-svg-icons';
+import { useRef } from "react";
+import { motion, useInView } from "framer-motion";
+import { MdHealthAndSafety } from "react-icons/md";
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-
 const HomePage = () => {
   const { isLoggedIn, logout } = useAuth(); 
   const navigate = useNavigate();
-
   useEffect(() => {
     document.body.classList.add('home-body');
     return () => {
       document.body.classList.remove('home-body');
     };
   }, []);
-
   const handleLogout = () => {
     logout(); 
     navigate('/'); 
   };
-
   return (
     <div>
       {isLoggedIn ? (
@@ -73,18 +69,14 @@ const HomePage = () => {
     </div>
   );
 };
-
 export default HomePage;
-
 //////////////////////////////////Header-Section//////////////////////////////////////////////////////////////
-
 export const Header = () => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const { isLoggedIn, logout } = useAuth(); 
   const navigate = useNavigate();
-const [username, setUsername] = useState("");
-  // Handle scrolling effect
+  const [username, setUsername] = useState("");
   useEffect(() => {
     const handleScroll = () => {
       setScrolled(window.scrollY > 50);
@@ -92,13 +84,12 @@ const [username, setUsername] = useState("");
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
-
   const handleLogout = () => {
     logout(); 
     navigate('/'); 
   };
 
- useEffect(() => {
+   useEffect(() => {
     const fetchUser = async () => {
       try {
         const token = localStorage.getItem("jwt");
@@ -139,92 +130,85 @@ const [username, setUsername] = useState("");
       className={`header-container ${scrolled ? 'scrolled' : ''}`}
     >
       <Container fluid>
-        {/* Logo */}
         <Navbar.Brand onClick={() => navigate('/')} className="logo" style={{ cursor: 'pointer' }}>
           <img src={logo} alt="website's logo" width="50" height="50" />
+          <span className="site-name">DiagnoTech</span>
         </Navbar.Brand>
-
-        {/* Search Box */}
-        <Form className="d-none d-md-flex search-container">
-          <InputGroup className="search-box">
-            <InputGroup.Text className="search-icon bg-transparent border-0">
-              <FontAwesomeIcon icon={faSearch} />
-            </InputGroup.Text>
-            <Form.Control
-              type="text"
-              placeholder="Search..."
-              className="bg-transparent border-0"
-            />
-          </InputGroup>
-        </Form>
-
         <Navbar.Toggle aria-controls="basic-navbar-nav" className="navbar-toggler-light" />
-
         <Navbar.Collapse id="basic-navbar-nav">
           <Nav className="mx-auto nav-links">
-            <NavDropdown 
-              title={
-                <span> Home <FontAwesomeIcon icon={faCaretDown} /></span>
-              } 
-              id="basic-nav-dropdown"
-              show={isDropdownOpen}
-              onToggle={setIsDropdownOpen}
-            >
-              <NavDropdown.Item href="#why-choose-us">Why Choose Us?</NavDropdown.Item>
-              <NavDropdown.Item href="#Statistics-sec">Statistics</NavDropdown.Item>
-              <NavDropdown.Item href="#Tips-News">Tips & News</NavDropdown.Item>
-              <NavDropdown.Item href="#partnership-sec">Partnerships</NavDropdown.Item>
-              <NavDropdown.Item href="#faq-sec">Frequently Asked Questions</NavDropdown.Item>
-              <NavDropdown.Item href="#footer-sec">Footer</NavDropdown.Item>
-            </NavDropdown>
-
+          <NavDropdown 
+  title={<span style={{ color: 'black' }} className="home-dropdown-title">Home <FontAwesomeIcon icon={faCaretDown} /></span>} 
+  id="basic-nav-dropdown"
+  show={isDropdownOpen}
+  onToggle={setIsDropdownOpen}
+  className="custom-dropdown"
+>
+  <NavDropdown.Item href="#why-choose-us">
+    <FontAwesomeIcon icon={faCheckCircle} style={{ color: 'gray', marginRight: '8px' }} />
+    Why Choose Us?
+  </NavDropdown.Item>
+  <div className="dropdown-divider"></div>
+  <NavDropdown.Item href="#Statistics-sec">
+    <FontAwesomeIcon icon={faChartBar} style={{ color: 'gray', marginRight: '8px' }} />
+    Statistics
+  </NavDropdown.Item>
+  <div className="dropdown-divider"></div>
+  <NavDropdown.Item href="#Tips-News">
+    <FontAwesomeIcon icon={faNewspaper} style={{ color: 'gray', marginRight: '8px' }} />
+    Tips & News
+  </NavDropdown.Item>
+  <div className="dropdown-divider"></div>
+  <NavDropdown.Item href="#partnership-sec">
+    <FontAwesomeIcon icon={faHandshake} style={{ color: 'gray', marginRight: '8px' }} />
+    Partnerships
+  </NavDropdown.Item>
+  <div className="dropdown-divider"></div>
+  <NavDropdown.Item href="#faq-sec">
+    <FontAwesomeIcon icon={faQuestionCircle} style={{ color: 'gray', marginRight: '8px' }} />
+    Frequently Asked Questions
+  </NavDropdown.Item>
+  <div className="dropdown-divider"></div>
+  <NavDropdown.Item href="#footer-sec">
+    <FontAwesomeIcon icon={faArrowCircleDown} style={{ color: 'gray', marginRight: '8px' }} />
+    Footer
+  </NavDropdown.Item>
+</NavDropdown>
             <Nav.Link href="#about" className="about-us">About Us</Nav.Link>
             <Nav.Link href="#contact" className="contact-us">Contact Us</Nav.Link>
           </Nav>
-
-          {/* Search for mobile */}
-          <Form className="d-flex d-md-none mb-3 search-container-mobile">
-            <InputGroup className="search-box">
-              <InputGroup.Text className="search-icon bg-transparent border-0">
-                <FontAwesomeIcon icon={faSearch} />
-              </InputGroup.Text>
-              <Form.Control
-                type="text"
-                placeholder="Search..."
-                className="bg-transparent border-0"
-              />
-            </InputGroup>
-          </Form>
-
-          {/* Login/Logout Actions */}
           <div className="d-flex align-items-center user-actions">
             {isLoggedIn ? (
               <>
-                <Button className="register-btn me-3" onClick={handleLogout}>
+                <Button className="auth-btn me-3" onClick={handleLogout}>
                   Logout
                 </Button>
-       <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-               <FontAwesomeIcon 
-                  icon={faUserCircle} 
-                  className="user-icon" 
-                  onClick={() => navigate('/profile')} 
-                  style={{ cursor: 'pointer' , color: 'rgb(228, 228, 228)'}} 
-                />
-         <span
-            style={{ fontWeight: 'bold', color: '#ffff', cursor: 'pointer' }}
-            onClick={() => navigate('/profile')}
-          >
-            {username}
-         </span>
-
-       </div>
-
-
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <FontAwesomeIcon 
+                    icon={faUserCircle} 
+                    className="user-icon" 
+                    onClick={() => navigate('/profile')} 
+                    style={{ cursor: 'pointer' , color: 'rgb(0, 0, 0)'}} 
+                  />
+                  <span
+                    style={{ fontWeight: 'bold', color: '#ffff', cursor: 'pointer' }}
+                    onClick={() => navigate('/profile')}
+                  >
+                    <span style={{ color: 'black' }}>
+                      {username ? username.split(' ')[0] : 'Guest'}
+                    </span>
+                  </span>
+                </div>
               </>
             ) : (
-              <Button className="register-btn me-3" onClick={() => navigate('/login')}>
-                Register / Login
-              </Button>
+              <>
+                <Button className="auth-btn me-3" onClick={() => navigate('/register')}>
+                  Register
+                </Button>
+                <Button className="auth-btn" onClick={() => navigate('/login')}>
+                  Login
+                </Button>
+              </>
             )}
           </div>
         </Navbar.Collapse>
@@ -234,7 +218,8 @@ const [username, setUsername] = useState("");
 };
 // ////////////////////////////////////////////HeroImg-section///////////////////////////////////////////////
 export const HeroImg = () => {
-  const { isLoggedIn } = useAuth(); // خد حالة تسجيل الدخول من السياق
+
+    const { isLoggedIn } = useAuth(); // خد حالة تسجيل الدخول من السياق
   const navigate = useNavigate();
 
   const handleStartClick = () => {
@@ -244,76 +229,144 @@ export const HeroImg = () => {
       navigate('/login');
     }
   };
-
+  
   return (
-    <div className="container-fluid hero-img d-flex align-items-center">
-      <div className="text-container">
-        <Typewriter
-          text="Uncover the exact cause of your symptoms with the power of AI - your health starts with more accurate knowledge."
-          speed={50} 
-        />
-      </div>
-      <button className="start-button" onClick={handleStartClick}>Start Checking</button>
-    </div>
+    <section className="hero-section">
+      <Container>
+        <Row className="align-items-center">
+          <Col md={6} className="hero-text position-relative">
+            <div className="text-container">
+              <h2>
+                Uncover the exact cause of your symptoms with the power of AI - your health starts with more accurate knowledge.
+              </h2>
+            </div>
+            <Button 
+              className="book-demo d-flex align-items-center gap-2" 
+              onClick={handleStartClick}>
+              Start Checking
+              <MdHealthAndSafety size={22} />
+            </Button>
+
+          </Col>
+
+          <Col md={6} className="hero-image">
+            <img src={heroImage} alt="Illustration" className="img-fluid" />
+          </Col>
+        </Row>
+      </Container>
+    </section>
   );
 };
-
 ////////////////////////////Why-choose-us-section////////////////////////////////////////
 export const Whu = () => {
   return (
-    <div id="why-choose-us" className="whu-container">
-      <h2 className="whu-title">Why Choose Us ?</h2>
-      <p className="whu-subtitle">
-        Get accurate, up-to-date medical information you can trust. Stay informed with clear, evidence-based health insights designed for you.
-      </p>
-      <div className="whu-reasons">
-        <div className="whu-reason">
-          <img src={accurate} alt="accurate information" width="90" height="90" />
-          <p>Accurate & Reliable Information</p>
-          <p>Our content is reviewed by medical professionals to ensure accuracy.</p>
-        </div>
-        <div className="whu-reason">
-          <img src={transport} alt="Comprehensive Services" width="90" height="90" />
-          <p>Comprehensive Services</p>
-          <p>From preventive care to specialized treatments, we offer a full range of medical services.</p>
-        </div>
-        <div className="whu-reason">
-          <img src={patient} alt="Trusted by Patients" width="90" height="90" />
-          <p>Trusted by Patients</p>
-          <p>Our patients trust us for reliable, professional, and ethical healthcare.</p>
-        </div>
-      </div>
+    <motion.div
+    id="why-choose-us"
+    className="whu-container"
+    initial={{ opacity: 0, scale: 0.8 }}
+    whileInView={{ opacity: 1, scale: 1 }}
+    transition={{ duration: 0.8, ease: "easeOut" }}
+    viewport={{ once: true }}
+  >
+    <motion.h2
+      className="whu-title"
+      initial={{ opacity: 0, y: -30 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      transition={{ duration: 1, delay: 0.3, ease: "easeOut" }}  
+      viewport={{ once: true }}
+    >
+      Why Choose Us ?
+    </motion.h2>
+    <motion.p
+      className="whu-subtitle"
+      initial={{ opacity: 0, y: -20 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      transition={{ duration: 1, delay: 0.5, ease: "easeOut" }}  
+      viewport={{ once: true }}
+    >
+      Get accurate, up-to-date medical information you can trust. Stay informed with clear, evidence-based health insights designed for you.
+    </motion.p>
+    <div className="whu-reasons">
+      {[
+        {
+          img: accurate,
+          title: "Accurate & Reliable Information",
+          text: "Our content is reviewed by medical professionals to ensure accuracy.",
+        },
+        {
+          img: transport,
+          title: "Comprehensive Services",
+          text: "From preventive care to specialized treatments, we offer a full range of medical services.",
+        },
+        {
+          img: patient,
+          title: "Trusted by Patients",
+          text: "Our patients trust us for reliable, professional, and ethical healthcare.",
+        },
+      ].map((item, index) => (
+        <motion.div
+          key={index}
+          className="whu-reason"
+          initial={{ opacity: 0, scale: 0.5, rotate: -10 }}
+          whileInView={{ opacity: 1, scale: 1, rotate: 0 }}
+          transition={{
+            duration: 0.6,  
+            delay: index * 0.2,  
+            ease: "backOut",
+          }}
+          viewport={{ once: true }}
+        >
+          <img src={item.img} alt={item.title} width="90" height="90" />
+          <p>{item.title}</p>
+          <p>{item.text}</p>
+        </motion.div>
+      ))}
     </div>
+  </motion.div>
   );
 };
 /////////////////////////////////////Statistics-Section/////////////////////////////////////////////////////
 export const Statistics = () => {
   return (
-    <div id="Statistics-sec" className="statistics-container">
-      <h2 className="statistics-title">Statistics</h2>
+    <motion.div
+      id="Statistics-sec"
+      className="statistics-container"
+      initial={{ opacity: 0, y: 50 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.8, ease: "easeOut" }}
+      viewport={{ once: true }}
+    >
+      <motion.h2
+        className="statistics-title"
+        initial={{ opacity: 0, y: -30 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        transition={{ duration: 1, delay: 0.2, ease: "easeOut" }}
+        viewport={{ once: true }}
+      >
+        Statistics
+      </motion.h2>
       <div className="statistics-items">
-        <div className="statistics-item">
-        <img src={HPatients} alt="happy patients" width="90" height="90"></img>
-          <p className="statistics-text">350 +</p>
-          <p className="statistics-description">Happy patients</p>
-        </div>
-        <div className="statistics-item">
-        <img src={heart} alt="saved hearts" width="90" height="90"></img>
-          <p className="statistics-text">180 +</p>
-          <p className="statistics-description">Saved hearts</p>
-        </div>
-        <div className="statistics-item">
-        <img src={Clients} alt="Happy Clients" width="90" height="90"></img>
-          <p className="statistics-text">500 +</p>
-          <p className="statistics-description">Happy clients</p>
-        </div>
-        <div className="statistics-item">
-        <img src={Doctor} alt="Expert Doctors" width="90" height="90"></img>
-          <p className="statistics-text">230 +</p>
-          <p className="statistics-description">Expert doctors</p>
-        </div>
+        {[ 
+          { img: HPatients, text: "350 +", desc: "Happy patients", alt: "happy patients" },
+          { img: heart, text: "180 +", desc: "Saved hearts", alt: "saved hearts" },
+          { img: Clients, text: "500 +", desc: "Happy clients", alt: "Happy Clients" },
+          { img: Doctor, text: "230 +", desc: "Expert doctors", alt: "Expert Doctors" },
+        ].map((item, index) => (
+          <motion.div
+            key={index}
+            className="statistics-item"
+            initial={{ opacity: 0, scale: 0.5, rotate: -10 }}
+            whileInView={{ opacity: 1, scale: 1, rotate: 0 }}
+            transition={{ duration: 0.6, delay: index * 0.2, ease: "easeOut" }}
+            viewport={{ once: true }}
+          >
+            <img src={item.img} alt={item.alt} width="90" height="90" />
+            <p className="statistics-text">{item.text}</p>
+            <p className="statistics-description">{item.desc}</p>
+          </motion.div>
+        ))}
       </div>
-    </div>
+    </motion.div>
   );
 };
 ////////////////////////////////////////////Tips & News-section/////////////////////////////////////////////////    //
@@ -539,60 +592,102 @@ Create personal boundaries to avoid burnout and give yourself time to relax and 
     setShow(true);
   };
   const handleClose = () => setShow(false);
-  return (
-    <div id="Tips-News" className="container my-5">
-      <h2 className="text-center tips-title mb-4">Tips & News</h2>
-      <Carousel
-        activeIndex={activeIndex}
-        onSelect={(selectedIndex) => setActiveIndex(selectedIndex)}
-        indicators={false}
-        interval={null}
-        className="tips-carousel"
-        prevIcon={<FaChevronLeft className="custom-carousel-icon custom-prev-icon" />}
-        nextIcon={<FaChevronRight className="custom-carousel-icon custom-next-icon" />}
-      >
-        {Array.from({ length: totalSlides }).map((_, i) => (
-          <Carousel.Item key={i}>
-            <div className="row justify-content-center">
-              {tipsData.slice(i * 3, i * 3 + 3).map((tip, index) => (
-                <div key={i * 3 + index} className="col-md-4 col-sm-6 col-12 mb-3 d-flex justify-content-center">
-                  <div className="card tip-card" onClick={() => handleShow(tip)}>
-                    <img src={tip.img} className="card-img-top" alt={tip.title} />
-                    <div className="card-body text-center">
-                      <h5 className="card-title mb-2">{tip.title}</h5>
-                      <p className="card-text">{tip.description}</p>
-                      <button className="more-btn">Read</button>
-                    </div>
+  const ref = useRef(null);
+const isInView = useInView(ref, { once: true });
+const containerVariants = {
+  hidden: {},
+  visible: {
+    transition: {
+      staggerChildren: 0.2,  
+    },
+  },
+};
+const cardVariants = {
+  hidden: { opacity: 0, y: 30 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: {
+      duration: 0.6,
+      ease: "easeOut",
+    },
+  },
+};
+return (
+  <motion.div
+    id="Tips-News"
+    className="container my-5"
+    ref={ref}
+    initial="hidden"
+    animate={isInView ? "visible" : "hidden"}
+    transition={{ duration: 0.8, ease: "easeOut" }}
+  >
+    <h2 className="text-center tips-title mb-4">Tips & News</h2>
+    <Carousel
+      activeIndex={activeIndex}
+      onSelect={(selectedIndex) => setActiveIndex(selectedIndex)}
+      indicators={false}
+      interval={null}
+      className="tips-carousel"
+      prevIcon={<FaChevronLeft className="custom-carousel-icon custom-prev-icon" />}
+      nextIcon={<FaChevronRight className="custom-carousel-icon custom-next-icon" />}
+    >
+      {Array.from({ length: totalSlides }).map((_, i) => (
+        <Carousel.Item key={i}>
+          <motion.div
+            className="row justify-content-center"
+            variants={containerVariants}
+            initial="hidden"
+            animate={activeIndex === i && isInView ? "visible" : "hidden"}
+          >
+            {tipsData.slice(i * 3, i * 3 + 3).map((tip, index) => (
+              <motion.div
+                key={i * 3 + index}
+                className="col-md-4 col-sm-6 col-12 mb-3 d-flex justify-content-center"
+                variants={cardVariants}
+                transition={{
+                  duration: 0.6,
+                  delay: index * 0.2, 
+                  ease: "easeOut",
+                }}
+              >
+                <div className="card tip-card" onClick={() => handleShow(tip)}>
+                  <img src={tip.img} className="card-img-top" alt={tip.title} />
+                  <div className="card-body text-center">
+                    <h5 className="card-title mb-2">{tip.title}</h5>
+                    <p className="card-text">{tip.description}</p>
+                    <button className="more-btn">Read</button>
                   </div>
                 </div>
-              ))}
-            </div>
-          </Carousel.Item>
-        ))}
-      </Carousel>
-      <div className="carousel-navigation text-center mt-4">
-        {Array.from({ length: totalSlides }).map((_, index) => (
-          <span
-            key={index}
-            className={`nav-dot ${index === activeIndex ? "active" : ""}`}
-            onClick={() => setActiveIndex(index)}
-          />
-        ))}
-      </div>
-      <Modal show={show} onHide={handleClose} centered>
-        <Modal.Header closeButton>
-          <Modal.Title>{selectedTip?.title}</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          <img src={selectedTip?.img} alt={selectedTip?.title} className="img-fluid mb-3" />
-          <p className="tip-details">{selectedTip?.details}</p>
-        </Modal.Body>
-        <Modal.Footer>
-          <Button variant="secondary" onClick={handleClose}>Close</Button>
-        </Modal.Footer>
-      </Modal>
+              </motion.div>
+            ))}
+          </motion.div>
+        </Carousel.Item>
+      ))}
+    </Carousel>
+    <div className="carousel-navigation text-center mt-4">
+      {Array.from({ length: totalSlides }).map((_, index) => (
+        <span
+          key={index}
+          className={`nav-dot ${index === activeIndex ? "active" : ""}`}
+          onClick={() => setActiveIndex(index)}
+        />
+      ))}
     </div>
-  );
+    <Modal show={show} onHide={handleClose} centered>
+      <Modal.Header closeButton>
+        <Modal.Title>{selectedTip?.title}</Modal.Title>
+      </Modal.Header>
+      <Modal.Body>
+        <img src={selectedTip?.img} alt={selectedTip?.title} className="img-fluid mb-3" />
+        <p className="tip-details">{selectedTip?.details}</p>
+      </Modal.Body>
+      <Modal.Footer>
+        <Button variant="secondary" onClick={handleClose}>Close</Button>
+      </Modal.Footer>
+    </Modal>
+  </motion.div>
+);
 };
 // /////////////////////////////Partenerships-section////////////////////////////////////
 export const Partnerships = () => {
@@ -603,18 +698,51 @@ export const Partnerships = () => {
     { id: 4, img: alliance },
   ];
   return (
-    <div id="partnership-sec" className="container-fluied my-5 partenership-container">
-      <h2 className="text-center mb-4 partenership-title">Partnerships</h2>
-      <div className="partnerships-grid">
-        {partners.map((partner) => (
-          <div key={partner.id} className="partner-card">
+    <motion.div
+      id="partnership-sec"
+      className="container-fluid my-5 partnership-container"
+      initial={{ opacity: 0, scale: 0.8 }}
+      whileInView={{ opacity: 1, scale: 1 }}
+      transition={{ duration: 0.8, ease: "easeOut" }}
+      viewport={{ once: true }}
+    >
+      <motion.h2
+        className="text-center mb-4 partnership-title"
+        initial={{ opacity: 0, y: -30 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        transition={{ duration: 1, delay: 0.3, ease: "easeOut" }}
+        viewport={{ once: true }}
+      >
+        Partnerships
+      </motion.h2>
+      <motion.div
+        className="partnerships-grid"
+        initial={{ opacity: 0 }}
+        whileInView={{ opacity: 1 }}
+        transition={{ duration: 0.8, delay: 0.6, ease: "easeOut" }}
+        viewport={{ once: true }}
+      >
+        {partners.map((partner, index) => (
+          <motion.div
+            key={partner.id}
+            className="partner-item"
+            initial={{ opacity: 0, scale: 0.5, rotate: -10 }}
+            whileInView={{ opacity: 1, scale: 1, rotate: 0 }}
+            transition={{
+              duration: 0.6,
+              delay: index * 0.2, 
+              ease: "backOut",
+            }}
+            viewport={{ once: true }}
+          >
             <img src={partner.img} alt={`Partner ${partner.id}`} className="partner-img" />
-          </div>
+          </motion.div>
         ))}
-      </div>
-    </div>
+      </motion.div>
+    </motion.div>
   );
 };
+
 // ///////////////////////////////////FAQ-Section////////////////////////////////////////////////////////////////////
 export const Faqsection = () => {
   const faqs = [
@@ -623,22 +751,51 @@ export const Faqsection = () => {
     { question: 'How to determine the appropriate specialization?', answer:' Based on the symptoms you present, we determine the best medical specialty for your condition.' },
     { question: 'Can I know doctors in many fields?', answer: 'Yes, you can easily find doctors in various fields through the website.' },
   ];
-
   return (
-    <div id="faq-sec" className="faq-container">
-      <h2 className="faq-title">Frequently Asked Questions</h2>
+    <motion.div
+      id="faq-sec"
+      className="faq-container"
+      initial={{ opacity: 0, scale: 0.8 }}
+      whileInView={{ opacity: 1, scale: 1 }}
+      transition={{ duration: 0.8, ease: "easeOut" }}
+      viewport={{ once: true }}
+    >
+      <motion.h2
+        className="faq-title"
+        initial={{ opacity: 0, y: -30 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        transition={{ duration: 1, delay: 0.3, ease: "easeOut" }}
+        viewport={{ once: true }}
+      >
+        Frequently Asked Questions
+      </motion.h2>
       <div className="row">
         <div className="col-md-6 d-flex justify-content-center">
-          <img
+          <motion.img
             src={faq}
             alt="FAQ"
             className="faq-image"
+            initial={{ opacity: 0, scale: 0.8 }}
+            whileInView={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.8, delay: 0.4, ease: "easeOut" }}
+            viewport={{ once: true }}
           />
         </div>
         <div className="col-md-6">
           <div className="accordion accordion-flush" id="accordionFlushExample">
             {faqs.map((faq, index) => (
-              <div className="accordion-item" key={index}>
+              <motion.div
+                key={index}
+                className="accordion-item"
+                initial={{ opacity: 0, scale: 0.5 }}
+                whileInView={{ opacity: 1, scale: 1 }}
+                transition={{
+                  duration: 0.6,
+                  delay: index * 0.2,  
+                  ease: "backOut",
+                }}
+                viewport={{ once: true }}
+              >
                 <h2 className="accordion-header" id={`flush-heading${index}`}>
                   <button
                     className="accordion-button collapsed"
@@ -661,15 +818,14 @@ export const Faqsection = () => {
                     {faq.answer}
                   </div>
                 </div>
-              </div>
+              </motion.div>
             ))}
           </div>
         </div>
       </div>
-
       <style jsx>{`
         .faq-container {
-          background: #f3f6fa;
+          background:rgb(255, 255, 255);
           padding: 50px 0;
           margin-top: 70px;
         }
@@ -680,10 +836,6 @@ export const Faqsection = () => {
           word-spacing: 4px;
           letter-spacing: 2px;
           margin-top: -30px;
-          text-decoration: underline;
-          text-decoration-color: #217BF4;
-          text-decoration-thickness: 4px;
-          text-underline-offset: 10px;
         }
         .faq-image {
           width: 80%;
@@ -723,7 +875,7 @@ export const Faqsection = () => {
           }
         }
       `}</style>
-    </div>
+    </motion.div>
   );
 };
 ////////////////////////////////Footer-section////////////////////////////////////////////////
@@ -779,6 +931,9 @@ export const Footer = () => {
         <p className="copyrights">&copy; 2024 Your Project Name. All Rights Reserved.</p>
       </div>
       <style>{`
+      body {
+  overflow-x: hidden;
+}
         .footer-container {
           background: linear-gradient(135deg, #e3f2fd, #ffffff);
           padding: 100px 0 0;

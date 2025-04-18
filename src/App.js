@@ -12,13 +12,13 @@ import HomePage from "./components/HomePage/HomePageMain";
 import SymptomForm from "./components/Check_Symptoms/SymptomForm";
 import DiseaseReport from "./components/Check_Symptoms/DiseaseReport";
 import { AuthProvider } from "./context/AuthContext"; 
-import NotFoundPage from "./components/NotFoundPage";
+import NotFoundPage from "./components/NotFound/NotFoundPage";
 function App() {
   const location = useLocation();
 
-  const hideHeaderFooterRoutes = ["/login", "/forgot", "/verify-code", "/reset-password"];
+  const hideHeaderFooterRoutes = ["/login", "/forgot", "/verify-code", "/reset-password","/register"];
   const hideFooterRoutes = ["/login", "/forgot", "/verify-code", "/reset-password", "/disease-report", 
-    "/symptom-form", "/update-info", "/profile", "/not-found"];
+    "/symptom-form", "/update-info", "/profile", "/not-found", "/register"];
 
   const shouldHideFooter = hideFooterRoutes.includes(location.pathname);
   const shouldHideHeaderFooter = hideHeaderFooterRoutes.includes(location.pathname);
@@ -29,7 +29,8 @@ function App() {
       
       <Routes>
         <Route path="/" element={<HomePage />} />
-        <Route path="/login" element={<Sign />} />
+        <Route path="/login" element={<Sign defaultMode="login" />} />
+        <Route path="/register" element={<Sign defaultMode="register" />} /> 
         <Route path="/doctor/:id" element={<DoctorProfile />} />
         <Route path="/profile" element={<Profile />} />
         <Route path="/update-info" element={<UpdateInfo />} />

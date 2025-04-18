@@ -6,13 +6,15 @@ import { useNavigate } from "react-router-dom";
 import "./Sign.css";
 import { useAuth } from "../../context/AuthContext";
 
-const Sign = () => {
-  const [isLogin, setIsLogin] = useState(false);
+  const Sign = ({ defaultMode = "register" }) => {
+  const [isLogin, setIsLogin] = useState(defaultMode === "login");
   const [isLoading, setIsLoading] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
   const [message, setMessage] = useState({ type: "", text: "" });
   const navigate = useNavigate();
   const { login } = useAuth(); 
+  
+  
 
   const [formData, setFormData] = useState({
     fullName: "",
@@ -60,6 +62,7 @@ const Sign = () => {
     document.addEventListener("mousedown", handleClickOutside);
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
+      
     };
   }, [passwordInputRef]);
 
@@ -100,7 +103,7 @@ const Sign = () => {
     
     if (name === "confirmPassword" || (name === "password" && formData.confirmPassword)) {
       validateConfirmPassword(name === "confirmPassword" ? value : formData.password, 
-                             name === "confirmPassword" ? formData.password : value);
+      name === "confirmPassword" ? formData.password : value);
     }
   };
 
