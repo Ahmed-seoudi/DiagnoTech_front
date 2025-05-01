@@ -1,4 +1,3 @@
-// Sign.js
 import React, { useState, useEffect, useRef } from "react";
 import "../style.css";
 import 'bootstrap/dist/css/bootstrap.min.css';
@@ -6,7 +5,7 @@ import { useNavigate } from "react-router-dom";
 import "./Sign.css";
 import { useAuth } from "../../context/AuthContext";
 
-  const Sign = ({ defaultMode = "register" }) => {
+const Sign = ({ defaultMode = "register" }) => {
   const [isLogin, setIsLogin] = useState(defaultMode === "login");
   const [isLoading, setIsLoading] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
@@ -14,11 +13,10 @@ import { useAuth } from "../../context/AuthContext";
   const navigate = useNavigate();
   const { login } = useAuth(); 
   
-  
-
   const [formData, setFormData] = useState({
     fullName: "",
     email: "",
+    phoneNumber: "",
     gender: "",
     age: "",
     password: "",
@@ -31,13 +29,10 @@ import { useAuth } from "../../context/AuthContext";
     password: "",
   });
 
- 
   const [backendError, setBackendError] = useState("");
   
-
   const [passwordError, setPasswordError] = useState("");
   const [confirmPasswordError, setConfirmPasswordError] = useState("");
-  
   
   const [passwordRequirements, setPasswordRequirements] = useState({
     length: false,
@@ -46,7 +41,6 @@ import { useAuth } from "../../context/AuthContext";
     number: false,
     special: false
   });
-  
   
   const [showPasswordRequirements, setShowPasswordRequirements] = useState(false);
 
@@ -62,7 +56,6 @@ import { useAuth } from "../../context/AuthContext";
     document.addEventListener("mousedown", handleClickOutside);
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
-      
     };
   }, [passwordInputRef]);
 
@@ -92,14 +85,12 @@ import { useAuth } from "../../context/AuthContext";
       [name]: type === "checkbox" ? checked : value,
     });
     
- 
     setBackendError("");
     
     // Validate password on change
     if (name === "password") {
       validatePassword(value);
     }
-    
     
     if (name === "confirmPassword" || (name === "password" && formData.confirmPassword)) {
       validateConfirmPassword(name === "confirmPassword" ? value : formData.password, 
@@ -121,7 +112,6 @@ import { useAuth } from "../../context/AuthContext";
 
   const handleForgotPassword = () => navigate("/forgot");
 
-  
   const validatePassword = (password) => {
     // Check individual requirements
     const requirements = {
@@ -137,7 +127,6 @@ import { useAuth } from "../../context/AuthContext";
     if (password) {
       const allRequirementsMet = Object.values(requirements).every(Boolean);
       if (!allRequirementsMet) {
-        
         return false;
       } else {
         setPasswordError("");
@@ -208,8 +197,8 @@ import { useAuth } from "../../context/AuthContext";
         return;
       }
 
-    setMessage({ type: "success", text: "Registration successful!" });
-    setIsLogin(true);
+      setMessage({ type: "success", text: "Registration successful!" });
+      setIsLogin(true);
 
       setFormData({
         fullName: "",
@@ -227,54 +216,84 @@ import { useAuth } from "../../context/AuthContext";
     }
   };
 
-  const handleLoginSubmit = async (e) => {
-    e.preventDefault();
-    if (!validateLoginForm()) {
-      setBackendError("Please enter a valid email and password");
+ const handleLoginSubmit = async (e) => {
+  e.preventDefault();
+  if (!validateLoginForm()) {
+    setBackendError("Please enter a valid email and password");
+    return;
+  }
+
+  setIsLoading(true);
+  setBackendError("");
+  
+  try {
+    const response = await fetch("http://127.0.0.1:5000/api/users/login", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(loginData),
+    });
+
+    const responseData = await response.json();
+    console.log("Full response data:", responseData); // Log the entire response
+
+    if (!response.ok) {
+      setBackendError(responseData.data?.error || "Login failed. Please try again.");
       return;
     }
 
-    setIsLoading(true);
-    setBackendError("");
+    // Extract user data, accounting for nested structure
+      const userData = responseData.data || {};
+      const token = userData.token;
+      const role = userData.user?.role;  
+
     
-    try {
-      const response = await fetch("http://127.0.0.1:5000/api/users/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(loginData),
-      });
-
-      const responseData = await response.json();
-
-      if (!response.ok) {
-        // Display backend error message
-        setBackendError(responseData.data?.error || "Login failed. Please try again.");
-        return;
-      }
-
-      login(responseData.data.token); 
     
-      if (rememberMe) {
-        const expiryDate = Date.now() + (7 * 24 * 60 * 60 * 1000); 
-        localStorage.setItem("rememberedEmail", loginData.email);
-        localStorage.setItem("rememberedPassword", loginData.password);
-        localStorage.setItem("rememberedPasswordExpiry", expiryDate.toString());
+    // If we don't have a role directly, let's check if we can determine it from other data
+    let userRole = role;
+    if (!userRole) {
+      // Check if user has doctor-specific properties
+      if (userData.specialty || userData.availableAppointments) {
+        userRole = "doctor";
+      } else if (userData.isAdmin) {
+        userRole = "admin";
       } else {
-        localStorage.removeItem("rememberedEmail");
-        localStorage.removeItem("rememberedPassword");
-        localStorage.removeItem("rememberedPasswordExpiry");
+        userRole = "patient"; // Default role
       }
-
-      setMessage({ type: "success", text: "Login successful!" });
-      navigate("/");
-
-      setLoginData({ email: "", password: "" });
-    } catch (error) {
-      setBackendError("Connection error. Please try again later.");
-    } finally {
-      setIsLoading(false);
     }
-  };
+    
+    // Use the updated login function with token and role
+    login(token, userRole);
+    
+    if (rememberMe) {
+      const expiryDate = Date.now() + (7 * 24 * 60 * 60 * 1000); 
+      localStorage.setItem("rememberedEmail", loginData.email);
+      localStorage.setItem("rememberedPassword", loginData.password);
+      localStorage.setItem("rememberedPasswordExpiry", expiryDate.toString());
+    } else {
+      localStorage.removeItem("rememberedEmail");
+      localStorage.removeItem("rememberedPassword");
+      localStorage.removeItem("rememberedPasswordExpiry");
+    }
+
+    setMessage({ type: "success", text: "Login successful!" });
+    
+    console.log("Redirecting based on role:", userRole);
+    if (userRole === "admin") {
+      navigate("/admin");
+    } else if (userRole === "doctor") {
+      navigate("/DoctorView");
+    } else {
+      navigate("/");
+    }
+
+    setLoginData({ email: "", password: "" });
+  } catch (error) {
+    console.error("Login error:", error);
+    setBackendError("Connection error. Please try again later.");
+  } finally {
+    setIsLoading(false);
+  }
+};
 
   const PasswordRequirementsPopup = () => {
     if (!showPasswordRequirements) return null;
@@ -336,37 +355,21 @@ import { useAuth } from "../../context/AuthContext";
   };
 
   return (
-    <div className={`auth-container-sign ${isLogin ? "login-bg" : "register-bg"}`}>
-      {isLogin ? (
-        <form className="auth-form login-page" onSubmit={handleLoginSubmit}>
-          <h2>Login</h2>
+    <div className="page-center-wrapper">
+      <div className={`auth-container-sign auth-container ${isLogin ? "active" : ""}`}>  
+      {/* Login Form */}
+      <div className="form-section login">
+        <form className="auth-form" onSubmit={handleLoginSubmit}>
+          <h2 style={{textAlign:"center"}}>Login</h2>
           <p className="login-fp">Login to access your account</p>
-
-          {/* Display backend error message */}
-          {backendError && (
-            <div style={{
-              color: "red",
-              padding: "10px",
-              borderRadius: "5px",
-              marginBottom: "10px",
-              textAlign: "center"
-            }}>
-              {backendError}
-            </div>
-          )}
-
+  
+          {backendError && <div className="form-error">{backendError}</div>}
           {message.text && (
-            <div style={{
-              color: message.type === "error" ? "red" : "green",
-              padding: "10px",
-              borderRadius: "5px",
-              marginBottom: "10px",
-              textAlign: "center"
-            }}>
+            <div className={`form-message ${message.type === "error" ? "error" : "success"}`}>
               {message.text}
             </div>
           )}
-          
+  
           <div className="login-input">
             <label>Email</label>
             <input type="email" name="email" value={loginData.email} onChange={handleLoginChange} required />
@@ -375,64 +378,70 @@ import { useAuth } from "../../context/AuthContext";
             <label>Password</label>
             <input type="password" name="password" value={loginData.password} onChange={handleLoginChange} required />
           </div>
-          <div>
-            <input type="checkbox" checked={rememberMe} onChange={handleRememberMe} />
-            <label>Remember me</label>
-            <span style={{ color: "red", cursor: "pointer", marginLeft: "10px" }} onClick={handleForgotPassword}>
+          <div className="remember-me" style={{ display: "flex", alignItems: "center"}}>
+            <label >
+              <input type="checkbox" checked={rememberMe} onChange={handleRememberMe} />
+              Remember me 
+              <span className="forgot-link" onClick={handleForgotPassword}>
               Forgot Password?
             </span>
+            </label>
           </div>
+
           <button className="login-btn" type="submit" disabled={isLoading}>
             {isLoading ? "Loading..." : "Login"}
           </button>
-          <p className="to-register">
-            Don't have an account?{" "}
-            <span style={{ color: "#FF8682", cursor: "pointer" }} onClick={() => setIsLogin(false)}>
-              Register
-            </span>
-          </p>
+          <button type="button" className="google-btn">
+              <img src="https://img.icons8.com/color/16/000000/google-logo.png" alt="google icon" style={{ marginRight: "8px" }} />
+              Sign In with Google
+            </button>
         </form>
-      ) : (
-        <form onSubmit={handleSubmit} className="auth-form signup-page">
-          <div className="signup-title">
-            <h2>Sign up</h2>
-            <p>Let's get you all set up so you can access your personal account.</p>
-            
-            {/* Display backend error message */}
-            {backendError && (
-              <div style={{
-                color: "red",
-                padding: "10px",
-                borderRadius: "5px",
-                marginBottom: "10px",
-                textAlign: "center"
-              }}>
-                {backendError}
-              </div>
-            )}
+        <div className="switch-form-link" style={{ textAlign: "center", marginTop: "16px" }}>
+  <p style={{ fontSize: "13px" }}>
+  Don't have an account?
+    <button
+      type="button"
+      style={{
+        background: "none",
+        color: "#007BFF",
+        border: "none",
+        padding: 0,
+        marginLeft: "5px",
+        cursor: "pointer",
+        textDecoration: "underline",
+      }}
+      onClick={() => setIsLogin(true)}
+    >
+      Sign Up
+    </button>
+  </p>
+</div>
 
-            {message.text && (
-              <div style={{
-                color: message.type === "error" ? "red" : "green",
-                padding: "10px",
-                borderRadius: "5px",
-                marginBottom: "10px",
-                textAlign: "center"
-              }}>
-                {message.text}
-              </div>
-            )}
-          </div>
+      </div>
+  
+      {/* Register Form */}
+      <div className="form-section register">
+      <form className="auth-form grid-two-cols" onSubmit={handleSubmit}>
+          <h2 style={{ textAlign: "center" }}>Sign Up</h2>
+          <p>Let's get you set up with a new account.</p>
+  
+          {backendError && <div className="form-error">{backendError}</div>}
+          {message.text && (
+            <div className={`form-message ${message.type === "error" ? "error" : "success"}`}>
+              {message.text}
+            </div>
+          )}
+  
           <div className="input-box">
             <label className="label-signup">Full Name</label>
             <input type="text" name="fullName" value={formData.fullName} onChange={handleChange} required />
           </div>
-
+  
           <div className="input-box">
             <label className="label-signup">Email</label>
             <input type="email" name="email" value={formData.email} onChange={handleChange} required />
           </div>
-
+  
           <div className="input-box">
             <label className="label-signup">Gender</label>
             <select name="gender" value={formData.gender} onChange={handleChange} required>
@@ -441,45 +450,115 @@ import { useAuth } from "../../context/AuthContext";
               <option value="female">Female</option>
             </select>
           </div>
-
+  
           <div className="input-box">
             <label className="label-signup">Age</label>
             <input type="number" name="age" value={formData.age} onChange={handleChange} required />
           </div>
-
+  
           <div className="input-box-pass" style={{ position: "relative" }}>
             <label className="label-signup">Password</label>
-            <input 
-              type="password" 
-              name="password" 
+            <input
+              type="password"
+              name="password"
               ref={passwordInputRef}
-              value={formData.password} 
+              value={formData.password}
               onChange={handleChange}
               onFocus={() => setShowPasswordRequirements(true)}
-              required 
+              required
             />
             <PasswordRequirementsPopup />
-            {passwordError && <p style={{ color: "red", fontSize: "12px", marginTop: "5px" }}>{passwordError}</p>}
+            {passwordError && <p className="form-error small">{passwordError}</p>}
+          </div>
+  
+          <div className="input-box">
+            <label className="label-signup">Phone Number</label>
+            <input
+              type="tel"
+              name="phoneNumber"
+              value={formData.phoneNumber}
+              onChange={handleChange}
+              required
+            />
           </div>
 
           <div className="input-box-pass">
             <label className="label-signup">Confirm Password</label>
-            <input type="password" name="confirmPassword" value={formData.confirmPassword} onChange={handleChange} required />
-            {confirmPasswordError && <p style={{ color: "red", fontSize: "12px", marginTop: "5px" }}>{confirmPasswordError}</p>}
+            <input
+              type="password"
+              name="confirmPassword"
+              value={formData.confirmPassword}
+              onChange={handleChange}
+              required
+            />
+            {confirmPasswordError && <p className="form-error small">{confirmPasswordError}</p>}
           </div>
-
+  
           <div className="agree-terms">
-            <input type="checkbox" name="agreeToTerms" checked={formData.agreeToTerms} onChange={handleChange} />
-            <label>I agree to all the <span style={{ color: "#FF8682" }}>Terms</span> and <span style={{ color: "#FF8682" }}>Privacy Policies</span></label>
+            <input
+              type="checkbox"
+              name="agreeToTerms"
+              checked={formData.agreeToTerms}
+              onChange={handleChange}
+            />
+            <label>
+              I agree to the <span>Terms</span> and <span>Privacy Policy</span>
+            </label>
+          </div>
+  
+          <div className="full-row" style={{ display: "flex", gap: "10px" }}>
+            <button className="signup-btn" type="submit" disabled={isLoading}>
+              {isLoading ? "Loading..." : "Create Account"}
+            </button>
+            <button type="button" className="google-btn">
+              <img src="https://img.icons8.com/color/16/000000/google-logo.png" alt="google icon" style={{ marginRight: "8px" }} />
+              Sign up with Google
+            </button>
           </div>
 
-          <button className="signup-btn" type="submit" disabled={isLoading}>
-            {isLoading ? "Loading..." : "Create account"}
-          </button>
-
-          <p className="to-login">Already have an account? <span style={{ color: "#FF8682", cursor: "pointer" }} onClick={() => setIsLogin(true)}>Login</span></p>
         </form>
-      )}
+        <div className="switch-form-link" style={{ textAlign: "center", marginTop: "16px" }}>
+  <p style={{ fontSize: "13px" }}>
+  Already have an account?
+    <button
+      type="button"
+      style={{
+        background: "none",
+        color: "#007BFF",
+        border: "none",
+        padding: 0,
+        marginLeft: "5px",
+        cursor: "pointer",
+        textDecoration: "underline",
+      }}
+      onClick={() => setIsLogin(false)}
+    >
+      Sign In
+    </button>
+  </p>
+</div>
+
+      </div>
+  
+      {/* Overlay Panel */}
+      <div className="toggle-panel-wrapper">
+        <div className="toggle-panel">
+          {isLogin ? (
+            <div className="panel-content">
+              <h1>I already have an acount</h1>
+              <p>To keep connected with us please login</p>
+              <button onClick={() => setIsLogin(false)}>Sign In</button>
+            </div>
+          ) : (
+            <div className="panel-content">
+              <h1>new here !</h1>
+              <p>Register and start your journey with us</p>
+              <button onClick={() => setIsLogin(true)}>Sign Up</button>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
     </div>
   );
 };

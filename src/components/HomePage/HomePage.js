@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useRef, useEffect } from "react";
 import logo from "../../img/logo.png";
 import "./HomePage.css";
 import "../style.css";
@@ -28,7 +28,6 @@ import visa from "../../img/visa.png";
 import clinic from "../../img/logo1.png";
 import company from "../../img/logo2.png";
 import alliance from "../../img/logo3.png";
-import { useState, useEffect } from "react";
 import faq from "../../img/9a1a0d69ebfa79f4228d2db72e15bde9.png";
 import { Carousel, Modal, Button } from "react-bootstrap";
 import footerImage from "../../img/530242319709347d08f803e333bc5d01.jpg";
@@ -36,15 +35,16 @@ import { FaArrowUp, FaArrowDown } from "react-icons/fa";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCaretDown , faUserCircle  } from '@fortawesome/free-solid-svg-icons';
 import 'bootstrap/dist/js/bootstrap.bundle.min.js';
-import { Navbar, Nav, NavDropdown, Form, InputGroup } from 'react-bootstrap';
+import { Navbar, Nav, NavDropdown , Form, InputGroup } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import axios from "axios";
 import heroImage from "../../img/modified_image_blue.jpg"
 import { faCheckCircle, faChartBar, faNewspaper, faHandshake, faQuestionCircle, faArrowCircleDown } from '@fortawesome/free-solid-svg-icons';
-import { useRef } from "react";
 import { motion, useInView } from "framer-motion";
 import { MdHealthAndSafety } from "react-icons/md";
+import { BsSend, BsHeadset } from "react-icons/bs";
+import "./Chatbot.css"; 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 const HomePage = () => {
   const { isLoggedIn, logout } = useAuth(); 
@@ -174,8 +174,8 @@ export const Header = () => {
     Footer
   </NavDropdown.Item>
 </NavDropdown>
-            <Nav.Link href="#about" className="about-us">About Us</Nav.Link>
-            <Nav.Link href="#contact" className="contact-us">Contact Us</Nav.Link>
+            <Nav.Link href="/DoctorsList" className="about-us">Doctors List</Nav.Link>
+            <Nav.Link href="#contact" className="contact-us">About Us</Nav.Link>
           </Nav>
           <div className="d-flex align-items-center user-actions">
             {isLoggedIn ? (
@@ -202,10 +202,10 @@ export const Header = () => {
               </>
             ) : (
               <>
-                <Button className="auth-btn me-3" onClick={() => navigate('/register')}>
+                <Button className="auth-btn me-3" onClick={() => navigate('/login')}>
                   Register
                 </Button>
-                <Button className="auth-btn" onClick={() => navigate('/login')}>
+                <Button className="auth-btn" onClick={() => navigate('/register')}>
                   Login
                 </Button>
               </>
@@ -1091,4 +1091,139 @@ export const ScrollButtons = () => {
     </div>
   );
 };
+/////////////////////////////////////////////////ChatBot/////////////////////////////////////////////////////////////
+export const Chatbot = () => {
+  const [showChat, setShowChat] = useState(false);
+  const [messages, setMessages] = useState([
+    { text: "Hello how can i help you", sender: "bot" }
+  ]);
+  const [inputMessage, setInputMessage] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const messagesEndRef = useRef(null);
 
+  const handleClose = () => setShowChat(false);
+  const handleShow = () => setShowChat(true);
+
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages]);
+
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  };
+
+  const formatBotMessage = (text) => {
+    const cleanedText = text.replace(/\*\*/g, '');
+    return cleanedText.split(/(\b\w+\b)/g).map((part, index) => {
+      if (text.match(/\*\*[^\*]+\*\*/g)?.some(bold => bold.slice(2, -2) === part)) {
+        return <strong key={index}>{part}</strong>;
+      }
+      return part;
+    });
+  };
+
+  const handleSendMessage = async (e) => {
+    e.preventDefault();
+    
+    if (inputMessage.trim() === "") return;
+
+    const userMessage = { text: inputMessage, sender: "user" };
+    setMessages((prevMessages) => [...prevMessages, userMessage]);
+    setInputMessage("");
+    setIsLoading(true);
+
+    try {
+      const response = await axios.post(
+        "http://127.0.0.1:5000/api/chatBot/chat",
+        { message: inputMessage },
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      if (response.data && response.data.reply) {
+        setTimeout(() => {
+          setMessages((prevMessages) => [
+            ...prevMessages,
+            { text: response.data.reply, sender: "bot" },
+          ]);
+          setIsLoading(false);
+        }, 500);
+      }
+    } catch (error) {
+      console.error("Error sending message:", error);
+      setMessages((prevMessages) => [
+        ...prevMessages,
+        { text: "Sorry, I encountered an error. Please try again later.", sender: "bot" },
+      ]);
+      setIsLoading(false);
+    }
+  };
+
+  return (
+    <>
+      <div className="chat-icon-container" onClick={handleShow}>
+        <div className="chat-icon">
+          <BsHeadset />
+        </div>
+        <div className="ai-assistant-bubble">
+          Hi I'm your medical AI assistant
+        </div>
+      </div>
+
+      {/* Chat Modal */}
+      <Modal
+        show={showChat}
+        onHide={handleClose}
+        centered
+        className="chatbot-modal"
+      >
+        <Modal.Header closeButton>
+          <Modal.Title>
+            <img src={require("../../img/logo.png")} alt="Logo" width="30" height="30" className="me-2" />
+            DiagnoTech Assistant
+          </Modal.Title>
+        </Modal.Header>
+        <Modal.Body className="chat-body">
+          <div className="messages-container">
+            {messages.map((msg, index) => (
+              <div
+                key={index}
+                className={`message ${msg.sender === "bot" ? "bot" : "user"}`}
+              >
+                {msg.sender === "bot" ? formatBotMessage(msg.text) : msg.text}
+              </div>
+            ))}
+            {isLoading && (
+              <div className="message bot typing">
+                <div className="typing-indicator">
+                  <span></span>
+                  <span></span>
+                  <span></span>
+                </div>
+              </div>
+            )}
+            <div ref={messagesEndRef} />
+          </div>
+        </Modal.Body>
+        <Modal.Footer className="chat-footer">
+          <Form onSubmit={handleSendMessage} className="w-100">
+            <InputGroup>
+              <Form.Control
+                placeholder="Type your message..."
+                value={inputMessage}
+                onChange={(e) => setInputMessage(e.target.value)}
+                autoFocus
+              />
+              <Button variant="primary" type="submit" disabled={isLoading}>
+                <BsSend />
+              </Button>
+            </InputGroup>
+          </Form>
+        </Modal.Footer>
+      </Modal>
+    </>
+  );
+};

@@ -13,14 +13,21 @@ import SymptomForm from "./components/Check_Symptoms/SymptomForm";
 import DiseaseReport from "./components/Check_Symptoms/DiseaseReport";
 import { AuthProvider } from "./context/AuthContext"; 
 import NotFoundPage from "./components/NotFound/NotFoundPage";
+import DoctorView from "./components/DoctorView/DoctorView";
+import EditDoctorProfile from "./components/DoctorView/EditDoctorProfile";
+import DoctorsList from "./components/Profiles/DoctorsList";
+import Chatbot from "./components/HomePage/Chatbot";
 function App() {
   const location = useLocation();
 
-  const hideHeaderFooterRoutes = ["/login", "/forgot", "/verify-code", "/reset-password","/register"];
+  const hideHeaderFooterRoutes = ["/login", "/forgot", "/verify-code", "/reset-password","/register" , "/DoctorView", "/EditDoctorProfile"];
   const hideFooterRoutes = ["/login", "/forgot", "/verify-code", "/reset-password", "/disease-report", 
-    "/symptom-form", "/update-info", "/profile", "/not-found", "/register"];
+    "/symptom-form", "/update-info", "/profile", "/not-found", "/register", "/DoctorView","/DoctorsList"];
 
-  const shouldHideFooter = hideFooterRoutes.includes(location.pathname);
+  const shouldHideFooter =
+  hideFooterRoutes.includes(location.pathname) ||
+  location.pathname.startsWith("/doctor/");
+
   const shouldHideHeaderFooter = hideHeaderFooterRoutes.includes(location.pathname);
 
   return (
@@ -29,9 +36,13 @@ function App() {
       
       <Routes>
         <Route path="/" element={<HomePage />} />
+        <Route path="/Chatbot" element={<Chatbot />} />
         <Route path="/login" element={<Sign defaultMode="login" />} />
         <Route path="/register" element={<Sign defaultMode="register" />} /> 
         <Route path="/doctor/:id" element={<DoctorProfile />} />
+        <Route path="/DoctorsList" element={<DoctorsList />} />
+        <Route path="/DoctorView" element={<DoctorView />} />
+        <Route path="/EditDoctorProfile" element={<EditDoctorProfile />} />
         <Route path="/profile" element={<Profile />} />
         <Route path="/update-info" element={<UpdateInfo />} />
         <Route path="/forgot" element={<ForgotPassword />} />

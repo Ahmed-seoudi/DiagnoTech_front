@@ -3,31 +3,49 @@ import { createContext, useContext, useState, useEffect } from "react";
 const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
-  // ✅ اقرأ من localStorage وقت تشغيل الصفحة
+  
   const [isLoggedIn, setIsLoggedIn] = useState(() => {
     const token = localStorage.getItem("jwt");
-    return !!token; // true إذا فيه توكن
+    return !!token;
+  });
+  
+  const [userRole, setUserRole] = useState(() => {
+    return localStorage.getItem("userRole") || null;
   });
 
-  // ✅ لما يدخل المستخدم يتم تخزين التوكن وتغيير حالة isLoggedIn
-  const login = (token) => {
+  const login = (token, role) => {
     localStorage.setItem("jwt", token);
+    
+    if (role) {
+      localStorage.setItem("userRole", role);
+      setUserRole(role);
+    }
+    
     setIsLoggedIn(true);
   };
 
-  // ✅ عند تسجيل الخروج يتم حذف التوكن وتحديث الحالة
   const logout = () => {
     localStorage.removeItem("jwt");
+    localStorage.removeItem("userRole");
     setIsLoggedIn(false);
+    setUserRole(null);
+  };
+
+  const getUserRole = () => {
+    return userRole;
   };
 
   return (
-    <AuthContext.Provider value={{ isLoggedIn, login, logout }}>
+    <AuthContext.Provider value={{ 
+      isLoggedIn, 
+      login, 
+      logout,
+      userRole,
+      getUserRole
+    }}>
       {children}
     </AuthContext.Provider>
   );
 };
 
 export const useAuth = () => useContext(AuthContext);
-
-

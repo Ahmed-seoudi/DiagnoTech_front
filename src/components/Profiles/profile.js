@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from "react";
-import {Container,Card,Button,Spinner,Modal,Form,Row,Col,Badge,} from "react-bootstrap";
-import {FaEdit,FaTrash,FaKey,FaUser,FaEnvelope,FaVenusMars,FaBirthdayCake,FaHistory,} from "react-icons/fa";
+import { Container, Card, Button, Spinner, Modal, Form, Row, Col, Badge } from "react-bootstrap";
+import { FaEdit, FaTrash, FaKey, FaUser, FaEnvelope, FaVenusMars, FaBirthdayCake, FaHistory } from "react-icons/fa";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import "bootstrap/dist/css/bootstrap.min.css";
-import {BsChevronDown,BsChevronUp,BsCalendarDate,BsExclamationCircle,BsShieldCheck,BsClipboard2Fill,} from "react-icons/bs";
+import { BsChevronDown, BsChevronUp, BsCalendarDate, BsExclamationCircle, BsShieldCheck, BsClipboard2Fill } from "react-icons/bs";
 import axios from "axios";
 import "./profiles.css";
 import "../style.css";
@@ -31,8 +31,11 @@ const Profile = () => {
   const [deletePassword, setDeletePassword] = useState("");
   const [showFinalConfirm, setShowFinalConfirm] = useState(false);
   const [medicalHistory, setMedicalHistory] = useState([]);
+  const [appointments, setAppointments] = useState([]);
   const [openIndex, setOpenIndex] = useState(null);
+  const [openAppointmentIndex, setOpenAppointmentIndex] = useState(null);
   const [visibleCount, setVisibleCount] = useState(2);
+  const [visibleAppointmentCount, setVisibleAppointmentCount] = useState(2);
   const [passwordError, setPasswordError] = useState("");
   const [deleteError, setDeleteError] = useState("");
 
@@ -67,10 +70,52 @@ const Profile = () => {
     }
   };
 
+  const fetchMedicalHistory = async () => {
+    try {
+      const response = await axios.get(
+        "http://127.0.0.1:5000/api/diagnosis/history",
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("jwt")}`,
+          },
+        }
+      );
+
+      if (response.data && Array.isArray(response.data)) {
+        setMedicalHistory(response.data);
+      } else {
+        setMedicalHistory([]);
+      }
+    } catch (err) {
+      console.error("Error fetching medical history:", err);
+      setMedicalHistory([]);
+    }
+  };
+
+  const fetchAppointments = async () => {
+    try {
+      const response = await axios.get(
+        "http://127.0.0.1:5000/api/userbook/appointments/myappointments",
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("jwt")}`,
+          },
+        }
+      );
+
+      if (response.data.data && Array.isArray(response.data.data)) {
+        setAppointments(response.data.data);
+      } else {
+        setAppointments([]);
+      }
+    } catch (err) {
+      console.error("Error fetching appointments:", err);
+      setAppointments([]);
+    }
+  };
+
   const handleDeleteAccount = async () => {
-    // Clear previous error
     setDeleteError("");
-    
     if (!deletePassword) {
       setDeleteError("Please enter your password to confirm deletion.");
       return;
@@ -86,43 +131,35 @@ const Profile = () => {
         },
       });
       localStorage.removeItem("jwt");
-      
-      
       setShowConfirmModal(false);
       setShowFinalConfirm(true);
-      
-     
       setTimeout(() => {
         navigate("/login");
       }, 4000);
     } catch (err) {
       console.error("Error deleting account:", err);
       setDeleteError(
-        err.response?.data?.message || 
+        err.response?.data?.message ||
         "Failed to delete account. Please check your password and try again."
       );
     }
   };
 
   const handleChangePassword = async () => {
-    // Clear previous error
     setPasswordError("");
-    
     if (!oldPassword) {
       setPasswordError("Please enter your current password.");
       return;
     }
-    
     if (!newPassword) {
       setPasswordError("Please enter a new password.");
       return;
     }
-    
     if (newPassword.length < 8) {
       setPasswordError("New password should be at least 8 characters long.");
       return;
     }
-    
+
     try {
       await axios.put(
         "http://127.0.0.1:5000/api/profile/changePassword",
@@ -136,52 +173,26 @@ const Profile = () => {
           },
         }
       );
-      
-      
       setShowPasswordModal(false);
       setOldPassword("");
       setNewPassword("");
-      
       const successDiv = document.createElement("div");
       successDiv.className = "alert alert-success position-fixed top-0 start-50 translate-middle-x mt-4 shadow-lg";
       successDiv.style.zIndex = "9999";
       successDiv.style.maxWidth = "400px";
       successDiv.innerHTML = "<strong>Success!</strong> Password changed successfully.";
       document.body.appendChild(successDiv);
-      
       setTimeout(() => {
-        successDiv.remove();
+       
+
+ successDiv.remove();
       }, 3500);
-      
     } catch (err) {
       console.error("Error changing password:", err);
       setPasswordError(
-        err.response?.data?.message || 
+        err.response?.data?.message ||
         "Failed to change password. Please check your old password and try again."
       );
-    }
-  };
-
-  const fetchMedicalHistory = async () => {
-    try {
-      const response = await axios.get(
-        "http://127.0.0.1:5000/api/diagnosis/history",
-        {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("jwt")}`,
-          },
-        }
-      );
-
-      if (response.data && Array.isArray(response.data)) {
-        setMedicalHistory(response.data);
-        console.log(response.data);
-      } else {
-        setMedicalHistory([]);
-      }
-    } catch (err) {
-      console.error("Error fetching medical history:", err);
-      setMedicalHistory([]);
     }
   };
 
@@ -189,6 +200,7 @@ const Profile = () => {
     document.body.classList.add("profile-bg");
     fetchUserData();
     fetchMedicalHistory();
+    fetchAppointments();
 
     const reloadProfile = sessionStorage.getItem("reloadProfile");
     if (reloadProfile === "true") {
@@ -200,10 +212,18 @@ const Profile = () => {
     };
   }, [location]);
 
-  // Format date function
   const formatDate = (dateString) => {
     const options = { year: "numeric", month: "short", day: "numeric" };
     return new Date(dateString).toLocaleDateString(undefined, options);
+  };
+
+  const formatTime = (appointmentSlot) => {
+    const [date, time] = appointmentSlot.split(" ");
+    const [hours, minutes] = time.split(":");
+    const h = parseInt(hours, 10);
+    const suffix = h >= 12 ? "PM" : "AM";
+    const formattedHour = ((h + 11) % 12 + 1);
+    return `${formattedHour}:${minutes} ${suffix}`;
   };
 
   if (loading) {
@@ -243,14 +263,11 @@ const Profile = () => {
   return (
     <Container className="mt-5">
       <Row className="mb-4 gx-4">
-        
         <Col lg={8}>
-          {/* User Information Card */}
           <Card className="mb-4 shadow-lg border-0 rounded-3" style={{ backgroundColor: "#f8f9fa" }}>
             <Card.Header className="ProfileInformation-H text-white py-3 rounded-top-3 border-0">
               <h5 className="mb-0 fw-bold">Profile Information</h5>
             </Card.Header>
-            
             <Card.Body className="p-4">
               <Row>
                 <Col md={4} className="text-center mb-4 mb-md-0">
@@ -265,7 +282,6 @@ const Profile = () => {
                   <h5 className="fw-bold text-primary mt-3">{userData.fullName}</h5>
                   <p className="text-muted mb-0"><small>Member since {new Date().getFullYear()}</small></p>
                 </Col>
-                
                 <Col md={8}>
                   <div className="ps-md-4">
                     <div className="mb-3">
@@ -276,7 +292,6 @@ const Profile = () => {
                       <p className="mb-0 ps-5">{userData.fullName}</p>
                       <hr className="my-2" />
                     </div>
-                    
                     <div className="mb-3">
                       <div className="d-flex align-items-center mb-2">
                         <FaEnvelope className="text-primary me-3" size={16} />
@@ -285,7 +300,6 @@ const Profile = () => {
                       <p className="mb-0 ps-5">{userData.email}</p>
                       <hr className="my-2" />
                     </div>
-                    
                     <div className="mb-3">
                       <div className="d-flex align-items-center mb-2">
                         <FaVenusMars className="text-primary me-3" size={16} />
@@ -294,7 +308,6 @@ const Profile = () => {
                       <p className="mb-0 ps-5">{userData.gender}</p>
                       <hr className="my-2" />
                     </div>
-                    
                     <div>
                       <div className="d-flex align-items-center mb-2">
                         <FaBirthdayCake className="text-primary me-3" size={16} />
@@ -306,7 +319,6 @@ const Profile = () => {
                 </Col>
               </Row>
             </Card.Body>
-            
             <Card.Footer className="bg-transparent py-3 border-0">
               <div className="d-flex justify-content-end gap-2">
                 <Link to="/update-info">
@@ -317,12 +329,9 @@ const Profile = () => {
               </div>
             </Card.Footer>
           </Card>
-          
-          {/* Action Buttons Card */}
           <Card className="shadow-lg border-0 rounded-3 mb-4" style={{ backgroundColor: "#f8f9fa" }}>
             <Card.Body className="p-4">
               <h6 className="fw-bold mb-3 text-primary">Account Management</h6>
-              
               <div className="d-flex flex-wrap gap-3">
                 <Button variant="warning" className="px-4 py-2 shadow-sm" onClick={() => setShowPasswordModal(true)}>
                   <FaKey className="me-2" /> Change Password
@@ -334,136 +343,248 @@ const Profile = () => {
             </Card.Body>
           </Card>
         </Col>
-        
-<Col lg={4}>
-  <Card 
-    className="medical-h shadow-lg border-0 rounded-3" 
-    style={{ backgroundColor: "#f8f9fa", overflowY: "auto" }} 
-  >
-    <Card.Header className="ProfileInformation-H text-white py-3 rounded-top-3 d-flex justify-content-between align-items-center">
-      <h5 className="mb-0 fw-bold">Medical History</h5>
-      <FaHistory size={18} />
-    </Card.Header>
+        <Col lg={4}>
+          <Card
+            className="medical-h shadow-lg border-0 rounded-3 mb-4"
+            style={{ backgroundColor: "#f8f9fa", overflowY: "auto" }}
+          >
+            <Card.Header className="ProfileInformation-H text-white py-3 rounded-top-3 d-flex justify-content-between align-items-center">
+              <h5 className="mb-0 fw-bold">Medical History</h5>
+              <FaHistory size={18} />
+            </Card.Header>
+            <Card.Body className="medical-h p-3">
+              {medicalHistory.length ? (
+                <div
+                  style={{ overflowY: "auto" }}
+                  className="custom-scrollbar pr-2"
+                >
+                  {medicalHistory.slice(0, visibleCount).map((item, index) => {
+                    const isOpen = openIndex === index;
+                    const disease = item.diagnosisResult?.[0]?.disease || "Unknown Disease";
 
-    <Card.Body className="medical-h p-3">
-      {medicalHistory.length ? (
-        <div 
-          style={{ overflowY: "auto" }} 
-          className="custom-scrollbar pr-2"
-        >
-          {medicalHistory.slice(0, visibleCount).map((item, index) => {
-            const isOpen = openIndex === index;
-            const disease = item.diagnosisResult?.[0]?.disease || "Unknown Disease";
-
-            return (
-              <Card
-                key={index}
-                className={`mb-3 shadow-sm border-0 ${isOpen ? 'bg-light' : ''}`}
-                style={{ 
-                  cursor: 'pointer', 
-                  transition: '0.2s', 
-                  borderRadius: 8, 
-                  borderLeft: '4px solid #0d6efd' 
-                }}
-                onClick={() => setOpenIndex(isOpen ? null : index)}
-              >
-                <Card.Body className="py-3 px-3">
-                  <div className="d-flex justify-content-between align-items-center">
-                    <div>
-                      <h6 className="fw-bold mb-1 text-primary" style={{ fontSize: "1rem" }}>{disease}</h6>
-                      <p className="mb-0 text-muted" style={{ fontSize: "0.85rem" }}>
-                        <BsCalendarDate className="me-1" size={12} /> {formatDate(item.createdAt)}
-                      </p>
-                    </div>
-                    <Badge 
-                      bg={isOpen ? "primary" : "light"} 
-                      text={isOpen ? "white" : "primary"} 
-                      className="px-2 py-2 rounded-pill"
-                    >
-                      {isOpen ? <BsChevronUp size={12} /> : <BsChevronDown size={12} />}
-                    </Badge>
-                  </div>
-
-                  {isOpen && (
-                    <div className="mt-3 pt-2 border-top" style={{ fontSize: "0.9rem" }}>
-                      <div className="mb-3">
-                        <h6 className="fw-bold mb-2">
-                          <BsExclamationCircle className="text-warning me-2" size={14} /> Symptoms
-                        </h6>
-                        <p className="mb-0 ps-4">{item.symptoms.join(", ")}</p>
-                      </div>
-
-                      {item.diagnosisResult?.[0]?.precautions?.length > 0 && (
-                        <div>
-                          <h6 className="fw-bold mb-2">
-                            <BsShieldCheck className="text-success me-2" size={14} /> Precautions
-                          </h6>
-                          <ul className="ps-4 mb-0">
-                            {item.diagnosisResult[0].precautions.map((p, idx) => <li key={idx}>{p}</li>)}
-                          </ul>
-                        </div>
-                      )}
-
-                      <br/>
-                       {item.diagnosisResult?.[0]?.description?.length > 0 && (
-                      <div>
-                        <h6 className="fw-bold mb-2">
-                          <BsClipboard2Fill className="text-success me-2" size={14} /> Description
-                        </h6>
-                        <p className="ps-4 mb-0">{item.diagnosisResult[0].description}</p>
-                      </div>
-                    )}
-
-
+                    return (
+                      <Card
+                        key={index}
+                        className={`mb-3 shadow-sm border-0 ${isOpen ? 'bg-light' : ''}`}
+                        style={{
+                          cursor: 'pointer',
+                          transition: '0.2s',
+                          borderRadius: 8,
+                          borderLeft: '4px solid #0d6efd'
+                        }}
+                        onClick={() => setOpenIndex(isOpen ? null : index)}
+                      >
+                        <Card.Body className="py-3 px-3">
+                          <div className="d-flex justify-content-between align-items-center">
+                            <div>
+                              <h6 className="fw-bold mb-1 text-primary" style={{ fontSize: "1rem" }}>{disease}</h6>
+                              <p className="mb-0 text-muted" style={{ fontSize: "0.85rem" }}>
+                                <BsCalendarDate className="me-1" size={12} /> {formatDate(item.createdAt)}
+                              </p>
+                            </div>
+                            <Badge
+                              bg={isOpen ? "primary" : "light"}
+                              text={isOpen ? "white" : "primary"}
+                              className="px-2 py-2 rounded-pill"
+                            >
+                              {isOpen ? <BsChevronUp size={12} /> : <BsChevronDown size={12} />}
+                            </Badge>
+                          </div>
+                          {isOpen && (
+                            <div className="mt-3 pt-2 border-top" style={{ fontSize: "0.9rem" }}>
+                              <div className="mb-3">
+                                <h6 className="fw-bold mb-2">
+                                  <BsExclamationCircle className="text-warning me-2" size={14} /> Symptoms
+                                </h6>
+                                <p className="mb-0 ps-4">{item.symptoms.join(", ")}</p>
+                              </div>
+                              {item.diagnosisResult?.[0]?.precautions?.length > 0 && (
+                                <div>
+                                  <h6 className="fw-bold mb-2">
+                                    <BsShieldCheck className="text-success me-2" size={14} /> Precautions
+                                  </h6>
+                                  <ul className="ps-4 mb-0">
+                                    {item.diagnosisResult[0].precautions.map((p, idx) => <li key={idx}>{p}</li>)}
+                                  </ul>
+                                </div>
+                              )}
+                              <br />
+                              {item.diagnosisResult?.[0]?.description?.length > 0 && (
+                                <div>
+                                  <h6 className="fw-bold mb-2">
+                                    <BsClipboard2Fill className="text-success me-2" size={14} /> Description
+                                  </h6>
+                                  <p className="ps-4 mb-0">{item.diagnosisResult[0].description}</p>
+                                </div>
+                              )}
+                            </div>
+                          )}
+                        </Card.Body>
+                      </Card>
+                    );
+                  })}
+                  {visibleCount < medicalHistory.length && (
+                    <div className="text-center mt-3">
+                      <Button
+                        variant="outline-primary"
+                        size="md"
+                        onClick={() => setVisibleCount(v => v + 3)}
+                        className="rounded-pill px-4 py-2"
+                        style={{ fontSize: "0.85rem" }}
+                      >
+                        Show More
+                      </Button>
                     </div>
                   )}
-                </Card.Body>
-              </Card>
-            );
-          })}
+                  {visibleCount > 2 && medicalHistory.length > 2 && (
+                    <div className="text-center mt-2">
+                      <Button
+                        variant="link"
+                        size="md"
+                        onClick={() => setVisibleCount(2)}
+                        className="text-secondary py-1"
+                        style={{ fontSize: "0.85rem" }}
+                      >
+                        Show Less
+                      </Button>
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <div className="text-center py-5 text-muted">
+                  <FaHistory size={40} style={{ opacity: 0.3 }} className="mb-3" />
+                  <h6>No medical history available</h6>
+                  <p className="small mb-0">Your medical records will appear here</p>
+                </div>
+              )}
+            </Card.Body>
+          </Card>
+          <Card
+            className="medical-h shadow-lg border-0 rounded-3"
+            style={{ backgroundColor: "#f8f9fa", overflowY: "auto" }}
+          >
+            <Card.Header className="ProfileInformation-H text-white py-3 rounded-top-3 d-flex justify-content-between align-items-center">
+              <h5 className="mb-0 fw-bold">Booked Appointments</h5>
+              <BsCalendarDate size={18} />
+            </Card.Header>
+            <Card.Body className="medical-h p-3">
+              {appointments.length ? (
+                <div
+                  style={{ overflowY: "auto" }}
+                  className="custom-scrollbar pr-2"
+                >
+                  {appointments.slice(0, visibleAppointmentCount).map((appointment, index) => {
+                    const isOpen = openAppointmentIndex === index;
+                    const doctorName = appointment.doctorId?.fullName || "Unknown Doctor";
+                    const date = appointment.appointmentSlot.split(" ")[0];
+                    const time = formatTime(appointment.appointmentSlot);
 
-          {visibleCount < medicalHistory.length && (
-            <div className="text-center mt-3">
-              <Button 
-                variant="outline-primary" 
-                size="md" 
-                onClick={() => setVisibleCount(v => v + 3)} 
-                className="rounded-pill px-4 py-2" 
-                style={{ fontSize: "0.85rem" }}
-              >
-                Show More
-              </Button>
-            </div>
-          )}
-
-          {visibleCount > 2 && medicalHistory.length > 2 && (
-            <div className="text-center mt-2">
-              <Button 
-                variant="link" 
-                size="md" 
-                onClick={() => setVisibleCount(2)} 
-                className="text-secondary py-1" 
-                style={{ fontSize: "0.85rem" }}
-              >
-                Show Less
-              </Button>
-            </div>
-          )}
-        </div>
-      ) : (
-        <div className="text-center py-5 text-muted">
-          <FaHistory size={40} style={{ opacity: 0.3 }} className="mb-3" />
-          <h6>No medical history available</h6>
-          <p className="small mb-0">Your medical records will appear here</p>
-        </div>
-      )}
-    </Card.Body>
-  </Card>
-</Col>
-</Row>
-      
-      {/* Modals */}
-      {/* Modal Confirm Delete */}
+                    return (
+                      <Card
+                        key={index}
+                        className={`mb-3 shadow-sm border-0 ${isOpen ? 'bg-light' : ''}`}
+                        style={{
+                          cursor: 'pointer',
+                          transition: '0.2s',
+                          borderRadius: 8,
+                          borderLeft: '4px solid #0d6efd'
+                        }}
+                        onClick={() => setOpenAppointmentIndex(isOpen ? null : index)}
+                      >
+                        <Card.Body className="py-3 px-3">
+                          <div className="d-flex justify-content-between align-items-center">
+                            <div>
+                              <h6 className="fw-bold mb-1 text-primary" style={{ fontSize: "1rem" }}>
+                                Dr. {doctorName}
+                              </h6>
+                              <p className="mb-0 text-muted" style={{ fontSize: "0.85rem" }}>
+                                <BsCalendarDate className="me-1" size={12} /> {date} at {time}
+                              </p>
+                            </div>
+                            <Badge
+                              bg={isOpen ? "primary" : "light"}
+                              text={isOpen ? "white" : "primary"}
+                              className="px-2 py-2 rounded-pill"
+                            >
+                              {isOpen ? <BsChevronUp size={12} /> : <BsChevronDown size={12} />}
+                            </Badge>
+                          </div>
+                          {isOpen && (
+                            <div className="mt-3 pt-2 border-top" style={{ fontSize: "0.9rem" }}>
+                              <div className="mb-3">
+                                <h6 className="fw-bold mb-2">
+                                  <BsClipboard2Fill className="text-primary me-2" size={14} /> Status
+                                </h6>
+                                <p className="mb-0 ps-4">
+                                  <Badge
+                                    bg={
+                                      appointment.status.toLowerCase() === "confirmed"
+                                        ? "success"
+                                        : appointment.status.toLowerCase() === "pending"
+                                        ? "warning"
+                                        : "danger"
+                                    }
+                                  >
+                                    {appointment.status}
+                                  </Badge>
+                                </p>
+                              </div>
+                              <div className="mb-3">
+                                <h6 className="fw-bold mb-2">
+                                  <FaUser className="text-primary me-2" size={14} /> Specialty
+                                </h6>
+                                <p className="mb-0 ps-4">{appointment.doctorId?.specialty || "Not specified"}</p>
+                              </div>
+                              <div>
+                                <h6 className="fw-bold mb-2">
+                                  <BsShieldCheck className="text-success me-2" size={14} /> Clinic Address
+                                </h6>
+                                <p className="mb-0 ps-4">{appointment.doctorId?.clinicAddress || "Not specified"}</p>
+                              </div>
+                            </div>
+                          )}
+                        </Card.Body>
+                      </Card>
+                    );
+                  })}
+                  {visibleAppointmentCount < appointments.length && (
+                    <div className="text-center mt-3">
+                      <Button
+                        variant="outline-primary"
+                        size="md"
+                        onClick={() => setVisibleAppointmentCount(v => v + 3)}
+                        className="rounded-pill px-4 py-2"
+                        style={{ fontSize: "0.85rem" }}
+                      >
+                        Show More
+                      </Button>
+                    </div>
+                  )}
+                  {visibleAppointmentCount > 2 && appointments.length > 2 && (
+                    <div className="text-center mt-2">
+                      <Button
+                        variant="link"
+                        size="md"
+                        onClick={() => setVisibleAppointmentCount(2)}
+                        className="text-secondary py-1"
+                        style={{ fontSize: "0.85rem" }}
+                      >
+                        Show Less
+                      </Button>
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <div className="text-center py-5 text-muted">
+                  <BsCalendarDate size={40} style={{ opacity: 0.3 }} className="mb-3" />
+                  <h6>No booked appointments</h6>
+                  <p className="small mb-0">Your booked appointments will appear here</p>
+                </div>
+              )}
+            </Card.Body>
+          </Card>
+        </Col>
+      </Row>
       <Modal show={showConfirmModal} onHide={() => {
         setShowConfirmModal(false);
         setDeletePassword("");
@@ -474,13 +595,11 @@ const Profile = () => {
         </Modal.Header>
         <Modal.Body className="py-4">
           <p className="mb-4">Please enter your password to confirm account deletion.</p>
-          
           {deleteError && (
             <div className="alert alert-danger mb-3">
               {deleteError}
             </div>
           )}
-          
           <Form.Group className="mb-4">
             <Form.Label>Password:</Form.Label>
             <Form.Control
@@ -498,15 +617,13 @@ const Profile = () => {
         <Modal.Footer className="py-3">
           <Button variant="secondary" onClick={() => {
             setShowConfirmModal(false);
-            setDeletePassword(""); 
+            setDeletePassword("");
             setDeleteError("");
           }}>Cancel</Button>
           <Button variant="danger" onClick={handleDeleteAccount}>Yes, Delete My Account</Button>
           <p className="warning-delete">If you click Delete, your account will be deleted immediately.</p>
         </Modal.Footer>
       </Modal>
-
-      {/* Modal Reset Password */}
       <Modal show={showPasswordModal} onHide={() => {
         setShowPasswordModal(false);
         setOldPassword("");
@@ -522,23 +639,22 @@ const Profile = () => {
               {passwordError}
             </div>
           )}
-          
           <Form>
             <Form.Group className="mb-4">
               <Form.Label>Current Password</Form.Label>
-              <Form.Control 
-                type="password" 
-                value={oldPassword} 
-                onChange={(e) => setOldPassword(e.target.value)} 
+              <Form.Control
+                type="password"
+                value={oldPassword}
+                onChange={(e) => setOldPassword(e.target.value)}
                 size="lg"
               />
             </Form.Group>
             <Form.Group className="mb-3">
               <Form.Label>New Password</Form.Label>
-              <Form.Control 
-                type="password" 
-                value={newPassword} 
-                onChange={(e) => setNewPassword(e.target.value)} 
+              <Form.Control
+                type="password"
+                value={newPassword}
+                onChange={(e) => setNewPassword(e.target.value)}
                 size="lg"
               />
               <Form.Text className="text-muted">
@@ -557,8 +673,6 @@ const Profile = () => {
           <Button variant="primary" onClick={handleChangePassword}>Update Password</Button>
         </Modal.Footer>
       </Modal>
-      
-      {/* شكل بيحصل بعد حذف الاكونت قبل ميوديه علي صفحة التسجيل */}
       <Modal show={showFinalConfirm} backdrop="static" keyboard={false} centered>
         <Modal.Body className="text-center py-5">
           <div className="mb-4 text-success">

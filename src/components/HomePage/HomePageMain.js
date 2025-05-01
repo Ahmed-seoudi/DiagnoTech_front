@@ -8,6 +8,7 @@ import {
   Partnerships,
   Faqsection,
   ScrollButtons,
+  Chatbot,
 } from "./HomePage";
 
 const HomePage = () => {
@@ -20,6 +21,7 @@ const HomePage = () => {
       <Partnerships />
       <Faqsection />
       <ScrollButtons />
+      <Chatbot/>
     </>
   );
 };
