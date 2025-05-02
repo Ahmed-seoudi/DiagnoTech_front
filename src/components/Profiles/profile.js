@@ -3,7 +3,7 @@ import { Container, Card, Button, Spinner, Modal, Form, Row, Col, Badge } from "
 import { FaEdit, FaTrash, FaKey, FaUser, FaEnvelope, FaVenusMars, FaBirthdayCake, FaHistory } from "react-icons/fa";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import "bootstrap/dist/css/bootstrap.min.css";
-import { BsChevronDown, BsChevronUp, BsCalendarDate, BsExclamationCircle, BsShieldCheck, BsClipboard2Fill } from "react-icons/bs";
+import { BsChevronDown, BsChevronUp, BsCalendarDate ,BsClipboard2Fill ,BsShieldCheck ,BsExclamationCircle } from "react-icons/bs";
 import axios from "axios";
 import "./profiles.css";
 import "../style.css";
@@ -32,8 +32,9 @@ const Profile = () => {
   const [showFinalConfirm, setShowFinalConfirm] = useState(false);
   const [medicalHistory, setMedicalHistory] = useState([]);
   const [appointments, setAppointments] = useState([]);
+  const [appointmentLoading, setAppointmentLoading] = useState(false);
+  const [appointmentError, setAppointmentError] = useState(null);
   const [openIndex, setOpenIndex] = useState(null);
-  const [openAppointmentIndex, setOpenAppointmentIndex] = useState(null);
   const [visibleCount, setVisibleCount] = useState(2);
   const [visibleAppointmentCount, setVisibleAppointmentCount] = useState(2);
   const [passwordError, setPasswordError] = useState("");
@@ -93,26 +94,50 @@ const Profile = () => {
   };
 
   const fetchAppointments = async () => {
-    try {
-      const response = await axios.get(
-        "http://127.0.0.1:5000/api/userbook/appointments/myappointments",
-        {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("jwt")}`,
-          },
-        }
-      );
-
-      if (response.data.data && Array.isArray(response.data.data)) {
-        setAppointments(response.data.data);
-      } else {
-        setAppointments([]);
+  setAppointmentLoading(true);
+  setAppointmentError(null);
+  try {
+    const response = await axios.get(
+      "http://127.0.0.1:5000/api/profile/myappointments",
+      {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("jwt")}`,
+        },
       }
-    } catch (err) {
-      console.error("Error fetching appointments:", err);
+    );
+
+    // Log the raw response for debugging
+    console.log("Appointments API response:", response);
+
+    // Check if response.data is an array
+    if (Array.isArray(response.data)) {
+      const validatedAppointments = response.data.map(appointment => ({
+        doctorName: String(appointment.doctorName || "Unknown Doctor"),
+        appointmentSlot: String(appointment.appointmentSlot || ""),
+      }));
+      setAppointments(validatedAppointments);
+    } else {
+      console.warn("Unexpected response format:", response.data);
       setAppointments([]);
+      setAppointmentError("Unexpected response format from server.");
     }
-  };
+  } catch (err) {
+    console.error("Error fetching appointments:", err);
+    // Provide more specific error messages
+    let errorMessage = "Failed to load appointments. Please try again later.";
+    if (err.response) {
+      // Server responded with an error status
+      errorMessage = err.response.data?.message || `Server error: ${err.response.status}`;
+    } else if (err.request) {
+      // Request was made but no response received
+      errorMessage = "Network error: Unable to reach the server.";
+    }
+    setAppointmentError(errorMessage);
+    setAppointments([]);
+  } finally {
+    setAppointmentLoading(false);
+  }
+};
 
   const handleDeleteAccount = async () => {
     setDeleteError("");
@@ -183,9 +208,7 @@ const Profile = () => {
       successDiv.innerHTML = "<strong>Success!</strong> Password changed successfully.";
       document.body.appendChild(successDiv);
       setTimeout(() => {
-       
-
- successDiv.remove();
+        successDiv.remove();
       }, 3500);
     } catch (err) {
       console.error("Error changing password:", err);
@@ -213,17 +236,25 @@ const Profile = () => {
   }, [location]);
 
   const formatDate = (dateString) => {
-    const options = { year: "numeric", month: "short", day: "numeric" };
-    return new Date(dateString).toLocaleDateString(undefined, options);
+    try {
+      const options = { year: "numeric", month: "short", day: "numeric" };
+      return new Date(dateString).toLocaleDateString(undefined, options);
+    } catch {
+      return "Invalid Date";
+    }
   };
 
   const formatTime = (appointmentSlot) => {
-    const [date, time] = appointmentSlot.split(" ");
-    const [hours, minutes] = time.split(":");
-    const h = parseInt(hours, 10);
-    const suffix = h >= 12 ? "PM" : "AM";
-    const formattedHour = ((h + 11) % 12 + 1);
-    return `${formattedHour}:${minutes} ${suffix}`;
+    try {
+      const [date, time] = appointmentSlot.split(" ");
+      const [hours, minutes] = time.split(":");
+      const h = parseInt(hours, 10);
+      const suffix = h >= 12 ? "PM" : "AM";
+      const formattedHour = ((h + 11) % 12 + 1);
+      return `${formattedHour}:${minutes} ${suffix}`;
+    } catch {
+      return "Invalid Time";
+    }
   };
 
   if (loading) {
@@ -468,81 +499,50 @@ const Profile = () => {
               <BsCalendarDate size={18} />
             </Card.Header>
             <Card.Body className="medical-h p-3">
-              {appointments.length ? (
+              {appointmentLoading ? (
+                <div className="text-center py-5">
+                  <Spinner animation="border" variant="primary" size="sm" />
+                  <p className="mt-2">Loading appointments...</p>
+                </div>
+              ) : appointmentError ? (
+                <div className="text-center py-5 text-danger">
+                  <p>{appointmentError}</p>
+                  <Button
+                    variant="outline-primary"
+                    size="sm"
+                    onClick={fetchAppointments}
+                  >
+                    Retry
+                  </Button>
+                </div>
+              ) : appointments.length ? (
                 <div
                   style={{ overflowY: "auto" }}
                   className="custom-scrollbar pr-2"
                 >
                   {appointments.slice(0, visibleAppointmentCount).map((appointment, index) => {
-                    const isOpen = openAppointmentIndex === index;
-                    const doctorName = appointment.doctorId?.fullName || "Unknown Doctor";
-                    const date = appointment.appointmentSlot.split(" ")[0];
-                    const time = formatTime(appointment.appointmentSlot);
+                    const date = appointment.appointmentSlot ? formatDate(appointment.appointmentSlot.split(" ")[0]) : "Invalid Date";
+                    const time = appointment.appointmentSlot ? formatTime(appointment.appointmentSlot) : "Invalid Time";
 
                     return (
                       <Card
                         key={index}
-                        className={`mb-3 shadow-sm border-0 ${isOpen ? 'bg-light' : ''}`}
+                        className="mb-3 shadow-sm border-0"
                         style={{
-                          cursor: 'pointer',
                           transition: '0.2s',
                           borderRadius: 8,
                           borderLeft: '4px solid #0d6efd'
                         }}
-                        onClick={() => setOpenAppointmentIndex(isOpen ? null : index)}
                       >
                         <Card.Body className="py-3 px-3">
-                          <div className="d-flex justify-content-between align-items-center">
-                            <div>
-                              <h6 className="fw-bold mb-1 text-primary" style={{ fontSize: "1rem" }}>
-                                Dr. {doctorName}
-                              </h6>
-                              <p className="mb-0 text-muted" style={{ fontSize: "0.85rem" }}>
-                                <BsCalendarDate className="me-1" size={12} /> {date} at {time}
-                              </p>
-                            </div>
-                            <Badge
-                              bg={isOpen ? "primary" : "light"}
-                              text={isOpen ? "white" : "primary"}
-                              className="px-2 py-2 rounded-pill"
-                            >
-                              {isOpen ? <BsChevronUp size={12} /> : <BsChevronDown size={12} />}
-                            </Badge>
+                          <div>
+                            <h6 className="fw-bold mb-1 text-primary" style={{ fontSize: "1rem" }}>
+                              Dr. {appointment.doctorName}
+                            </h6>
+                            <p className="mb-0 text-muted" style={{ fontSize: "0.85rem" }}>
+                              <BsCalendarDate className="me-1" size={12} /> {date} at {time}
+                            </p>
                           </div>
-                          {isOpen && (
-                            <div className="mt-3 pt-2 border-top" style={{ fontSize: "0.9rem" }}>
-                              <div className="mb-3">
-                                <h6 className="fw-bold mb-2">
-                                  <BsClipboard2Fill className="text-primary me-2" size={14} /> Status
-                                </h6>
-                                <p className="mb-0 ps-4">
-                                  <Badge
-                                    bg={
-                                      appointment.status.toLowerCase() === "confirmed"
-                                        ? "success"
-                                        : appointment.status.toLowerCase() === "pending"
-                                        ? "warning"
-                                        : "danger"
-                                    }
-                                  >
-                                    {appointment.status}
-                                  </Badge>
-                                </p>
-                              </div>
-                              <div className="mb-3">
-                                <h6 className="fw-bold mb-2">
-                                  <FaUser className="text-primary me-2" size={14} /> Specialty
-                                </h6>
-                                <p className="mb-0 ps-4">{appointment.doctorId?.specialty || "Not specified"}</p>
-                              </div>
-                              <div>
-                                <h6 className="fw-bold mb-2">
-                                  <BsShieldCheck className="text-success me-2" size={14} /> Clinic Address
-                                </h6>
-                                <p className="mb-0 ps-4">{appointment.doctorId?.clinicAddress || "Not specified"}</p>
-                              </div>
-                            </div>
-                          )}
                         </Card.Body>
                       </Card>
                     );

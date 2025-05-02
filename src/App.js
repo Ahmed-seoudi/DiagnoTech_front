@@ -17,10 +17,12 @@ import DoctorView from "./components/DoctorView/DoctorView";
 import EditDoctorProfile from "./components/DoctorView/EditDoctorProfile";
 import DoctorsList from "./components/Profiles/DoctorsList";
 import Chatbot from "./components/HomePage/Chatbot";
+import Dashboard from "./components/AdminDashboard/admin-dashboard"
+
 function App() {
   const location = useLocation();
 
-  const hideHeaderFooterRoutes = ["/login", "/forgot", "/verify-code", "/reset-password","/register" , "/DoctorView", "/EditDoctorProfile"];
+  const hideHeaderFooterRoutes = ["/login", "/forgot", "/verify-code", "/reset-password","/register" , "/DoctorView", "/EditDoctorProfile","/admin"];
   const hideFooterRoutes = ["/login", "/forgot", "/verify-code", "/reset-password", "/disease-report", 
     "/symptom-form", "/update-info", "/profile", "/not-found", "/register", "/DoctorView","/DoctorsList"];
 
@@ -50,6 +52,7 @@ function App() {
         <Route path="/reset-password" element={<ResetPassword />} />
         <Route path="/symptom-form" element={<SymptomForm />} />
         <Route path="/disease-report" element={<DiseaseReport />} />
+        <Route path="/admin" element={<Dashboard />} />
         <Route path="/not-found" element={<NotFoundPage />} /> 
         <Route path="*" element={<NotFoundPage />} />
 

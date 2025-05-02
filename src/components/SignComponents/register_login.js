@@ -1,26 +1,24 @@
 import React, { useState, useEffect, useRef } from "react";
-import "../style.css";
-import 'bootstrap/dist/css/bootstrap.min.css';
 import { useNavigate } from "react-router-dom";
-import "./Sign.css";
 import { useAuth } from "../../context/AuthContext";
+import "./Sign.css";
 
-const Sign = ({ defaultMode = "register" }) => {
+const Sign = ({ defaultMode = "login" }) => {
   const [isLogin, setIsLogin] = useState(defaultMode === "login");
   const [isLoading, setIsLoading] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
   const [message, setMessage] = useState({ type: "", text: "" });
   const navigate = useNavigate();
-  const { login } = useAuth(); 
-  
+  const { login } = useAuth();
+
   const [formData, setFormData] = useState({
     fullName: "",
-    email: "",
-    phoneNumber: "",
     gender: "",
     age: "",
+    email: "",
     password: "",
     confirmPassword: "",
+    contact: "",
     agreeToTerms: false,
   });
 
@@ -30,21 +28,22 @@ const Sign = ({ defaultMode = "register" }) => {
   });
 
   const [backendError, setBackendError] = useState("");
-  
   const [passwordError, setPasswordError] = useState("");
   const [confirmPasswordError, setConfirmPasswordError] = useState("");
-  
+
   const [passwordRequirements, setPasswordRequirements] = useState({
     length: false,
     uppercase: false,
     lowercase: false,
     number: false,
-    special: false
+    special: false,
   });
-  
-  const [showPasswordRequirements, setShowPasswordRequirements] = useState(false);
 
+  const [showPasswordRequirements, setShowPasswordRequirements] = useState(false);
   const passwordInputRef = useRef(null);
+  const [passwordVisible, setPasswordVisible] = useState(false);
+  const [confirmPasswordVisible, setConfirmPasswordVisible] = useState(false);
+  const [loginPasswordVisible, setLoginPasswordVisible] = useState(false);
 
   useEffect(() => {
     function handleClickOutside(event) {
@@ -52,7 +51,7 @@ const Sign = ({ defaultMode = "register" }) => {
         setShowPasswordRequirements(false);
       }
     }
-    
+
     document.addEventListener("mousedown", handleClickOutside);
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
@@ -84,17 +83,18 @@ const Sign = ({ defaultMode = "register" }) => {
       ...formData,
       [name]: type === "checkbox" ? checked : value,
     });
-    
+
     setBackendError("");
-    
-    // Validate password on change
+
     if (name === "password") {
       validatePassword(value);
     }
-    
+
     if (name === "confirmPassword" || (name === "password" && formData.confirmPassword)) {
-      validateConfirmPassword(name === "confirmPassword" ? value : formData.password, 
-      name === "confirmPassword" ? formData.password : value);
+      validateConfirmPassword(
+        name === "confirmPassword" ? value : formData.confirmPassword,
+        name === "password" ? value : formData.password
+      );
     }
   };
 
@@ -104,7 +104,6 @@ const Sign = ({ defaultMode = "register" }) => {
       ...loginData,
       [name]: value,
     });
-   
     setBackendError("");
   };
 
@@ -113,20 +112,20 @@ const Sign = ({ defaultMode = "register" }) => {
   const handleForgotPassword = () => navigate("/forgot");
 
   const validatePassword = (password) => {
-    // Check individual requirements
     const requirements = {
       length: password.length >= 8,
       uppercase: /[A-Z]/.test(password),
       lowercase: /[a-z]/.test(password),
       number: /[0-9]/.test(password),
-      special: /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password)
+      special: /[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]/.test(password),
     };
-    
+
     setPasswordRequirements(requirements);
-    
+
     if (password) {
       const allRequirementsMet = Object.values(requirements).every(Boolean);
       if (!allRequirementsMet) {
+        setPasswordError("Password does not meet all requirements");
         return false;
       } else {
         setPasswordError("");
@@ -152,24 +151,51 @@ const Sign = ({ defaultMode = "register" }) => {
   };
 
   const validateForm = () => {
-    if (!formData.fullName.trim()) return false;
-    if (!formData.email.trim() || !/^\S+@\S+\.\S+$/.test(formData.email)) return false;
-    if (!formData.gender) return false;
-    if (!formData.age.trim() || isNaN(formData.age)) return false;
-    
-    // Password validation
-    const isPasswordValid = validatePassword(formData.password);
-    const isConfirmPasswordValid = validateConfirmPassword(formData.confirmPassword, formData.password);
-    
-    if (!isPasswordValid || !isConfirmPasswordValid) return false;
-    if (!formData.agreeToTerms) return false;
-    
+    if (!formData.fullName.trim()) {
+      setBackendError("Full name is required");
+      return false;
+    }
+    if (!formData.email.trim() || !/^\S+@\S+\.\S+$/.test(formData.email)) {
+      setBackendError("Valid email is required");
+      return false;
+    }
+    if (!formData.gender) {
+      setBackendError("Gender is required");
+      return false;
+    }
+    if (!formData.age.trim() || isNaN(formData.age) || formData.age <= 0) {
+      setBackendError("Valid age is required");
+      return false;
+    }
+    if (!formData.contact.trim() || !/^\d{11}$/.test(formData.contact)) {
+      setBackendError("Contact number must be exactly 11 digits");
+      return false;
+    }
+    if (!validatePassword(formData.password)) {
+      setBackendError("Password does not meet requirements");
+      return false;
+    }
+    if (!validateConfirmPassword(formData.confirmPassword, formData.password)) {
+      setBackendError("Passwords do not match");
+      return false;
+    }
+    if (!formData.agreeToTerms) {
+      setBackendError("You must agree to the terms");
+      return false;
+    }
+
     return true;
   };
 
   const validateLoginForm = () => {
-    if (!loginData.email.trim() || !/^\S+@\S+\.\S+$/.test(loginData.email)) return false;
-    if (!loginData.password.trim()) return false;
+    if (!loginData.email.trim() || !/^\S+@\S+\.\S+$/.test(loginData.email)) {
+      setBackendError("Valid email is required");
+      return false;
+    }
+    if (!loginData.password.trim()) {
+      setBackendError("Password is required");
+      return false;
+    }
     return true;
   };
 
@@ -181,32 +207,40 @@ const Sign = ({ defaultMode = "register" }) => {
 
     setIsLoading(true);
     setBackendError("");
-    
+
     try {
       const response = await fetch("http://127.0.0.1:5000/api/users/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData),
+        body: JSON.stringify({
+          fullName: formData.fullName,
+          gender: formData.gender,
+          age: formData.age,
+          email: formData.email,
+          password: formData.password,
+          contact: formData.contact,
+          agreeToTerms: formData.agreeToTerms,
+        }),
       });
 
       const responseData = await response.json();
 
       if (!response.ok) {
-        // Display backend error message
         setBackendError(responseData.data?.error || "Registration failed. Please try again.");
         return;
       }
 
       setMessage({ type: "success", text: "Registration successful!" });
-      setIsLogin(true);
+      setTimeout(() => setIsLogin(true), 2000);
 
       setFormData({
         fullName: "",
-        email: "",
         gender: "",
         age: "",
+        email: "",
         password: "",
         confirmPassword: "",
+        contact: "",
         agreeToTerms: false,
       });
     } catch (error) {
@@ -216,138 +250,109 @@ const Sign = ({ defaultMode = "register" }) => {
     }
   };
 
- const handleLoginSubmit = async (e) => {
-  e.preventDefault();
-  if (!validateLoginForm()) {
-    setBackendError("Please enter a valid email and password");
-    return;
-  }
-
-  setIsLoading(true);
-  setBackendError("");
-  
-  try {
-    const response = await fetch("http://127.0.0.1:5000/api/users/login", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(loginData),
-    });
-
-    const responseData = await response.json();
-    console.log("Full response data:", responseData); // Log the entire response
-
-    if (!response.ok) {
-      setBackendError(responseData.data?.error || "Login failed. Please try again.");
+  const handleLoginSubmit = async (e) => {
+    e.preventDefault();
+    if (!validateLoginForm()) {
       return;
     }
 
-    // Extract user data, accounting for nested structure
+    setIsLoading(true);
+    setBackendError("");
+
+    try {
+      const response = await fetch("http://127.0.0.1:5000/api/users/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(loginData),
+      });
+
+      const responseData = await response.json();
+
+      if (!response.ok) {
+        setBackendError(responseData.data?.error || "Login failed. Please try again.");
+        return;
+      }
+
       const userData = responseData.data || {};
       const token = userData.token;
-      const role = userData.user?.role;  
+      const role = userData.user?.role;
 
-    
-    
-    // If we don't have a role directly, let's check if we can determine it from other data
-    let userRole = role;
-    if (!userRole) {
-      // Check if user has doctor-specific properties
-      if (userData.specialty || userData.availableAppointments) {
-        userRole = "doctor";
-      } else if (userData.isAdmin) {
-        userRole = "admin";
-      } else {
-        userRole = "patient"; // Default role
+      let userRole = role;
+      if (!userRole) {
+        if (userData.specialty || userData.availableAppointments) {
+          userRole = "doctor";
+        } else if (userData.isAdmin) {
+          userRole = "admin";
+        } else {
+          userRole = "patient";
+        }
       }
-    }
-    
-    // Use the updated login function with token and role
-    login(token, userRole);
-    
-    if (rememberMe) {
-      const expiryDate = Date.now() + (7 * 24 * 60 * 60 * 1000); 
-      localStorage.setItem("rememberedEmail", loginData.email);
-      localStorage.setItem("rememberedPassword", loginData.password);
-      localStorage.setItem("rememberedPasswordExpiry", expiryDate.toString());
-    } else {
-      localStorage.removeItem("rememberedEmail");
-      localStorage.removeItem("rememberedPassword");
-      localStorage.removeItem("rememberedPasswordExpiry");
-    }
 
-    setMessage({ type: "success", text: "Login successful!" });
-    
-    console.log("Redirecting based on role:", userRole);
-    if (userRole === "admin") {
-      navigate("/admin");
-    } else if (userRole === "doctor") {
-      navigate("/DoctorView");
-    } else {
-      navigate("/");
-    }
+      login(token, userRole);
 
-    setLoginData({ email: "", password: "" });
-  } catch (error) {
-    console.error("Login error:", error);
-    setBackendError("Connection error. Please try again later.");
-  } finally {
-    setIsLoading(false);
-  }
-};
+      if (rememberMe) {
+        const expiryDate = Date.now() + 7 * 24 * 60 * 60 * 1000; // 7 days
+        localStorage.setItem("rememberedEmail", loginData.email);
+        localStorage.setItem("rememberedPassword", loginData.password);
+        localStorage.setItem("rememberedPasswordExpiry", expiryDate.toString());
+      } else {
+        localStorage.removeItem("rememberedEmail");
+        localStorage.removeItem("rememberedPassword");
+        localStorage.removeItem("rememberedPasswordExpiry");
+      }
+
+      setMessage({ type: "success", text: "Login successful!" });
+
+      if (userRole === "admin") {
+        navigate("/admin");
+      } else if (userRole === "doctor") {
+        navigate("/DoctorView");
+      } else {
+        navigate("/");
+      }
+
+      setLoginData({ email: "", password: "" });
+    } catch (error) {
+      setBackendError("Connection error. Please try again later.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const togglePasswordVisibility = (field) => {
+    if (field === "password") {
+      setPasswordVisible(!passwordVisible);
+    } else if (field === "confirmPassword") {
+      setConfirmPasswordVisible(!confirmPasswordVisible);
+    } else if (field === "loginPassword") {
+      setLoginPasswordVisible(!loginPasswordVisible);
+    }
+  };
 
   const PasswordRequirementsPopup = () => {
     if (!showPasswordRequirements) return null;
-    
-    const popupStyle = {
-      position: "absolute",
-      top: "100%",
-      left: "0",
-      right: "0",
-      background: "white",
-      border: "1px solid #ccc",
-      borderRadius: "4px",
-      padding: "10px",
-      boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
-      zIndex: 100,
-      marginTop: "5px"
-    };
-    
-    const requirementStyle = (met) => ({
-      fontSize: "12px",
-      margin: "3px 0",
-      color: met ? "green" : "#666",
-      display: "flex",
-      alignItems: "center"
-    });
-    
-    const checkmarkStyle = {
-      marginRight: "5px",
-      color: "green"
-    };
-    
+
     return (
-      <div style={popupStyle}>
-        <div style={{ fontSize: "12px", fontWeight: "bold", marginBottom: "5px" }}>
-          Password must contain:
-        </div>
-        <div style={requirementStyle(passwordRequirements.length)}>
-          {passwordRequirements.length && <span style={checkmarkStyle}>✓</span>}
+      <div className="password-requirements-popup">
+        <div className="requirements-title">Password must contain:</div>
+        <div className={`requirement ${passwordRequirements.length ? "met" : ""}`}>
+          {passwordRequirements.length && <span className="checkmark">✓</span>}
           At least 8 characters
         </div>
-        <div style={requirementStyle(passwordRequirements.uppercase)}>
-          {passwordRequirements.uppercase && <span style={checkmarkStyle}>✓</span>}
+        <div className={`requirement ${passwordRequirements.uppercase ? "met" : ""}`}>
+          {passwordRequirements.uppercase && <span className="checkmark">✓</span>}
           At least one uppercase letter
         </div>
-        <div style={requirementStyle(passwordRequirements.lowercase)}>
-          {passwordRequirements.lowercase && <span style={checkmarkStyle}>✓</span>}
+        <div className={`requirement ${passwordRequirements.lowercase ? "met" : ""}`}>
+          {passwordRequirements.lowercase && <span className="checkmark">✓</span>}
           At least one lowercase letter
         </div>
-        <div style={requirementStyle(passwordRequirements.number)}>
-          {passwordRequirements.number && <span style={checkmarkStyle}>✓</span>}
+        <div className={`requirement ${passwordRequirements.number ? "met" : ""}`}>
+          {passwordRequirements.number && <span className="checkmark">✓</span>}
           At least one number
         </div>
-        <div style={requirementStyle(passwordRequirements.special)}>
-          {passwordRequirements.special && <span style={checkmarkStyle}>✓</span>}
+        <div className={`requirement ${passwordRequirements.special ? "met" : ""}`}>
+          {passwordRequirements.special && <span className="checkmark">✓</span>}
           At least one special character
         </div>
       </div>
@@ -355,210 +360,352 @@ const Sign = ({ defaultMode = "register" }) => {
   };
 
   return (
-    <div className="page-center-wrapper">
-      <div className={`auth-container-sign auth-container ${isLogin ? "active" : ""}`}>  
-      {/* Login Form */}
-      <div className="form-section login">
-        <form className="auth-form" onSubmit={handleLoginSubmit}>
-          <h2 style={{textAlign:"center"}}>Login</h2>
-          <p className="login-fp">Login to access your account</p>
-  
-          {backendError && <div className="form-error">{backendError}</div>}
-          {message.text && (
-            <div className={`form-message ${message.type === "error" ? "error" : "success"}`}>
-              {message.text}
+    <div className="auth-page-wrapper">
+      <div className={`auth-container ${!isLogin ? "active" : ""}`}>
+        {/* Login Form */}
+        <div className="form-section login">
+          <form className="auth-form" onSubmit={handleLoginSubmit}>
+            <h2>Welcome Back</h2>
+            <p className="form-subtitle">Login to access your account</p>
+
+            {backendError && <div className="form-error">{backendError}</div>}
+            {message.text && (
+              <div className={`form-message ${message.type}`}>{message.text}</div>
+            )}
+
+            <div className="input-group">
+              <label>Email</label>
+              <div className="input-with-icon">
+                <input
+                  type="email"
+                  name="email"
+                  value={loginData.email}
+                  onChange={handleLoginChange}
+                  placeholder="Enter your email"
+                  required
+                  style={{ boxShadow: "none" }} // Prevent hover shadow
+                />
+                <span className="input-icon">
+                  <svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" fill="none">
+                    <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
+                    <polyline points="22,6 12,13 2,6"></polyline>
+                  </svg>
+                </span>
+              </div>
             </div>
-          )}
-  
-          <div className="login-input">
-            <label>Email</label>
-            <input type="email" name="email" value={loginData.email} onChange={handleLoginChange} required />
-          </div>
-          <div className="login-input">
-            <label>Password</label>
-            <input type="password" name="password" value={loginData.password} onChange={handleLoginChange} required />
-          </div>
-          <div className="remember-me" style={{ display: "flex", alignItems: "center"}}>
-            <label >
-              <input type="checkbox" checked={rememberMe} onChange={handleRememberMe} />
-              Remember me 
+            <div className="input-group">
+              <label>Password</label>
+              <div className="input-with-icon">
+                <input
+                  type={loginPasswordVisible ? "text" : "password"}
+                  name="password"
+                  value={loginData.password}
+                  onChange={handleLoginChange}
+                  placeholder="Enter your password"
+                  required
+                  style={{ boxShadow: "none" }} // Prevent hover shadow
+                />
+                <span
+                  className="password-toggle"
+                  onClick={() => togglePasswordVisibility("loginPassword")}
+                  style={{ cursor: "pointer", position: "absolute", right: "10px", top: "50%", transform: "translateY(-50%)" }}
+                >
+                  <svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" fill="none">
+                    <path
+                      d={
+                        loginPasswordVisible
+                          ? "M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"
+                          : "M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"
+                      }
+                    ></path>
+                    {loginPasswordVisible ? (
+                      <line x1="1" y1="1" x2="23" y2="23"></line>
+                    ) : (
+                      <circle cx="12" cy="12" r="3"></circle>
+                    )}
+                  </svg>
+                </span>
+              </div>
+            </div>
+            <div className="form-actions">
+              <label className="remember-me">
+                <input type="checkbox" checked={rememberMe} onChange={handleRememberMe} />
+                <span>Remember me</span>
+              </label>
               <span className="forgot-link" onClick={handleForgotPassword}>
-              Forgot Password?
-            </span>
-            </label>
-          </div>
-
-          <button className="login-btn" type="submit" disabled={isLoading}>
-            {isLoading ? "Loading..." : "Login"}
-          </button>
-          <button type="button" className="google-btn">
-              <img src="https://img.icons8.com/color/16/000000/google-logo.png" alt="google icon" style={{ marginRight: "8px" }} />
-              Sign In with Google
-            </button>
-        </form>
-        <div className="switch-form-link" style={{ textAlign: "center", marginTop: "16px" }}>
-  <p style={{ fontSize: "13px" }}>
-  Don't have an account?
-    <button
-      type="button"
-      style={{
-        background: "none",
-        color: "#007BFF",
-        border: "none",
-        padding: 0,
-        marginLeft: "5px",
-        cursor: "pointer",
-        textDecoration: "underline",
-      }}
-      onClick={() => setIsLogin(true)}
-    >
-      Sign Up
-    </button>
-  </p>
-</div>
-
-      </div>
-  
-      {/* Register Form */}
-      <div className="form-section register">
-      <form className="auth-form grid-two-cols" onSubmit={handleSubmit}>
-          <h2 style={{ textAlign: "center" }}>Sign Up</h2>
-          <p>Let's get you set up with a new account.</p>
-  
-          {backendError && <div className="form-error">{backendError}</div>}
-          {message.text && (
-            <div className={`form-message ${message.type === "error" ? "error" : "success"}`}>
-              {message.text}
+                Forgot Password?
+              </span>
             </div>
-          )}
-  
-          <div className="input-box">
-            <label className="label-signup">Full Name</label>
-            <input type="text" name="fullName" value={formData.fullName} onChange={handleChange} required />
-          </div>
-  
-          <div className="input-box">
-            <label className="label-signup">Email</label>
-            <input type="email" name="email" value={formData.email} onChange={handleChange} required />
-          </div>
-  
-          <div className="input-box">
-            <label className="label-signup">Gender</label>
-            <select name="gender" value={formData.gender} onChange={handleChange} required>
-              <option value="">Select Gender</option>
-              <option value="male">Male</option>
-              <option value="female">Female</option>
-            </select>
-          </div>
-  
-          <div className="input-box">
-            <label className="label-signup">Age</label>
-            <input type="number" name="age" value={formData.age} onChange={handleChange} required />
-          </div>
-  
-          <div className="input-box-pass" style={{ position: "relative" }}>
-            <label className="label-signup">Password</label>
-            <input
-              type="password"
-              name="password"
-              ref={passwordInputRef}
-              value={formData.password}
-              onChange={handleChange}
-              onFocus={() => setShowPasswordRequirements(true)}
-              required
-            />
-            <PasswordRequirementsPopup />
-            {passwordError && <p className="form-error small">{passwordError}</p>}
-          </div>
-  
-          <div className="input-box">
-            <label className="label-signup">Phone Number</label>
-            <input
-              type="tel"
-              name="phoneNumber"
-              value={formData.phoneNumber}
-              onChange={handleChange}
-              required
-            />
-          </div>
 
-          <div className="input-box-pass">
-            <label className="label-signup">Confirm Password</label>
-            <input
-              type="password"
-              name="confirmPassword"
-              value={formData.confirmPassword}
-              onChange={handleChange}
-              required
-            />
-            {confirmPasswordError && <p className="form-error small">{confirmPasswordError}</p>}
-          </div>
-  
-          <div className="agree-terms">
-            <input
-              type="checkbox"
-              name="agreeToTerms"
-              checked={formData.agreeToTerms}
-              onChange={handleChange}
-            />
-            <label>
-              I agree to the <span>Terms</span> and <span>Privacy Policy</span>
-            </label>
-          </div>
-  
-          <div className="full-row" style={{ display: "flex", gap: "10px" }}>
-            <button className="signup-btn" type="submit" disabled={isLoading}>
-              {isLoading ? "Loading..." : "Create Account"}
+            <button className="primary-btn" type="submit" disabled={isLoading}>
+              {isLoading ? (
+                <span className="loader-container">
+                  <span className="loader"></span>
+                </span>
+              ) : (
+                "Login"
+              )}
             </button>
-            <button type="button" className="google-btn">
-              <img src="https://img.icons8.com/color/16/000000/google-logo.png" alt="google icon" style={{ marginRight: "8px" }} />
-              Sign up with Google
+
+            <div className="divider">
+              <span>Or</span>
+            </div>
+
+            <button type="button" className="social-btn google-btn">
+              <img src="https://img.icons8.com/color/20/000000/google-logo.png" alt="google icon" />
+              <span>Sign In with Google</span>
             </button>
+          </form>
+          <div className="switch-form-link">
+            <p>
+              Don't have an account?
+              <button type="button" onClick={() => setIsLogin(false)}>
+                Sign Up
+              </button>
+            </p>
           </div>
+        </div>
 
-        </form>
-        <div className="switch-form-link" style={{ textAlign: "center", marginTop: "16px" }}>
-  <p style={{ fontSize: "13px" }}>
-  Already have an account?
-    <button
-      type="button"
-      style={{
-        background: "none",
-        color: "#007BFF",
-        border: "none",
-        padding: 0,
-        marginLeft: "5px",
-        cursor: "pointer",
-        textDecoration: "underline",
-      }}
-      onClick={() => setIsLogin(false)}
-    >
-      Sign In
-    </button>
-  </p>
-</div>
+        {/* Register Form */}
+        <div className="form-section register">
+          <form className="auth-form grid-two-cols" onSubmit={handleSubmit}>
+            <h2>Create Account</h2>
+            <p className="form-subtitle">Let's get you set up with a new account</p>
 
-      </div>
-  
-      {/* Overlay Panel */}
-      <div className="toggle-panel-wrapper">
-        <div className="toggle-panel">
-          {isLogin ? (
-            <div className="panel-content">
-              <h1>I already have an acount</h1>
-              <p>To keep connected with us please login</p>
-              <button onClick={() => setIsLogin(false)}>Sign In</button>
+            {backendError && <div className="form-error full-row">{backendError}</div>}
+            {message.text && (
+              <div className={`form-message ${message.type} full-row`}>{message.text}</div>
+            )}
+
+            <div className="input-group">
+              <label>Full Name</label>
+              <div className="input-with-icon">
+                <input
+                  type="text"
+                  name="fullName"
+                  value={formData.fullName}
+                  onChange={handleChange}
+                  placeholder="Enter your full name"
+                  required
+                  style={{ boxShadow: "none" }} // Prevent hover shadow
+                />
+                <span className="input-icon">
+                  <svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" fill="none">
+                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                    <circle cx="12" cy="7" r="4"></circle>
+                  </svg>
+                </span>
+              </div>
             </div>
-          ) : (
-            <div className="panel-content">
-              <h1>new here !</h1>
-              <p>Register and start your journey with us</p>
-              <button onClick={() => setIsLogin(true)}>Sign Up</button>
+
+            <div className="input-group">
+              <label>Email</label>
+              <div className="input-with-icon">
+                <input
+                  type="email"
+                  name="email"
+                  value={formData.email}
+                  onChange={handleChange}
+                  placeholder="Enter your email"
+                  required
+                  style={{ boxShadow: "none" }} // Prevent hover shadow
+                />
+                <span className="input-icon">
+                  <svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" fill="none">
+                    <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
+                    <polyline points="22,6 12,13 2,6"></polyline>
+                  </svg>
+                </span>
+              </div>
             </div>
-          )}
+
+            <div className="input-group">
+              <label>Gender</label>
+              <div className="input-with-icon">
+                <select name="gender" value={formData.gender} onChange={handleChange} required>
+                  <option value="">Select Gender</option>
+                  <option value="male">Male</option>
+                  <option value="female">Female</option>
+                </select>
+              </div>
+            </div>
+
+            <div className="input-group">
+              <label>Age</label>
+              <div className="input-with-icon">
+                <input
+                  type="number"
+                  name="age"
+                  value={formData.age}
+                  onChange={handleChange}
+                  placeholder="Enter your age"
+                  required
+                  style={{ boxShadow: "none" }} // Prevent hover shadow
+                />
+                <span className="input-icon">
+                  <svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" fill="none">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <polyline points="12 6 12 12 16 14"></polyline>
+                  </svg>
+                </span>
+              </div>
+            </div>
+
+            <div className="input-group" style={{ position: "relative" }}>
+              <label>Password</label>
+              <div className="input-with-icon">
+                <input
+                  type={passwordVisible ? "text" : "password"}
+                  name="password"
+                  ref={passwordInputRef}
+                  value={formData.password}
+                  onChange={handleChange}
+                  onFocus={() => setShowPasswordRequirements(true)}
+                  placeholder="Create password"
+                  required
+                  style={{ boxShadow: "none", paddingRight: "40px" }} // Prevent hover shadow, space for icon
+                />
+                <span
+                  className="password-toggle"
+                  onClick={() => togglePasswordVisibility("password")}
+                  style={{ cursor: "pointer", position: "absolute", right: "10px", top: "50%", transform: "translateY(-50%)" }}
+                >
+                  <svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" fill="none">
+                    <path
+                      d={
+                        passwordVisible
+                          ? "M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"
+                          : "M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"
+                      }
+                    ></path>
+                    {passwordVisible ? (
+                      <line x1="1" y1="1" x2="23" y2="23"></line>
+                    ) : (
+                      <circle cx="12" cy="12" r="3"></circle>
+                    )}
+                  </svg>
+                </span>
+              </div>
+              <PasswordRequirementsPopup />
+              {passwordError && <p className="field-error">{passwordError}</p>}
+            </div>
+
+            <div className="input-group">
+              <label>Confirm Password</label>
+              <div className="input-with-icon">
+                <input
+                  type={confirmPasswordVisible ? "text" : "password"}
+                  name="confirmPassword"
+                  value={formData.confirmPassword}
+                  onChange={handleChange}
+                  placeholder="Confirm password"
+                  required
+                  style={{ boxShadow: "none", paddingRight: "40px" }} // Prevent hover shadow, space for icon
+                />
+                <span
+                  className="password-toggle"
+                  onClick={() => togglePasswordVisibility("confirmPassword")}
+                  style={{ cursor: "pointer", position: "absolute", right: "10px", top: "50%", transform: "translateY(-50%)" }}
+                >
+                  <svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" fill="none">
+                    <path
+                      d={
+                        confirmPasswordVisible
+                          ? "M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"
+                          : "M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"
+                      }
+                    ></path>
+                    {confirmPasswordVisible ? (
+                      <line x1="1" y1="1" x2="23" y2="23"></line>
+                    ) : (
+                      <circle cx="12" cy="12" r="3"></circle>
+                    )}
+                  </svg>
+                </span>
+              </div>
+              {confirmPasswordError && <p className="field-error">{confirmPasswordError}</p>}
+            </div>
+
+            <div className="input-group">
+              <label>Contact Number</label>
+              <div className="input-with-icon">
+                <input
+                  type="tel"
+                  name="contact"
+                  value={formData.contact}
+                  onChange={handleChange}
+                  placeholder="Enter 11-digit phone number"
+                  required
+                  style={{ boxShadow: "none" }} // Prevent hover shadow
+                />
+                <span className="input-icon">
+                  <svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" fill="none">
+                    <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path>
+                  </svg>
+                </span>
+              </div>
+              <p className="helper-text">Phone number must be exactly 11 digits</p>
+            </div>
+
+            <div className="terms-agreement">
+              <label className="checkbox-label">
+                <input
+                  type="checkbox"
+                  name="agreeToTerms"
+                  checked={formData.agreeToTerms}
+                  onChange={handleChange}
+                />
+                <span className="checkmark"></span>
+                I agree to the <a href="#">Terms</a> and <a href="#">Privacy Policy</a>
+              </label>
+            </div>
+
+            <div className="full-row">
+              <button className="primary-btn" type="submit" disabled={isLoading}>
+                {isLoading ? (
+                  <span className="loader-container">
+                    <span className="loader"></span>
+                  </span>
+                ) : (
+                  "Create Account"
+                )}
+              </button>
+
+              <button type="button" className="social-btn google-btn social-btn2">
+                <img src="https://img.icons8.com/color/20/000000/google-logo.png" alt="google icon" />
+                <span>Sign up with Google</span>
+              </button>
+            </div>
+          </form>
+          <div className="switch-form-link">
+            <p className="already-have">
+              Already have an account?
+              <button type="button" onClick={() => setIsLogin(true)}>
+                Sign In
+              </button>
+            </p>
+          </div>
+        </div>
+
+        {/* Overlay Panel */}
+        <div className="toggle-panel-wrapper">
+          <div className="toggle-panel">
+            {!isLogin ? (
+              <div className="panel-content">
+                <h1>Welcome Back!</h1>
+                <p>To keep connected with us please login with your personal info</p>
+                <button onClick={() => setIsLogin(true)}>Sign In</button>
+              </div>
+            ) : (
+              <div className="panel-content">
+                <h1>Hello, Friend!</h1>
+                <p>Enter your personal details and start your journey with us</p>
+                <button onClick={() => setIsLogin(false)}>Sign Up</button>
+              </div>
+            )}
+          </div>
         </div>
       </div>
-    </div>
     </div>
   );
 };

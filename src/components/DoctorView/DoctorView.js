@@ -15,6 +15,7 @@ const DoctorView = () => {
   const [reviews, setReviews] = useState([]);
   const [newSlot, setNewSlot] = useState({ date: '', time: '' });
   const [error, setError] = useState(null);
+  const [toasts, setToasts] = useState([]);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -30,7 +31,18 @@ const DoctorView = () => {
     getSlots: 'http://127.0.0.1:5000/api/doctorprofile/appointments/all',
     appointments: 'http://127.0.0.1:5000/api/doctorprofile/appointments/all',
     updateAppointmentStatus: 'http://127.0.0.1:5000/api/doctorprofile/appointments/status',
-    reviews: 'http://127.0.0.1:5000/api/doctorprofile/reviews'
+    reviews: 'http://127.0.0.1:5000/api/doctorprofile/reviews',
+    deleteSlot: 'http://127.0.0.1:5000/api/doctorprofile/appointments/delete'
+  };
+
+  // Function to add a new toast notification
+  const addToast = (message, type = 'success') => {
+    const id = Date.now();
+    setToasts(prev => [...prev, { id, message, type }]);
+    // Auto-remove toast after 5 seconds
+    setTimeout(() => {
+      setToasts(prev => prev.filter(toast => toast.id !== id));
+    }, 5000);
   };
 
   useEffect(() => {
@@ -226,7 +238,7 @@ const DoctorView = () => {
         }
 
         setNewSlot({ date: '', time: '' });
-        alert("Slot added successfully!");
+        addToast('New appointment slot added successfully!', 'success');
       }
     } catch (err) {
       console.error('Error adding slot:', err);
@@ -260,7 +272,7 @@ const DoctorView = () => {
           }
         });
 
-        if (response.data.data && response.data.data.bookedAppointments) {
+        if (refreshResponse.data.data && refreshResponse.data.data.bookedAppointments) {
           const pendingAppointments = refreshResponse.data.data.bookedAppointments
             .filter(apt => apt.status.toLowerCase() === 'pending')
             .map(apt => ({
@@ -292,7 +304,7 @@ const DoctorView = () => {
           setAcceptedAppointments(confirmedAppointments);
         }
 
-        alert('Appointment accepted successfully!');
+        addToast('Appointment confirmed successfully!', 'success');
       } else {
         throw new Error('Unexpected response from server');
       }
@@ -345,7 +357,7 @@ const DoctorView = () => {
           setAppointmentRequests(pendingAppointments);
         }
 
-        alert('Appointment cancelled successfully!');
+        addToast('Appointment cancelled successfully.', 'info');
       } else {
         throw new Error('Unexpected response from server');
       }
@@ -362,24 +374,29 @@ const DoctorView = () => {
       const token = localStorage.getItem('jwt');
       const slotToRemove = availableSlots[slotIndex];
 
-      const response = await axios.delete(`${API_ENDPOINTS.getSlots}/${slotIndex}`, {
+      const response = await axios.delete(API_ENDPOINTS.deleteSlot, {
         headers: {
-          Authorization: `Bearer ${token}`
+          Authorization: `Bearer ${token}`,
         },
-        data: { slot: slotToRemove }
+        data: { appointmentSlot: slotToRemove },
       });
 
       if (response.data.status === 'success') {
-        setAvailableSlots(prevSlots =>
+        setAvailableSlots((prevSlots) =>
           prevSlots.filter((_, index) => index !== slotIndex)
         );
-        alert("Slot removed successfully!");
+        addToast('Appointment slot removed successfully!', 'success');
       }
     } catch (err) {
       console.error('Error removing slot:', err);
       console.error('Error response:', err.response ? err.response.data : 'No response data');
       setError('Failed to remove slot. Please try again.');
     }
+  };
+
+  const handleLogout = () => {
+    localStorage.removeItem('jwt');
+    navigate('/login');
   };
 
   if (isLoading) {
@@ -406,7 +423,45 @@ const DoctorView = () => {
 
   return (
     <div className="doctor-profile-container">
-      <div className="container py-5">
+      {/* Toast Container */}
+      <div className="position-fixed top-0 end-0 p-3" style={{ zIndex: 1050 }}>
+        {toasts.map(toast => (
+          <div
+            key={toast.id}
+            className={`toast show align-items-center text-white bg-${toast.type} border-0`}
+            role="alert"
+            aria-live="assertive"
+            aria-atomic="true"
+          >
+            <div className="d-flex">
+              <div className="toast-body">
+                {toast.message}
+              </div>
+              <button
+                type="button"
+                className="btn-close btn-close-white me-2 m-auto"
+                onClick={() => setToasts(prev => prev.filter(t => t.id !== toast.id))}
+                aria-label="Close"
+              ></button>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* Header */}
+      <header className="bg-primary bg-gradient text-white py-3 shadow-sm" style={{ position: 'fixed', top: 0, width: '100%', zIndex: 1000 }}>
+        <div className="container d-flex justify-content-between align-items-center">
+          <h3 className="mb-0">DiagnoTech</h3>
+          <button 
+            className="btn btn-outline-light"
+            onClick={handleLogout}
+          >
+            <i className="bi bi-box-arrow-left me-2"></i>Logout
+          </button>
+        </div>
+      </header>
+
+      <div className="container py-5" style={{ paddingTop: '80px' }}>
         <div className="card border-0 shadow-lg rounded-4 overflow-hidden">
           <div className="row g-0">
             <div className="col-md-4 bg-primary bg-gradient text-white d-flex flex-column align-items-center justify-content-center p-5 border-end">
@@ -510,6 +565,18 @@ const DoctorView = () => {
                               <li className="list-group-item bg-transparent px-0">
                                 <span className="fw-bold me-2">Experience:</span> {experience}
                               </li>
+                              <li className="list-group-item bg-transparent px-0">
+                                <span className="fw-bold me-2">Google Maps:</span> 
+                                {doctor?.googleMapsLink ? (
+                                  <a href={doctor.googleMapsLink} target="_blank" rel="noopener noreferrer">View Location</a>
+                                ) : 'Not provided'}
+                              </li>
+                              <li className="list-group-item bg-transparent px-0">
+                                <span className="fw-bold me-2">WhatsApp:</span> 
+                                {doctor?.whatsappLink ? (
+                                  <a href={doctor.whatsappLink} target="_blank" rel="noopener noreferrer">Contact via WhatsApp</a>
+                                ) : 'Not provided'}
+                              </li>
                             </ul>
                           </div>
                         </div>
@@ -578,10 +645,8 @@ const DoctorView = () => {
                       </div>
                     ) : (
                       <div className="text-center p-4 bg-light rounded">
-                        <div className="text-center p-4 bg-light rounded">
-                          <i className="bi bi-calendar-x display-4 text-secondary"></i>
-                          <p className="mt-3">No appointment requests at this time.</p>
-                        </div>
+                        <i className="bi bi-calendar-x display-4 text-secondary"></i>
+                        <p className="mt-3">No appointment requests at this time.</p>
                       </div>
                     )}
 
