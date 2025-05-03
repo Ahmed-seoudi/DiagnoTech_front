@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { useNavigate, useLocation } from "react-router-dom";
+import { jsPDF } from "jspdf"; // استيراد مكتبة jsPDF
 import "./CheckSymptoms.css";
 import "../style.css";
 
@@ -55,10 +56,8 @@ const ReportPage = () => {
   };
 
   useEffect(() => {
-    // Removed console.log and replaced with a check for missing data
     if (!location.state?.reportData) {
-      // Optionally, show a UI message or redirect
-      // For now, we'll rely on fallback UI messages below
+
     }
     document.body.classList.add("custom-report-body");
     return () => {
@@ -66,20 +65,128 @@ const ReportPage = () => {
     };
   }, [location.state]);
 
+  const downloadReportAsPDF = () => {
+    const doc = new jsPDF({
+      orientation: "portrait",
+      unit: "mm",
+      format: "a4",
+    });
+
+    // Constants for layout
+    const pageWidth = doc.internal.pageSize.getWidth();
+    const margin = 15;
+    const maxWidth = pageWidth - 2 * margin;
+    let y = margin;
+
+    // Header
+    doc.setFillColor(60, 120, 181); // Blue header background
+    doc.rect(0, 0, pageWidth, 20, "F");
+    doc.setFontSize(18);
+    doc.setTextColor(255, 255, 255);
+    doc.setFont("helvetica", "bold");
+    doc.text("DiagnoTech | Medical Report", margin, 12);
+    doc.setFontSize(10);
+    doc.text(`Generated on: ${new Date().toLocaleDateString()}`, pageWidth - margin - 50, 12);
+    y += 25;
+
+    // Disease Section
+    doc.setFontSize(14);
+    doc.setTextColor(0, 0, 0);
+    doc.setFont("helvetica", "bold");
+    doc.text("Disease", margin, y);
+    y += 2;
+    y += 6;
+    doc.setFontSize(12);
+    doc.setFont("helvetica", "normal");
+    const diseaseText = reportData.disease || "No disease information available";
+    const diseaseLines = doc.splitTextToSize(diseaseText, maxWidth);
+    doc.text(diseaseLines, margin, y);
+    y += diseaseLines.length * 7 + 10;
+
+    // Description Section
+    doc.setFontSize(14);
+    doc.setFont("helvetica", "bold");
+    doc.text("Description", margin, y);
+    y += 2;
+    y += 6;
+    doc.setFontSize(12);
+    doc.setFont("helvetica", "normal");
+    const descriptionText = reportData.description || "No description available for this condition";
+    const descriptionLines = doc.splitTextToSize(descriptionText, maxWidth);
+    doc.text(descriptionLines, margin, y);
+    y += descriptionLines.length * 7 + 10;
+
+    // Precautions Section
+    doc.setFontSize(14);
+    doc.setFont("helvetica", "bold");
+    doc.text("Precautions", margin, y);
+    y += 2;
+    y += 6;
+    doc.setFontSize(12);
+    doc.setFont("helvetica", "normal");
+    if (reportData.precautions.length > 0) {
+      reportData.precautions.forEach((item, index) => {
+        const precautionText = `${index + 1}. ${item}`;
+        const precautionLines = doc.splitTextToSize(precautionText, maxWidth);
+        if (y + precautionLines.length * 7 > doc.internal.pageSize.getHeight() - margin - 20) {
+          doc.addPage();
+          y = margin;
+        }
+        doc.text(precautionLines, margin, y);
+        y += precautionLines.length * 7 + 2;
+      });
+    } else {
+      doc.text("No precautions available.", margin, y);
+      y += 10;
+    }
+    y += 10;
+
+    // Doctor Suggestions Section
+    if (reportData.doctors.length > 0) {
+      doc.setFontSize(14);
+      doc.setFont("helvetica", "bold");
+      doc.text("Doctor Suggestions", margin, y);
+      y += 2;
+      y += 6;
+      doc.setFontSize(12);
+      doc.setFont("helvetica", "normal");
+      reportData.doctors.forEach((doctor, index) => {
+        const doctorText = `${index + 1}. Dr. ${doctor.name} - ${doctor.clinicAddress}`;
+        const doctorLines = doc.splitTextToSize(doctorText, maxWidth);
+        if (y + doctorLines.length * 7 > doc.internal.pageSize.getHeight() - margin - 20) {
+          doc.addPage();
+          y = margin;
+        }
+        doc.text(doctorLines, margin, y);
+        y += doctorLines.length * 7 + 2;
+      });
+    }
+
+    // Footer with page numbers
+    const pageCount = doc.internal.getNumberOfPages();
+    for (let i = 1; i <= pageCount; i++) {
+      doc.setPage(i);
+      doc.setFontSize(10);
+      doc.setTextColor(100);
+      doc.setFont("helvetica", "normal");
+      doc.text(`Page ${i} of ${pageCount}`, pageWidth - margin - 20, doc.internal.pageSize.getHeight() - 10);
+    }
+
+    // Save the PDF
+    doc.save("Your_Medical_Report.pdf");
+  };
+
   return (
     <div className="container py-5 custom-report">
       <h1 className="text-center mb-4 report-title">Here's your report!</h1>
 
-      {/* Show a warning if no report data is available */}
       {!reportData.disease && !reportData.description && reportData.precautions.length === 0 && reportData.doctors.length === 0 ? (
         <div className="alert alert-warning text-center" role="alert">
           No report data available. Please try generating the report again or return to the home page.
         </div>
       ) : (
         <div className="row">
-          {/* Left Column */}
           <div className="col-md-6 d-flex flex-column gap-3">
-            {/* Disease Field */}
             <div>
               <label className="custom-label">
                 Disease
@@ -92,8 +199,6 @@ const ReportPage = () => {
                 disabled
               />
             </div>
-
-            {/* Description Field */}
             <div>
               <label className="custom-label">
                 Disease Description
@@ -106,8 +211,6 @@ const ReportPage = () => {
                 disabled
               ></textarea>
             </div>
-
-            {/* Precautions */}
             <div>
               <label className="custom-label">
                 Recommended Precautions
@@ -127,20 +230,18 @@ const ReportPage = () => {
               )}
             </div>
           </div>
-
-          {/* Right Column */}
           <div className="col-md-6 d-flex flex-column gap-3 align-items-end">
-            {/* Doctor Suggestions */}
             <div className="w-100">
               <DoctorSuggestion doctors={reportData.doctors} />
             </div>
-
-            {/* Button */}
-            <button className="custom-btn-secondary w-100" onClick={() => navigate("/")}>
-              Go to home page
-            </button>
-
-            {/* Images */}
+            <div className="w-100">
+              <button className="custom-btn-secondary w-100" onClick={() => navigate("/")}>
+                Go to home page
+              </button>
+              <button className="custom-btn-primary w-100 mt-3" onClick={downloadReportAsPDF}>
+                Download Report as PDF
+              </button>
+            </div>
             <div className="d-flex justify-content-end gap-3 mt-4 w-100">
               <img
                 src="/img/report1.jpeg"
