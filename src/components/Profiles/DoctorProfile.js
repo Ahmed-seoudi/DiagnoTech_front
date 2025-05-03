@@ -13,8 +13,8 @@ import { useAuth } from '../../context/AuthContext';
 const DoctorProfile = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { id } = useParams(); 
-  const { isLoggedIn } = useAuth(); // Use auth context
+  const { id } = useParams();
+  const { isLoggedIn } = useAuth();
   const [doctorDetails, setDoctorDetails] = useState(location.state?.doctor || null);
   const [appointments, setAppointments] = useState([]);
   const [selectedAppointment, setSelectedAppointment] = useState(null);
@@ -26,16 +26,15 @@ const DoctorProfile = () => {
   const [isLoadingReviews, setIsLoadingReviews] = useState(false);
   const [showReviews, setShowReviews] = useState(true);
   const [isLoadingDoctor, setIsLoadingDoctor] = useState(false);
+  const [message, setMessage] = useState({ type: '', text: '' }); // New state for UI messages
 
   useEffect(() => {
     document.body.classList.add('doctor-profile-body');
     
-    // If we have a doctor ID but no doctor details, fetch them
     if (id && !doctorDetails) {
       fetchDoctorDetails(id);
     }
     
-    // Use either the ID from URL params or from doctor details
     const doctorId = id || (doctorDetails && doctorDetails._id);
     
     if (doctorId) {
@@ -47,16 +46,27 @@ const DoctorProfile = () => {
       document.body.classList.remove('doctor-profile-body');
     };
   }, [id, doctorDetails]);
-  
+
+  // Clear message after 5 seconds
+  useEffect(() => {
+    if (message.text) {
+      const timer = setTimeout(() => setMessage({ type: '', text: '' }), 5000);
+      return () => clearTimeout(timer);
+    }
+  }, [message]);
+
   const fetchDoctorDetails = async (doctorId) => {
     setIsLoadingDoctor(true);
     try {
       const response = await axios.get(`http://127.0.0.1:5000/api/doctors/${doctorId}`);
       if (response.data.status === 'success') {
         setDoctorDetails(response.data.data);
+      } else {
+        setMessage({ type: 'danger', text: 'Failed to load doctor details. Please try again.' });
       }
     } catch (error) {
       console.error('Error fetching doctor details:', error);
+      setMessage({ type: 'danger', text: 'Error loading doctor details. Please check your connection.' });
     } finally {
       setIsLoadingDoctor(false);
     }
@@ -65,11 +75,9 @@ const DoctorProfile = () => {
   const fetchAppointments = async (doctorId) => {
     try {
       const response = await axios.get(`http://127.0.0.1:5000/api/userbook/appointments/${doctorId}`);
-
       if (response.data.status === 'success' && Array.isArray(response.data.data)) {
         setAppointments(response.data.data);
       } else {
-        console.warn('No appointments found or unexpected response format');
         setAppointments([]);
       }
     } catch (error) {
@@ -81,35 +89,22 @@ const DoctorProfile = () => {
   const fetchReviews = async (doctorId) => {
     setIsLoadingReviews(true);
     try {
-      console.log('Fetching reviews for doctor ID:', doctorId);
       const response = await axios.get(`http://127.0.0.1:5000/api/userbook/reviews/${doctorId}`);
-      console.log('Reviews response:', response.data);
-  
       if (response.data.status === 'success') {
-        // Handle different possible response formats
         if (Array.isArray(response.data.data)) {
-          console.log('Setting reviews array directly:', response.data.data);
           setReviews(response.data.data);
         } else if (response.data.data && Array.isArray(response.data.data.reviews)) {
-          console.log('Setting reviews from data.reviews array:', response.data.data.reviews);
           setReviews(response.data.data.reviews);
         } else if (response.data.data && response.data.data.reviews) {
-          console.log('Setting single review as array:', [response.data.data.reviews]);
           setReviews([response.data.data.reviews]);
         } else {
-          console.log('No valid reviews format found, setting empty array');
           setReviews([]);
         }
       } else {
-        console.warn('Failed to fetch reviews:', response.data.message);
         setReviews([]);
       }
     } catch (error) {
       console.error('Error fetching reviews:', error);
-      if (error.response) {
-        console.error('Error response data:', error.response.data);
-        console.error('Error response status:', error.response.status);
-      }
       setReviews([]);
     } finally {
       setIsLoadingReviews(false);
@@ -118,18 +113,15 @@ const DoctorProfile = () => {
 
   const bookAppointment = async () => {
     if (!selectedAppointment) {
-      console.log('No appointment selected:', selectedAppointment);
-      alert('Please select an appointment time first');
+      setMessage({ type: 'warning', text: 'Please select an appointment time first.' });
       return;
     }
     
     if (!isLoggedIn) {
-      alert('You need to be logged in to book an appointment. Please log in first.');
-      navigate('/login', { state: { returnUrl: location.pathname }});
+      setMessage({ type: 'warning', text: 'You need to be logged in to book an appointment.' });
+      setTimeout(() => navigate('/login', { state: { returnUrl: location.pathname } }), 3000);
       return;
     }
-    
-    console.log("Selected Appointment:", selectedAppointment);
 
     try {
       const doctorId = id || (doctorDetails && doctorDetails._id);
@@ -150,30 +142,28 @@ const DoctorProfile = () => {
 
       const responseData = await response.json();
 
-      console.log('Booking response:', responseData);
-
       if (responseData.status === 'success') {
-        alert('Appointment booked successfully!');
+        setMessage({ type: 'success', text: 'Appointment booked successfully!' });
         fetchAppointments(doctorId);
         setSelectedAppointment(null);
       } else {
-        alert(responseData.message || 'Failed to book appointment. Please try again.');
+        setMessage({ type: 'danger', text: responseData.message || 'Failed to book appointment. Please try again.' });
       }
     } catch (error) {
       console.error('Error booking appointment:', error);
-      alert('Failed to book appointment. Please try again.');
+      setMessage({ type: 'danger', text: 'Failed to book appointment. Please try again.' });
     }
   };
 
   const submitRating = async () => {
     if (rating === 0) {
-      alert('Please select a rating');
+      setMessage({ type: 'warning', text: 'Please select a rating before submitting.' });
       return;
     }
 
     if (!isLoggedIn) {
-      alert('You need to be logged in to submit a rating. Please log in first.');
-      navigate('/login', { state: { returnUrl: location.pathname }});
+      setMessage({ type: 'warning', text: 'You need to be logged in to submit a rating.' });
+      setTimeout(() => navigate('/login', { state: { returnUrl: location.pathname } }), 3000);
       return;
     }
 
@@ -192,42 +182,32 @@ const DoctorProfile = () => {
         }
       });
 
-      console.log('Full response:', response);
-      console.log('Response data:', response.data);
-
       if (response.data.status === 'success') {
         setRatingSubmitted(true);
         setRating(0);
         setRatingComment('');
+        setMessage({ type: 'success', text: 'Thank you! Your rating has been submitted.' });
         setTimeout(() => {
           fetchReviews(doctorId); 
         }, 500);
-        alert('Rating submitted successfully!');
       } else {
-        console.error('Error response:', response.data);
-        alert(response.data.message || 'Failed to submit rating. Please try again.');
+        setMessage({ type: 'danger', text: response.data.message || 'Failed to submit rating. Please try again.' });
       }
     } catch (error) {
       console.error('Error submitting rating:', error);
-      
       if (error.response) {
-        console.error('Error response data:', error.response.data);
-        console.error('Error response status:', error.response.status);
-        
         if (error.response.status === 401) {
-          alert('Authentication error. Please log in again.');
-          navigate('/login', { state: { returnUrl: location.pathname }});
+          setMessage({ type: 'warning', text: 'Authentication error. Please log in again.' });
+          setTimeout(() => navigate('/login', { state: { returnUrl: location.pathname } }), 3000);
         } else if (error.response.data && error.response.data.message) {
-          alert('Error: ' + error.response.data.message);
+          setMessage({ type: 'danger', text: `Error: ${error.response.data.message}` });
         } else {
-          alert('Failed to submit rating. Please try again.');
+          setMessage({ type: 'danger', text: 'Failed to submit rating. Please try again.' });
         }
       } else if (error.request) {
-        console.error('No response received:', error.request);
-        alert('No response from server. Please check your connection and try again.');
+        setMessage({ type: 'danger', text: 'No response from server. Please check your connection.' });
       } else {
-        console.error('Error message:', error.message);
-        alert('Failed to submit rating: ' + error.message);
+        setMessage({ type: 'danger', text: `Failed to submit rating: ${error.message}` });
       }
     }
   };
@@ -244,11 +224,7 @@ const DoctorProfile = () => {
   
   const calculateAverageRating = () => {
     if (!reviews || reviews.length === 0) return 0;
-    
-    const sum = reviews.reduce((total, review) => {
-      return total + (review.rating || 0);
-    }, 0);
-    
+    const sum = reviews.reduce((total, review) => total + (review.rating || 0), 0);
     return (sum / reviews.length).toFixed(1);
   };
 
@@ -289,6 +265,14 @@ const DoctorProfile = () => {
       </div>
       <div className="profile-content overflow-auto">
         <h1 className="text-primary fw-bold text-center mb-4 doc-h">Doctor's Profile</h1>
+
+        {/* Display Messages */}
+        {message.text && (
+          <div className={`alert alert-${message.type} alert-dismissible fade show mx-auto`} style={{ maxWidth: '800px' }} role="alert">
+            {message.text}
+            <button type="button" className="btn-close" onClick={() => setMessage({ type: '', text: '' })}></button>
+          </div>
+        )}
 
         <div className="d-flex flex-column align-items-center mb-4">
           <div className="rounded-circle bg-primary d-flex align-items-center justify-content-center"

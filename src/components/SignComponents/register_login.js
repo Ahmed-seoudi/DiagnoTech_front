@@ -333,26 +333,26 @@ const Sign = ({ defaultMode = "login" }) => {
     if (!showPasswordRequirements) return null;
 
     return (
-      <div className="password-requirements-popup">
-        <div className="requirements-title">Password must contain:</div>
-        <div className={`requirement ${passwordRequirements.length ? "met" : ""}`}>
-          {passwordRequirements.length && <span className="checkmark">✓</span>}
+      <div className="sign-password-requirements-popup">
+        <div className="sign-requirements-title">Password must contain:</div>
+        <div className={`sign-requirement ${passwordRequirements.length ? "sign-met" : ""}`}>
+          {passwordRequirements.length && <span className="sign-checkmark">✓</span>}
           At least 8 characters
         </div>
-        <div className={`requirement ${passwordRequirements.uppercase ? "met" : ""}`}>
-          {passwordRequirements.uppercase && <span className="checkmark">✓</span>}
+        <div className={`sign-requirement ${passwordRequirements.uppercase ? "sign-met" : ""}`}>
+          {passwordRequirements.uppercase && <span className="sign-checkmark">✓</span>}
           At least one uppercase letter
         </div>
-        <div className={`requirement ${passwordRequirements.lowercase ? "met" : ""}`}>
-          {passwordRequirements.lowercase && <span className="checkmark">✓</span>}
+        <div className={`sign-requirement ${passwordRequirements.lowercase ? "sign-met" : ""}`}>
+          {passwordRequirements.lowercase && <span className="sign-checkmark">✓</span>}
           At least one lowercase letter
         </div>
-        <div className={`requirement ${passwordRequirements.number ? "met" : ""}`}>
-          {passwordRequirements.number && <span className="checkmark">✓</span>}
+        <div className={`sign-requirement ${passwordRequirements.number ? "sign-met" : ""}`}>
+          {passwordRequirements.number && <span className="sign-checkmark">✓</span>}
           At least one number
         </div>
-        <div className={`requirement ${passwordRequirements.special ? "met" : ""}`}>
-          {passwordRequirements.special && <span className="checkmark">✓</span>}
+        <div className={`sign-requirement ${passwordRequirements.special ? "sign-met" : ""}`}>
+          {passwordRequirements.special && <span className="sign-checkmark">✓</span>}
           At least one special character
         </div>
       </div>
@@ -360,22 +360,22 @@ const Sign = ({ defaultMode = "login" }) => {
   };
 
   return (
-    <div className="auth-page-wrapper">
-      <div className={`auth-container ${!isLogin ? "active" : ""}`}>
+    <div className="sign-auth-page-wrapper">
+      <div className={`sign-auth-container ${!isLogin ? "sign-active" : ""}`}>
         {/* Login Form */}
-        <div className="form-section login">
-          <form className="auth-form" onSubmit={handleLoginSubmit}>
+        <div className="sign-form-section sign-login">
+          <form className="sign-auth-form" onSubmit={handleLoginSubmit}>
             <h2>Welcome Back</h2>
-            <p className="form-subtitle">Login to access your account</p>
+            <p className="sign-form-subtitle">Login to access your account</p>
 
-            {backendError && <div className="form-error">{backendError}</div>}
+            {backendError && <div className="sign-form-error">{backendError}</div>}
             {message.text && (
-              <div className={`form-message ${message.type}`}>{message.text}</div>
+              <div className={`sign-form-message ${message.type}`}>{message.text}</div>
             )}
 
-            <div className="input-group">
+            <div className="sign-input-group">
               <label>Email</label>
-              <div className="input-with-icon">
+              <div className="sign-input-with-icon">
                 <input
                   type="email"
                   name="email"
@@ -383,9 +383,9 @@ const Sign = ({ defaultMode = "login" }) => {
                   onChange={handleLoginChange}
                   placeholder="Enter your email"
                   required
-                  style={{ boxShadow: "none" }} // Prevent hover shadow
+                  style={{ boxShadow: "none" }}
                 />
-                <span className="input-icon">
+                <span className="sign-input-icon">
                   <svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" fill="none">
                     <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
                     <polyline points="22,6 12,13 2,6"></polyline>
@@ -393,9 +393,9 @@ const Sign = ({ defaultMode = "login" }) => {
                 </span>
               </div>
             </div>
-            <div className="input-group">
+            <div className="sign-input-group">
               <label>Password</label>
-              <div className="input-with-icon">
+              <div className="sign-input-with-icon">
                 <input
                   type={loginPasswordVisible ? "text" : "password"}
                   name="password"
@@ -403,10 +403,10 @@ const Sign = ({ defaultMode = "login" }) => {
                   onChange={handleLoginChange}
                   placeholder="Enter your password"
                   required
-                  style={{ boxShadow: "none" }} // Prevent hover shadow
+                  style={{ boxShadow: "none" }}
                 />
                 <span
-                  className="password-toggle"
+                  className="sign-password-toggle"
                   onClick={() => togglePasswordVisibility("loginPassword")}
                   style={{ cursor: "pointer", position: "absolute", right: "10px", top: "50%", transform: "translateY(-50%)" }}
                 >
@@ -427,36 +427,36 @@ const Sign = ({ defaultMode = "login" }) => {
                 </span>
               </div>
             </div>
-            <div className="form-actions">
-              <label className="remember-me">
+            <div className="sign-form-actions">
+              <label className="sign-remember-me">
                 <input type="checkbox" checked={rememberMe} onChange={handleRememberMe} />
                 <span>Remember me</span>
               </label>
-              <span className="forgot-link" onClick={handleForgotPassword}>
+              <span className="sign-forgot-link" onClick={handleForgotPassword}>
                 Forgot Password?
               </span>
             </div>
 
-            <button className="primary-btn" type="submit" disabled={isLoading}>
+            <button className="sign-primary-btn" type="submit" disabled={isLoading}>
               {isLoading ? (
-                <span className="loader-container">
-                  <span className="loader"></span>
+                <span className="sign-loader-container">
+                  <span className="sign-loader"></span>
                 </span>
               ) : (
                 "Login"
               )}
             </button>
 
-            <div className="divider">
+            <div className="sign-divider">
               <span>Or</span>
             </div>
 
-            <button type="button" className="social-btn google-btn">
+            <button type="button" className="sign-social-btn sign-google-btn">
               <img src="https://img.icons8.com/color/20/000000/google-logo.png" alt="google icon" />
               <span>Sign In with Google</span>
             </button>
           </form>
-          <div className="switch-form-link">
+          <div className="sign-switch-form-link">
             <p>
               Don't have an account?
               <button type="button" onClick={() => setIsLogin(false)}>
@@ -467,19 +467,19 @@ const Sign = ({ defaultMode = "login" }) => {
         </div>
 
         {/* Register Form */}
-        <div className="form-section register">
-          <form className="auth-form grid-two-cols" onSubmit={handleSubmit}>
+        <div className="sign-form-section sign-register">
+          <form className="sign-auth-form sign-grid-two-cols" onSubmit={handleSubmit}>
             <h2>Create Account</h2>
-            <p className="form-subtitle">Let's get you set up with a new account</p>
+            <p className="sign-form-subtitle">Let's get you set up with a new account</p>
 
-            {backendError && <div className="form-error full-row">{backendError}</div>}
+            {backendError && <div className="sign-form-error sign-full-row">{backendError}</div>}
             {message.text && (
-              <div className={`form-message ${message.type} full-row`}>{message.text}</div>
+              <div className={`sign-form-message ${message.type} sign-full-row`}>{message.text}</div>
             )}
 
-            <div className="input-group">
+            <div className="sign-input-group">
               <label>Full Name</label>
-              <div className="input-with-icon">
+              <div className="sign-input-with-icon">
                 <input
                   type="text"
                   name="fullName"
@@ -487,9 +487,9 @@ const Sign = ({ defaultMode = "login" }) => {
                   onChange={handleChange}
                   placeholder="Enter your full name"
                   required
-                  style={{ boxShadow: "none" }} // Prevent hover shadow
+                  style={{ boxShadow: "none" }}
                 />
-                <span className="input-icon">
+                <span className="sign-input-icon">
                   <svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" fill="none">
                     <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
                     <circle cx="12" cy="7" r="4"></circle>
@@ -498,9 +498,9 @@ const Sign = ({ defaultMode = "login" }) => {
               </div>
             </div>
 
-            <div className="input-group">
+            <div className="sign-input-group">
               <label>Email</label>
-              <div className="input-with-icon">
+              <div className="sign-input-with-icon">
                 <input
                   type="email"
                   name="email"
@@ -508,9 +508,9 @@ const Sign = ({ defaultMode = "login" }) => {
                   onChange={handleChange}
                   placeholder="Enter your email"
                   required
-                  style={{ boxShadow: "none" }} // Prevent hover shadow
+                  style={{ boxShadow: "none" }}
                 />
-                <span className="input-icon">
+                <span className="sign-input-icon">
                   <svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" fill="none">
                     <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
                     <polyline points="22,6 12,13 2,6"></polyline>
@@ -519,9 +519,9 @@ const Sign = ({ defaultMode = "login" }) => {
               </div>
             </div>
 
-            <div className="input-group">
+            <div className="sign-input-group">
               <label>Gender</label>
-              <div className="input-with-icon">
+              <div className="sign-input-with-icon">
                 <select name="gender" value={formData.gender} onChange={handleChange} required>
                   <option value="">Select Gender</option>
                   <option value="male">Male</option>
@@ -530,9 +530,9 @@ const Sign = ({ defaultMode = "login" }) => {
               </div>
             </div>
 
-            <div className="input-group">
+            <div className="sign-input-group">
               <label>Age</label>
-              <div className="input-with-icon">
+              <div className="sign-input-with-icon">
                 <input
                   type="number"
                   name="age"
@@ -540,9 +540,9 @@ const Sign = ({ defaultMode = "login" }) => {
                   onChange={handleChange}
                   placeholder="Enter your age"
                   required
-                  style={{ boxShadow: "none" }} // Prevent hover shadow
+                  style={{ boxShadow: "none" }}
                 />
-                <span className="input-icon">
+                <span className="sign-input-icon">
                   <svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" fill="none">
                     <circle cx="12" cy="12" r="10"></circle>
                     <polyline points="12 6 12 12 16 14"></polyline>
@@ -551,9 +551,9 @@ const Sign = ({ defaultMode = "login" }) => {
               </div>
             </div>
 
-            <div className="input-group" style={{ position: "relative" }}>
+            <div className="sign-input-group" style={{ position: "relative" }}>
               <label>Password</label>
-              <div className="input-with-icon">
+              <div className="sign-input-with-icon">
                 <input
                   type={passwordVisible ? "text" : "password"}
                   name="password"
@@ -563,10 +563,10 @@ const Sign = ({ defaultMode = "login" }) => {
                   onFocus={() => setShowPasswordRequirements(true)}
                   placeholder="Create password"
                   required
-                  style={{ boxShadow: "none", paddingRight: "40px" }} // Prevent hover shadow, space for icon
+                  style={{ boxShadow: "none", paddingRight: "40px" }}
                 />
                 <span
-                  className="password-toggle"
+                  className="sign-password-toggle"
                   onClick={() => togglePasswordVisibility("password")}
                   style={{ cursor: "pointer", position: "absolute", right: "10px", top: "50%", transform: "translateY(-50%)" }}
                 >
@@ -587,12 +587,12 @@ const Sign = ({ defaultMode = "login" }) => {
                 </span>
               </div>
               <PasswordRequirementsPopup />
-              {passwordError && <p className="field-error">{passwordError}</p>}
+              {passwordError && <p className="sign-field-error">{passwordError}</p>}
             </div>
 
-            <div className="input-group">
+            <div className="sign-input-group">
               <label>Confirm Password</label>
-              <div className="input-with-icon">
+              <div className="sign-input-with-icon">
                 <input
                   type={confirmPasswordVisible ? "text" : "password"}
                   name="confirmPassword"
@@ -600,10 +600,10 @@ const Sign = ({ defaultMode = "login" }) => {
                   onChange={handleChange}
                   placeholder="Confirm password"
                   required
-                  style={{ boxShadow: "none", paddingRight: "40px" }} // Prevent hover shadow, space for icon
+                  style={{ boxShadow: "none", paddingRight: "40px" }}
                 />
                 <span
-                  className="password-toggle"
+                  className="sign-password-toggle"
                   onClick={() => togglePasswordVisibility("confirmPassword")}
                   style={{ cursor: "pointer", position: "absolute", right: "10px", top: "50%", transform: "translateY(-50%)" }}
                 >
@@ -623,12 +623,12 @@ const Sign = ({ defaultMode = "login" }) => {
                   </svg>
                 </span>
               </div>
-              {confirmPasswordError && <p className="field-error">{confirmPasswordError}</p>}
+              {confirmPasswordError && <p className="sign-field-error">{confirmPasswordError}</p>}
             </div>
 
-            <div className="input-group">
+            <div className="sign-input-group">
               <label>Contact Number</label>
-              <div className="input-with-icon">
+              <div className="sign-input-with-icon">
                 <input
                   type="tel"
                   name="contact"
@@ -636,49 +636,49 @@ const Sign = ({ defaultMode = "login" }) => {
                   onChange={handleChange}
                   placeholder="Enter 11-digit phone number"
                   required
-                  style={{ boxShadow: "none" }} // Prevent hover shadow
+                  style={{ boxShadow: "none" }}
                 />
-                <span className="input-icon">
+                <span className="sign-input-icon">
                   <svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" fill="none">
                     <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path>
                   </svg>
                 </span>
               </div>
-              <p className="helper-text">Phone number must be exactly 11 digits</p>
+              <p className="sign-helper-text">Phone number must be exactly 11 digits</p>
             </div>
 
-            <div className="terms-agreement">
-              <label className="checkbox-label">
+            <div className="sign-terms-agreement">
+              <label className="sign-checkbox-label">
                 <input
                   type="checkbox"
                   name="agreeToTerms"
                   checked={formData.agreeToTerms}
                   onChange={handleChange}
                 />
-                <span className="checkmark"></span>
+                <span className="sign-checkmark"></span>
                 I agree to the <a href="#">Terms</a> and <a href="#">Privacy Policy</a>
               </label>
             </div>
 
-            <div className="full-row">
-              <button className="primary-btn" type="submit" disabled={isLoading}>
+            <div className="sign-full-row">
+              <button className="sign-primary-btn" type="submit" disabled={isLoading}>
                 {isLoading ? (
-                  <span className="loader-container">
-                    <span className="loader"></span>
+                  <span className="sign-loader-container">
+                    <span className="sign-loader"></span>
                   </span>
                 ) : (
                   "Create Account"
                 )}
               </button>
 
-              <button type="button" className="social-btn google-btn social-btn2">
+              <button type="button" className="sign-social-btn sign-google-btn sign-social-btn2">
                 <img src="https://img.icons8.com/color/20/000000/google-logo.png" alt="google icon" />
                 <span>Sign up with Google</span>
               </button>
             </div>
           </form>
-          <div className="switch-form-link">
-            <p className="already-have">
+          <div className="sign-switch-form-link">
+            <p className="sign-already-have">
               Already have an account?
               <button type="button" onClick={() => setIsLogin(true)}>
                 Sign In
@@ -688,16 +688,16 @@ const Sign = ({ defaultMode = "login" }) => {
         </div>
 
         {/* Overlay Panel */}
-        <div className="toggle-panel-wrapper">
-          <div className="toggle-panel">
+        <div className="sign-toggle-panel-wrapper">
+          <div className="sign-toggle-panel">
             {!isLogin ? (
-              <div className="panel-content">
+              <div className="sign-panel-content">
                 <h1>Welcome Back!</h1>
                 <p>To keep connected with us please login with your personal info</p>
                 <button onClick={() => setIsLogin(true)}>Sign In</button>
               </div>
             ) : (
-              <div className="panel-content">
+              <div className="sign-panel-content">
                 <h1>Hello, Friend!</h1>
                 <p>Enter your personal details and start your journey with us</p>
                 <button onClick={() => setIsLogin(false)}>Sign Up</button>
