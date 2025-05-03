@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import './DoctorsList.css';
-import { faUserDoctor} from '@fortawesome/free-solid-svg-icons';
+import { faUserDoctor } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 // Separate components for better organization
@@ -108,6 +108,15 @@ const EmptyResults = () => (
   </div>
 );
 
+const LoadingSpinner = () => (
+  <div className="col-12 text-center py-5">
+    <div className="spinner-border text-primary" role="status" style={{ width: '3rem', height: '3rem' }}>
+      <span className="visually-hidden">Loading...</span>
+    </div>
+    <p className="text-muted mt-3">Loading doctors...</p>
+  </div>
+);
+
 const DoctorsList = () => {
   const [doctors, setDoctors] = useState([]);
   const [filteredDoctors, setFilteredDoctors] = useState([]);
@@ -116,13 +125,15 @@ const DoctorsList = () => {
     searchTerm: '',
     specialty: ''
   });
-  const [visibleCount, setVisibleCount] = useState(15); // Initial number of cards to show
+  const [visibleCount, setVisibleCount] = useState(15);
+  const [loading, setLoading] = useState(true); // Add loading state
   const navigate = useNavigate();
 
   // Fetch doctors data once on component mount
   useEffect(() => {
     const fetchDoctors = async () => {
       try {
+        setLoading(true); // Set loading to true before fetching
         const response = await axios.get('http://127.0.0.1:5000/api/doctors/alldoctors');
         if (response.data.status === 'success') {
           const doctorsList = response.data.data;
@@ -135,6 +146,8 @@ const DoctorsList = () => {
         }
       } catch (error) {
         console.error('Error fetching doctors:', error);
+      } finally {
+        setLoading(false); // Set loading to false after fetch completes
       }
     };
 
@@ -150,7 +163,7 @@ const DoctorsList = () => {
         (!searchTerm || doc.fullName?.toLowerCase().includes(searchTerm.toLowerCase()))
       );
       setFilteredDoctors(filtered);
-      setVisibleCount(15); // Reset to initial count when filters change
+      setVisibleCount(15);
     };
 
     applyFilters();
@@ -175,7 +188,7 @@ const DoctorsList = () => {
   };
 
   const handleLoadMore = () => {
-    setVisibleCount(prev => prev + 15); // Load 15 more cards
+    setVisibleCount(prev => prev + 15);
   };
 
   return (
@@ -198,16 +211,20 @@ const DoctorsList = () => {
         </div>
 
         {/* Results Summary */}
-        <div className="mb-4">
-          <p className="text-muted fs-6">
-            Showing {Math.min(filteredDoctors.length, visibleCount)} of {filteredDoctors.length} {filteredDoctors.length === 1 ? 'doctor' : 'doctors'}
-            {filters.specialty && ` in ${filters.specialty}`}
-          </p>
-        </div>
+        {!loading && (
+          <div className="mb-4">
+            <p className="text-muted fs-6">
+              Showing {Math.min(filteredDoctors.length, visibleCount)} of {filteredDoctors.length} {filteredDoctors.length === 1 ? 'doctor' : 'doctors'}
+              {filters.specialty && ` in ${filters.specialty}`}
+            </p>
+          </div>
+        )}
 
         {/* Doctors Grid */}
         <div className="row g-4">
-          {filteredDoctors.length > 0 ? (
+          {loading ? (
+            <LoadingSpinner />
+          ) : filteredDoctors.length > 0 ? (
             filteredDoctors.slice(0, visibleCount).map((doctor) => (
               <div key={doctor._id} className="col-12 col-sm-6 col-lg-6 col-xl-4">
                 <DoctorCard doctor={doctor} onClick={handleDoctorClick} />
@@ -218,7 +235,7 @@ const DoctorsList = () => {
           )}
         </div>
         
-        {filteredDoctors.length > visibleCount && (
+        {!loading && filteredDoctors.length > visibleCount && (
           <div className="mt-5 text-center">
             <button 
               className="btn btn-primary btn-gradient px-4 py-2 rounded-3"

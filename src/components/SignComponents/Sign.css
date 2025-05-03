@@ -387,6 +387,7 @@ html, body, #root {
   gap: 8px;
   font-size: 13px;
   cursor: pointer;
+  padding-bottom: 20px;
 }
 
 .sign-checkbox-label input {

@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { useNavigate, useLocation } from "react-router-dom";
-import { jsPDF } from "jspdf"; // استيراد مكتبة jsPDF
+import { jsPDF } from "jspdf"; 
 import "./CheckSymptoms.css";
 import "../style.css";
 
