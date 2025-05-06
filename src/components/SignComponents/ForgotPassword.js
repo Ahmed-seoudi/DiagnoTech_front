@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import "./Sign.css"; 
+import "./Signtwo.css"; 
 import "../style.css"
 
 const ForgotPassword = () => {
@@ -11,7 +11,6 @@ const ForgotPassword = () => {
   const navigate = useNavigate();
 
   const handleForgotPassword = async () => {
-    // Clear previous messages
     setError("");
     setSuccess("");
 
@@ -32,14 +31,13 @@ const ForgotPassword = () => {
       const data = await response.json();
       
       if (!response.ok) {
-        // Get specific error message from backend if available
         throw new Error(data.message || "Failed to reset password. Try again.");
       }
 
       setSuccess("Check your email.");
       setTimeout(() => {
         navigate("/verify-code");
-      }, 2000); // Navigate after showing success message for 2 seconds
+      }, 2000);
     } catch (error) {
       setError(error.message || "An error occurred.");
     } finally {
@@ -48,12 +46,12 @@ const ForgotPassword = () => {
   };
 
   return (
-    <div className="forgot-password-container">
-      <div className="forgot-password-card">
-        <h3>Enter your email to confirm that this is you</h3>
+    <div className="forgot-container">
+      <div className="forgot-card">
+        <div className="forgot-heading-three">Enter your email to confirm that this is you</div>
         
-        {error && <div className="error-message">{error}</div>}
-        {success && <div className="success-message">{success}</div>}
+        {error && <div className="forgot-error-message">{error}</div>}
+        {success && <div className="forgot-success-message">{success}</div>}
         
         <input
           type="email"
@@ -65,7 +63,7 @@ const ForgotPassword = () => {
           required
         />
         <button
-          className="forgot-password-btn"
+          className="forgot-btn"
           onClick={handleForgotPassword}
           disabled={isLoading}
         >

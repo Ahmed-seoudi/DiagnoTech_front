@@ -202,10 +202,10 @@ export const Header = () => {
               </>
             ) : (
               <>
-                <Button className="auth-btn me-3" onClick={() => navigate('/login')}>
+                <Button className="auth-btn me-3" onClick={() => navigate('/register')}>
                   Register
                 </Button>
-                <Button className="auth-btn" onClick={() => navigate('/register')}>
+                <Button className="auth-btn" onClick={() => navigate('/login')}>
                   Login
                 </Button>
               </>

@@ -20,7 +20,7 @@ export const AdminHeader = () => {
   return (
     <nav className="admin-header navbar navbar-expand-lg navbar-light bg-transparent px-4">
       <div className="container-fluid d-flex justify-content-between align-items-center">
-        <div className="navbar-brand fw-bold fs-4 text-dark" style={{ cursor: 'pointer' }} onClick={() => navigate('/')}>
+        <div className="navbar-brand fw-bold fs-4 text-dark" style={{ cursor: 'pointer' }} onClick={() => navigate('')}>
           Diagno<span style={{ color: "#0d6efd" }}>Tech</span>
         </div>
           <button className="btn btn-outline-danger btn-sm d-flex align-items-center gap-1" onClick={handleLogout}>

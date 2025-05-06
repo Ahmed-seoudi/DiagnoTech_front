@@ -141,6 +141,7 @@ export default function Dashboard() {
   const [password, setPassword] = useState("");
   const [role, setRole] = useState("admin");
   const [loading, setLoading] = useState(false);
+  const [doctorExperience, setDoctorExperience] = useState("");
 
   const handleAddAdmin = async (e) => {
     e.preventDefault();
@@ -176,58 +177,80 @@ export default function Dashboard() {
   const [doctorSpecialization, setDoctorSpecialization] = useState("");
   const [doctorGender, setDoctorGender] = useState("");
   const [doctorAge, setDoctorAge] = useState("");
-  const [doctorAvailableAppointments, setDoctorAvailableAppointments] = useState("");
   const [doctorGoogleMapsLink, setDoctorGoogleMapsLink] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
   const handleAddDoctor = async (e) => {
-    e.preventDefault();
-    setIsLoading(true);
-    if (doctorPassword !== doctorConfirmPassword) {
-      alert("Passwords do not match!");
-      setIsLoading(false);
-      return;
-    }
-    const token = localStorage.getItem("jwt");
-    const doctorData = {
-      fullName: doctorFullName,
-      email: doctorEmail,
-      password: doctorPassword,
-      gender: doctorGender,
-      age: doctorAge,
-      specialty: doctorSpecialization,
-      clinicAddress: doctorLocation,
-      contact: doctorPhoneNumber,
-      googleMapsLink: doctorGoogleMapsLink,
-      availableAppointments: [doctorAvailableAppointments],
-      whatsappLink: `https://wa.me/${doctorPhoneNumber}`,
-    };
-    try {
-      const response = await axios.post(
-        "http://localhost:5000/api/Dashboard/doctors/addDoctor",
-        doctorData,
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
-      console.log(response.data);
-      alert("Doctor added successfully!");
-      setDoctorFullName("");
-      setDoctorEmail("");
-      setDoctorPassword("");
-      setDoctorConfirmPassword("");
-      setDoctorPhoneNumber("");
-      setDoctorLocation("");
-      setDoctorSpecialization("");
-      setDoctorGender("");
-      setDoctorAge("");
-      setDoctorAvailableAppointments("");
-      setDoctorGoogleMapsLink("");
-    } catch (error) {
-      console.error("Error adding doctor:", error.response?.data || error.message);
-      alert("Error adding doctor. Please try again.");
-    } finally {
-      setIsLoading(false);
-    }
+  e.preventDefault();
+  setIsLoading(true);
+
+  // Validate password match
+  if (doctorPassword !== doctorConfirmPassword) {
+    alert("Passwords do not match!");
+    setIsLoading(false);
+    return;
+  }
+
+  // Validate required fields
+  if (
+    !doctorFullName ||
+    !doctorEmail ||
+    !doctorPassword ||
+    !doctorSpecialization ||
+    !doctorLocation ||
+    !doctorPhoneNumber ||
+    !doctorAge ||
+    !doctorGender ||
+    !doctorExperience ||
+    !doctorGoogleMapsLink
+  ) {
+    alert("Please fill in all required fields!");
+    setIsLoading(false);
+    return;
+  }
+
+  const token = localStorage.getItem("jwt");
+  const doctorData = {
+    fullName: doctorFullName,
+    email: doctorEmail,
+    password: doctorPassword,
+    specialty: doctorSpecialization,
+    clinicAddress: doctorLocation,
+    contact: doctorPhoneNumber,
+    age: parseInt(doctorAge), // Ensure age is sent as a number
+    gender: doctorGender,
+    experience: doctorExperience,
+    whatsappLink: `https://wa.me/${doctorPhoneNumber}`,
+    googleMapsLink: doctorGoogleMapsLink,
   };
+
+  try {
+    const response = await axios.post(
+      "http://localhost:5000/api/Dashboard/doctors/addDoctor",
+      doctorData,
+      { headers: { Authorization: `Bearer ${token}` } }
+    );
+    console.log("API Response:", response.data);
+    alert("Doctor added successfully!");
+    // Reset form
+    setDoctorFullName("");
+    setDoctorEmail("");
+    setDoctorPassword("");
+    setDoctorConfirmPassword("");
+    setDoctorPhoneNumber("");
+    setDoctorLocation("");
+    setDoctorSpecialization("");
+    setDoctorGender("");
+    setDoctorAge("");
+    setDoctorExperience("");
+    setDoctorGoogleMapsLink("");
+  } catch (error) {
+    console.error("Error adding doctor:", error.response?.data || error.message);
+    alert(`Error adding doctor: ${error.response?.data?.message || error.message}`);
+  } finally {
+    setIsLoading(false);
+  }
+};
 
   // /////////////View All Doctors/////////////////////////////////////////
   const [doctorData, setDoctorData] = useState([]);
@@ -1247,12 +1270,6 @@ export default function Dashboard() {
                               Location
                             </a>
                           </li>
-                          <li className="mb-2">
-                            <i className="bi bi-calendar-check-fill me-2 text-secondary"></i>
-                            Available: {Array.isArray(doctor.availableAppointments)
-                              ? doctor.availableAppointments.join(", ")
-                              : "No appointments"}
-                          </li>
                         </ul>
                         <div className="mt-auto text-center">
                           <a
@@ -1274,171 +1291,212 @@ export default function Dashboard() {
 
           {/* //////////////////Add New Doc////////////////////// */}
           {currentView === "addDoctor" && (
-            <div className="mt-5 d-flex justify-content-center">
-              <motion.div
-                className="w-100"
-                style={{ maxWidth: "600px" }}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.2 }}
-              >
-                <div className="card p-4 shadow-lg border-0 rounded-4">
-                  <h4 className="mb-4 text-center text-primary">Add New Doctor</h4>
-                  <form onSubmit={handleAddDoctor}>
-                    <div className="form-floating mb-3">
-                      <input
-                        type="text"
-                        className="form-control"
-                        id="doctorName"
-                        placeholder="Enter full name"
-                        value={doctorFullName}
-                        onChange={(e) => setDoctorFullName(e.target.value)}
-                      />
-                      <label htmlFor="doctorName">Full Name</label>
-                    </div>
-                    <div className="form-floating mb-3">
-                      <input
-                        type="email"
-                        className="form-control"
-                        id="doctorEmail"
-                        placeholder="Enter email"
-                        value={doctorEmail}
-                        onChange={(e) => setDoctorEmail(e.target.value)}
-                      />
-                      <label htmlFor="doctorEmail">Email</label>
-                    </div>
-                    <div className="form-floating mb-3">
-                      <input
-                        type="password"
-                        className="form-control"
-                        id="doctorPassword"
-                        placeholder="Enter password"
-                        value={doctorPassword}
-                        onChange={(e) => setDoctorPassword(e.target.value)}
-                      />
-                      <label htmlFor="doctorPassword">Password</label>
-                    </div>
-                    <div className="form-floating mb-3">
-                      <input
-                        type="password"
-                        className="form-control"
-                        id="doctorConfirmPassword"
-                        placeholder="Confirm password"
-                        value={doctorConfirmPassword}
-                        onChange={(e) => setDoctorConfirmPassword(e.target.value)}
-                      />
-                      <label htmlFor="doctorConfirmPassword">Confirm Password</label>
-                    </div>
-                    <div className="form-floating mb-3">
-                      <input
-                        type="text"
-                        className="form-control"
-                        id="doctorPhone"
-                        placeholder="Phone number"
-                        value={doctorPhoneNumber}
-                        onChange={(e) => setDoctorPhoneNumber(e.target.value)}
-                      />
-                      <label htmlFor="doctorPhone">Phone Number</label>
-                    </div>
-                    <div className="form-floating mb-3">
-                      <input
-                        type="text"
-                        className="form-control"
-                        id="doctorLocation"
-                        placeholder="Clinic location"
-                        value={doctorLocation}
-                        onChange={(e) => setDoctorLocation(e.target.value)}
-                      />
-                      <label htmlFor="doctorLocation">Location</label>
-                    </div>
-                    <div className="form-floating mb-4">
-                      <select
-                        className="form-select"
-                        id="doctorSpecialization"
-                        value={doctorSpecialization}
-                        onChange={(e) => setDoctorSpecialization(e.target.value)}
-                      >
-                        <option value="" disabled>Select specialization</option>
-                        <option value="Cardiology">Cardiology</option>
-                        <option value="Dermatology">Dermatology</option>
-                        <option value="Pediatrics">Pediatrics</option>
-                        <option value="Neurology">Neurology</option>
-                        <option value="Orthopedics">Orthopedics</option>
-                        <option value="Psychiatry">Psychiatry</option>
-                      </select>
-                      <label htmlFor="doctorSpecialization">Specialization</label>
-                    </div>
-                    <div className="form-floating mb-4">
-                      <select
-                        className="form-select"
-                        id="doctorGender"
-                        value={doctorGender}
-                        onChange={(e) => setDoctorGender(e.target.value)}
-                      >
-                        <option value="" disabled>Select gender</option>
-                        <option value="male">Male</option>
-                        <option value="female">Female</option>
-                      </select>
-                      <label htmlFor="doctorGender">Gender</label>
-                    </div>
-                    <div className="form-floating mb-3">
-                      <input
-                        type="number"
-                        className="form-control"
-                        id="doctorAge"
-                        placeholder="Enter age"
-                        value={doctorAge}
-                        onChange={(e) => setDoctorAge(e.target.value)}
-                      />
-                      <label htmlFor="doctorAge">Age</label>
-                    </div>
-                    <div className="form-floating mb-3">
-                      <input
-                        type="text"
-                        className="form-control"
-                        id="doctorAppointments"
-                        placeholder="Available appointments"
-                        value={doctorAvailableAppointments}
-                        onChange={(e) => setDoctorAvailableAppointments(e.target.value)}
-                      />
-                      <label htmlFor="doctorAppointments">Available Appointments</label>
-                    </div>
-                    <div className="form-floating mb-3">
-                      <input
-                        type="text"
-                        className="form-control"
-                        id="doctorMapsLink"
-                        placeholder="Google Maps link"
-                        value={doctorGoogleMapsLink}
-                        onChange={(e) => setDoctorGoogleMapsLink(e.target.value)}
-                      />
-                      <label htmlFor="doctorMapsLink">Google Maps Link</label>
-                    </div>
-                    <div className="form-floating mb-3">
-                      <input
-                        type="text"
-                        className="form-control"
-                        id="doctorWhatsappLink"
-                        placeholder="Enter Whatsapp link"
-                        value={doctorPhoneNumber ? `https://wa.me/${doctorPhoneNumber}` : ''}
-                        onChange={(e) => setDoctorPhoneNumber(e.target.value)}
-                      />
-                      <label htmlFor="doctorWhatsappLink">Whatsapp Link</label>
-                    </div>
-                    <div className="d-grid">
-                      <button
-                        type="submit"
-                        className="btn btn-primary btn-lg rounded-pill shadow"
-                        disabled={isLoading}
-                      >
-                        ➕ Add Doctor
-                      </button>
-                    </div>
-                  </form>
-                </div>
-              </motion.div>
-            </div>
-          )}
+  <div className="mt-5 d-flex justify-content-center">
+    <motion.div
+      className="w-100"
+      style={{ maxWidth: "600px" }}
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ delay: 0.2 }}
+    >
+      <div className="card p-4 shadow-lg border-0 rounded-4">
+        <h4 className="mb-4 text-center text-primary">Add New Doctor</h4>
+        <form onSubmit={handleAddDoctor}>
+          {/* Full Name */}
+          <div className="form-floating mb-3">
+            <input
+              type="text"
+              className="form-control"
+              id="doctorFullName"
+              placeholder="Enter full name"
+              value={doctorFullName}
+              onChange={(e) => setDoctorFullName(e.target.value)}
+              required
+            />
+            <label htmlFor="doctorFullName">Full Name</label>
+          </div>
+
+          {/* Email */}
+          <div className="form-floating mb-3">
+            <input
+              type="email"
+              className="form-control"
+              id="doctorEmail"
+              placeholder="Enter email"
+              value={doctorEmail}
+              onChange={(e) => setDoctorEmail(e.target.value)}
+              required
+            />
+            <label htmlFor="doctorEmail">Email</label>
+          </div>
+
+          {/* Password */}
+          <div className="form-floating mb-3">
+            <input
+              type="password"
+              className="form-control"
+              id="doctorPassword"
+              placeholder="Enter password"
+              value={doctorPassword}
+              onChange={(e) => setDoctorPassword(e.target.value)}
+              required
+            />
+            <label htmlFor="doctorPassword">Password</label>
+          </div>
+
+          {/* Confirm Password */}
+          <div className="form-floating mb-3">
+            <input
+              type="password"
+              className="form-control"
+              id="doctorConfirmPassword"
+              placeholder="Confirm password"
+              value={doctorConfirmPassword}
+              onChange={(e) => setDoctorConfirmPassword(e.target.value)}
+              required
+            />
+            <label htmlFor="doctorConfirmPassword">Confirm Password</label>
+          </div>
+
+          {/* Specialty */}
+          <div className="form-floating mb-3">
+            <select
+              className="form-select"
+              id="doctorSpecialty"
+              value={doctorSpecialization}
+              onChange={(e) => setDoctorSpecialization(e.target.value)}
+              required
+            >
+              <option value="" disabled>
+                Select specialty
+              </option>
+              <option value="Cardiology">Cardiology</option>
+              <option value="Dermatology">Dermatology</option>
+              <option value="Pediatrics">Pediatrics</option>
+              <option value="Neurology">Neurology</option>
+              <option value="Orthopedics">Orthopedics</option>
+              <option value="Psychiatry">Psychiatry</option>
+            </select>
+            <label htmlFor="doctorSpecialty">Specialty</label>
+          </div>
+
+          {/* Clinic Address */}
+          <div className="form-floating mb-3">
+            <input
+              type="text"
+              className="form-control"
+              id="doctorClinicAddress"
+              placeholder="Enter clinic address"
+              value={doctorLocation}
+              onChange={(e) => setDoctorLocation(e.target.value)}
+              required
+            />
+            <label htmlFor="doctorClinicAddress">Clinic Address</label>
+          </div>
+
+          {/* Contact */}
+          <div className="form-floating mb-3">
+            <input
+              type="text"
+              className="form-control"
+              id="doctorContact"
+              placeholder="Enter contact number"
+              value={doctorPhoneNumber}
+              onChange={(e) => setDoctorPhoneNumber(e.target.value)}
+              required
+            />
+            <label htmlFor="doctorContact">Contact Number</label>
+          </div>
+
+          {/* Age */}
+          <div className="form-floating mb-3">
+            <input
+              type="number"
+              className="form-control"
+              id="doctorAge"
+              placeholder="Enter age"
+              value={doctorAge}
+              onChange={(e) => setDoctorAge(e.target.value)}
+              required
+              min="18"
+            />
+            <label htmlFor="doctorAge">Age</label>
+          </div>
+
+          {/* Gender */}
+          <div className="form-floating mb-3">
+            <select
+              className="form-select"
+              id="doctorGender"
+              value={doctorGender}
+              onChange={(e) => setDoctorGender(e.target.value)}
+              required
+            >
+              <option value="" disabled>
+                Select gender
+              </option>
+              <option value="male">Male</option>
+              <option value="female">Female</option>
+            </select>
+            <label htmlFor="doctorGender">Gender</label>
+          </div>
+
+          {/* Experience */}
+          <div className="form-floating mb-3">
+            <input
+              type="text"
+              className="form-control"
+              id="doctorExperience"
+              placeholder="Enter years of experience"
+              value={doctorExperience}
+              onChange={(e) => setDoctorExperience(e.target.value)}
+              required
+            />
+            <label htmlFor="doctorExperience">Experience (Years)</label>
+          </div>
+
+          {/* Google Maps Link */}
+          <div className="form-floating mb-3">
+            <input
+              type="url"
+              className="form-control"
+              id="doctorGoogleMapsLink"
+              placeholder="Enter Google Maps link"
+              value={doctorGoogleMapsLink}
+              onChange={(e) => setDoctorGoogleMapsLink(e.target.value)}
+              required
+            />
+            <label htmlFor="doctorGoogleMapsLink">Google Maps Link</label>
+          </div>
+
+          {/* WhatsApp Link */}
+          <div className="form-floating mb-3">
+            <input
+              type="text"
+              className="form-control"
+              id="doctorWhatsappLink"
+              placeholder="WhatsApp link will be generated"
+              value={doctorPhoneNumber ? `https://wa.me/${doctorPhoneNumber}` : ""}
+              readOnly
+            />
+            <label htmlFor="doctorWhatsappLink">WhatsApp Link</label>
+          </div>
+
+          <div className="d-grid">
+            <button
+              type="submit"
+              className="btn btn-primary btn-lg rounded-pill shadow"
+              disabled={isLoading}
+            >
+              {isLoading ? "Adding..." : "➕ Add Doctor"}
+            </button>
+          </div>
+        </form>
+      </div>
+    </motion.div>
+  </div>
+)}
+
 
           {/* ///////////////////search doctor ////////////////////////////////////////////////////////////////////////////////*/}
           {currentView === "searchDoctor" && (

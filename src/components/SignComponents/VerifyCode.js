@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import "./Sign.css"; 
+import "./Signtwo.css"; 
 import "../style.css"
 
 const VerifyCode = () => {
@@ -11,7 +11,6 @@ const VerifyCode = () => {
   const navigate = useNavigate();
 
   const handleVerifyCode = async () => {
-    
     setError("");
     setSuccess("");
 
@@ -38,8 +37,7 @@ const VerifyCode = () => {
       setSuccess("Code verified successfully!");
       setTimeout(() => {
         navigate("/reset-password");
-      }, 2000); 
-      
+      }, 2000);
     } catch (error) {
       console.error("Error verifying code:", error);
       setError(error.message || "An error occurred.");
@@ -49,13 +47,13 @@ const VerifyCode = () => {
   };
 
   return (
-    <div className="verify-code-container">
-      <div className="verify-code-card">
-        <h2>Verify Code</h2>
+    <div className="forgot-container">
+      <div className="forgot-card">
+        <div className="forgot-heading-two">Verify Code</div>
         <p>Enter the code sent to your email</p>
         
-        {error && <div className="error-message">{error}</div>}
-        {success && <div className="success-message">{success}</div>}
+        {error && <div className="forgot-error-message">{error}</div>}
+        {success && <div className="forgot-success-message">{success}</div>}
         
         <input
           type="text"
@@ -65,7 +63,7 @@ const VerifyCode = () => {
           required
         />
         <button
-          className="verify-code-btn"
+          className="forgot-btn"
           onClick={handleVerifyCode}
           disabled={isLoading}
         >
