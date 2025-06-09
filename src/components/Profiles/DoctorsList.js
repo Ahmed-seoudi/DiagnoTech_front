@@ -4,6 +4,7 @@ import axios from 'axios';
 import './DoctorsList.css';
 import { faUserDoctor } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { BASE_URL } from "../../config";
 
 // Separate components for better organization
 const SearchBar = ({ value, onChange }) => (
@@ -134,7 +135,7 @@ const DoctorsList = () => {
     const fetchDoctors = async () => {
       try {
         setLoading(true); // Set loading to true before fetching
-        const response = await axios.get('http://127.0.0.1:5000/api/doctors/alldoctors');
+        const response = await axios.get(`${BASE_URL}/api/doctors/alldoctors`);
         if (response.data.status === 'success') {
           const doctorsList = response.data.data;
           setDoctors(doctorsList);

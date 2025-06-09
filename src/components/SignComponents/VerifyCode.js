@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "./Signtwo.css"; 
 import "../style.css"
+import { BASE_URL } from "../../config";
 
 const VerifyCode = () => {
   const [code, setCode] = useState("");
@@ -22,7 +23,7 @@ const VerifyCode = () => {
     setIsLoading(true);
 
     try {
-      const response = await fetch("http://127.0.0.1:5000/api/users/verifyResetCode", {
+      const response = await fetch(`${BASE_URL}/api/users/verifyResetCode`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ code }),

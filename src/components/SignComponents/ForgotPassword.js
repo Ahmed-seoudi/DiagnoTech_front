@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "./Signtwo.css"; 
 import "../style.css"
+import { BASE_URL } from "../../config";
 
 const ForgotPassword = () => {
   const [email, setEmail] = useState("");
@@ -22,7 +23,7 @@ const ForgotPassword = () => {
     setIsLoading(true);
 
     try {
-      const response = await fetch("http://127.0.0.1:5000/api/users/forgotpassword", {
+      const response = await fetch(`${BASE_URL}/api/users/forgotpassword`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email }),

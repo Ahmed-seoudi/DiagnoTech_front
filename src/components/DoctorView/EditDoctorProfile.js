@@ -3,6 +3,7 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap-icons/font/bootstrap-icons.css';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+import { BASE_URL } from "../../config";
 
 const EditDoctorProfile = () => {
   const [formData, setFormData] = useState({
@@ -21,8 +22,8 @@ const EditDoctorProfile = () => {
   const navigate = useNavigate();
 
   const API_ENDPOINTS = {
-    doctor: 'http://127.0.0.1:5000/api/doctorprofile/myprofile',
-    update: 'http://127.0.0.1:5000/api/doctorprofile/myprofile/update'
+    doctor: `${BASE_URL}/api/doctorprofile/myprofile`,
+    update: `${BASE_URL}/api/doctorprofile/myprofile/update`,
   };
 
   // Fetch current doctor profile data

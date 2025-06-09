@@ -5,6 +5,7 @@ import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 import 'bootstrap/dist/css/bootstrap.min.css';
 import "./profiles.css"
+import { BASE_URL } from "../../config";
 
 const UpdateInfo = () => {
   const navigate = useNavigate();
@@ -36,13 +37,14 @@ const UpdateInfo = () => {
     const fetchUserData = async () => {
       setFetchLoading(true);
       try {
-        const response = await axios.get('http://127.0.0.1:5000/api/profile/user', {
+        const response = await axios.get(`${BASE_URL}/api/profile/user`, {
           headers: { 'Authorization': `Bearer ${localStorage.getItem('jwt')}` }
         });
         if (response.data) {
           setUserData({
             ...response.data.data,
-            profilePicture: `http://127.0.0.1:5000${response.data.data.profilePicture}` || "/img/user.png"
+            profilePicture: `${BASE_URL}${response.data.data.profilePicture}` ||
+              "/img/user.png",
           });
         }
         setError(null);
@@ -74,7 +76,7 @@ const handleSubmit = async (e) => {
 
   try {
    
-    await axios.put('http://127.0.0.1:5000/api/profile/update', userData, {
+    await axios.put(`${BASE_URL}/api/profile/update`, userData, {
       headers: { "Authorization": `Bearer ${localStorage.getItem("jwt")}`, "Content-Type": "application/json" }
     });
 
@@ -83,7 +85,7 @@ const handleSubmit = async (e) => {
       const formData = new FormData();
       formData.append("profilePicture", newprofilePicture);
 
-      const res = await axios.post('http://127.0.0.1:5000/api/profile/uploadProfilePicture', formData, {
+      const res = await axios.post(`${BASE_URL}/api/profile/uploadProfilePicture`, formData, {
         headers: { "Authorization": `Bearer ${localStorage.getItem("jwt")}` }
       });
 

@@ -4,6 +4,7 @@ import 'bootstrap-icons/font/bootstrap-icons.css';
 import './DoctorView.css';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+import { BASE_URL } from "../../config";
 
 const DoctorView = () => {
   const [doctor, setDoctor] = useState(null);
@@ -26,13 +27,13 @@ const DoctorView = () => {
   }, []);
 
   const API_ENDPOINTS = {
-    doctor: 'http://127.0.0.1:5000/api/doctorprofile/myprofile',
-    addSlot: 'http://127.0.0.1:5000/api/doctorprofile/appointments/add',
-    getSlots: 'http://127.0.0.1:5000/api/doctorprofile/appointments/all',
-    appointments: 'http://127.0.0.1:5000/api/doctorprofile/appointments/all',
-    updateAppointmentStatus: 'http://127.0.0.1:5000/api/doctorprofile/appointments/status',
-    reviews: 'http://127.0.0.1:5000/api/doctorprofile/reviews',
-    deleteSlot: 'http://127.0.0.1:5000/api/doctorprofile/appointments/delete'
+    doctor: `${BASE_URL}/api/doctorprofile/myprofile`,
+    addSlot: `${BASE_URL}/api/doctorprofile/appointments/add`,
+    getSlots: `${BASE_URL}/api/doctorprofile/appointments/all`,
+    appointments: `${BASE_URL}/api/doctorprofile/appointments/all`,
+    updateAppointmentStatus: `${BASE_URL}/api/doctorprofile/appointments/status`,
+    reviews: `${BASE_URL}/api/doctorprofile/reviews`,
+    deleteSlot: `${BASE_URL}/api/doctorprofile/appointments/delete`,
   };
 
   // Function to add a new toast notification

@@ -7,6 +7,7 @@ import { BsChevronDown, BsChevronUp, BsCalendarDate ,BsClipboard2Fill ,BsShieldC
 import axios from "axios";
 import "./profiles.css";
 import "../style.css";
+import { BASE_URL } from "../../config";
 
 const Profile = () => {
   const location = useLocation();
@@ -20,7 +21,7 @@ const Profile = () => {
     profilePicture: "",
   });
   const [profilePicture, setProfilePicture] = useState(
-    "http://127.0.0.1:5000/uploads/defaultProfilePic.png"
+    `${BASE_URL}/uploads/defaultProfilePic.png`
   );
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -44,7 +45,7 @@ const Profile = () => {
     setLoading(true);
     try {
       const response = await axios.get(
-        "http://127.0.0.1:5000/api/profile/user",
+        `${BASE_URL}/api/profile/user`,
         {
           headers: {
             Authorization: `Bearer ${localStorage.getItem("jwt")}`,
@@ -56,8 +57,8 @@ const Profile = () => {
         setUserData(response.data.data);
         setProfilePicture(
           response.data.data.profilePicture
-            ? `http://127.0.0.1:5000${response.data.data.profilePicture}`
-            : "http://127.0.0.1:5000/uploads/defaultProfilePic.png"
+            ? `${BASE_URL}${response.data.data.profilePicture}`
+            : `${BASE_URL}/uploads/defaultProfilePic.png`
         );
 
         localStorage.setItem("username", response.data.data.fullName);
@@ -74,7 +75,7 @@ const Profile = () => {
   const fetchMedicalHistory = async () => {
     try {
       const response = await axios.get(
-        "http://127.0.0.1:5000/api/diagnosis/history",
+        `${BASE_URL}/api/diagnosis/history`,
         {
           headers: {
             Authorization: `Bearer ${localStorage.getItem("jwt")}`,
@@ -98,7 +99,7 @@ const Profile = () => {
   setAppointmentError(null);
   try {
     const response = await axios.get(
-      "http://127.0.0.1:5000/api/profile/myappointments",
+      `${BASE_URL}/api/profile/myappointments`,
       {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("jwt")}`,
@@ -147,7 +148,7 @@ const Profile = () => {
     }
 
     try {
-      await axios.delete("http://127.0.0.1:5000/api/profile/deleteAccount", {
+      await axios.delete(`${BASE_URL}/api/profile/deleteAccount`, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("jwt")}`,
         },
@@ -187,7 +188,7 @@ const Profile = () => {
 
     try {
       await axios.put(
-        "http://127.0.0.1:5000/api/profile/changePassword",
+        `${BASE_URL}/api/profile/changePassword`,
         {
           oldPassword,
           newPassword,

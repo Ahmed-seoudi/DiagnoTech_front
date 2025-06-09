@@ -4,6 +4,7 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import "./CheckSymptoms.css"
 import "../style.css"
 import { useNavigate } from "react-router-dom";
+import { BASE_URL } from "../../config";
 
 const SymptomForm = () => {
   const [symptoms, setSymptoms] = useState([null, null, null]);
@@ -16,7 +17,7 @@ const SymptomForm = () => {
   useEffect(() => {
     const fetchSymptoms = async () => {
       try {
-        const response = await fetch('http://localhost:5000/api/symptoms/allsymptoms');
+        const response = await fetch(`${BASE_URL}/api/symptoms/allsymptoms`);
         if (!response.ok) {
           throw new Error("Failed to fetch symptoms");
         }
@@ -76,7 +77,7 @@ const SymptomForm = () => {
     try {
       setIsSubmitting(true); 
 
-      const response = await fetch('http://127.0.0.1:5000/api/diagnosis/prediction', {
+      const response = await fetch(`${BASE_URL}/api/diagnosis/prediction`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

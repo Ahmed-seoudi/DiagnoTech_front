@@ -9,6 +9,7 @@ import { faStar as faStarRegular } from '@fortawesome/free-regular-svg-icons';
 import { BsArrowUpRightCircle } from "react-icons/bs";
 import axios from 'axios';
 import { useAuth } from '../../context/AuthContext'; 
+import { BASE_URL } from "../../config";
 
 const DoctorProfile = () => {
   const navigate = useNavigate();
@@ -58,7 +59,7 @@ const DoctorProfile = () => {
   const fetchDoctorDetails = async (doctorId) => {
     setIsLoadingDoctor(true);
     try {
-      const response = await axios.get(`http://127.0.0.1:5000/api/doctors/${doctorId}`);
+      const response = await axios.get(`${BASE_URL}/api/doctors/${doctorId}`);
       if (response.data.status === 'success') {
         setDoctorDetails(response.data.data);
       } else {
@@ -74,7 +75,7 @@ const DoctorProfile = () => {
 
   const fetchAppointments = async (doctorId) => {
     try {
-      const response = await axios.get(`http://127.0.0.1:5000/api/userbook/appointments/${doctorId}`);
+      const response = await axios.get(`${BASE_URL}/api/userbook/appointments/${doctorId}`);
       if (response.data.status === 'success' && Array.isArray(response.data.data)) {
         setAppointments(response.data.data);
       } else {
@@ -89,7 +90,7 @@ const DoctorProfile = () => {
   const fetchReviews = async (doctorId) => {
     setIsLoadingReviews(true);
     try {
-      const response = await axios.get(`http://127.0.0.1:5000/api/userbook/reviews/${doctorId}`);
+      const response = await axios.get(`${BASE_URL}/api/userbook/reviews/${doctorId}`);
       if (response.data.status === 'success') {
         if (Array.isArray(response.data.data)) {
           setReviews(response.data.data);
@@ -127,7 +128,7 @@ const DoctorProfile = () => {
       const doctorId = id || (doctorDetails && doctorDetails._id);
       const token = localStorage.getItem('jwt');
 
-      const response = await fetch('http://127.0.0.1:5000/api/userbook/appointments/book', {
+      const response = await fetch(`${BASE_URL}/api/userbook/appointments/book`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -171,7 +172,7 @@ const DoctorProfile = () => {
       const doctorId = id || (doctorDetails && doctorDetails._id);
       const token = localStorage.getItem('jwt'); 
       
-      const response = await axios.post('http://127.0.0.1:5000/api/userbook/reviews/add', {
+      const response = await axios.post( `${BASE_URL}/api/userbook/reviews/add`, {
         doctorId: doctorId,
         rating: parseInt(rating, 10),
         comment: ratingComment

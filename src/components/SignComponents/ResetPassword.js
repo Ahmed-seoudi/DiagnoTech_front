@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "./Sign.css";
 import "../style.css";
+import { BASE_URL } from "../../config";
 
 const ResetPassword = () => {
   const [newPassword, setNewPassword] = useState("");
@@ -22,7 +23,7 @@ const ResetPassword = () => {
     setIsLoading(true);
 
     try {
-      const response = await fetch("http://127.0.0.1:5000/api/users/resetPassword", {
+      const response = await fetch(`${BASE_URL}/api/users/resetPassword`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ newPassword }),

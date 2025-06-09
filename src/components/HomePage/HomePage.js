@@ -41,6 +41,7 @@ import { motion, useInView } from "framer-motion";
 import { MdHealthAndSafety } from "react-icons/md";
 import { BsSend, BsHeadset } from "react-icons/bs";
 import "./Chatbot.css";
+import { BASE_URL } from "../../config";
 
 // HomePage Component
 const HomePage = () => {
@@ -107,7 +108,7 @@ export const Header = () => {
         }
 
         const response = await axios.get(
-          "http://127.0.0.1:5000/api/profile/user",
+          `${BASE_URL}/api/profile/user`,
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -1024,7 +1025,7 @@ export const Chatbot = () => {
 
     try {
       const response = await axios.post(
-        "http://127.0.0.1:5000/api/chatBot/chat",
+        `${BASE_URL}/api/chatBot/chat`,
         { message: inputMessage },
         {
           headers: {

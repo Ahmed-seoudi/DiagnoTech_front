@@ -23,6 +23,7 @@ import {
   FaChild,
   FaUserClock
 } from "react-icons/fa";
+import { BASE_URL } from "../../config";
 
 const areaData = [
   { month: "Jan", visits: 400 },
@@ -60,7 +61,7 @@ export default function Dashboard() {
     const fetchData = async () => {
       const token = localStorage.getItem("jwt");
       try {
-        const response = await axios.get("http://localhost:5000/api/Dashboard/stats", {
+        const response = await axios.get(`${BASE_URL}/api/Dashboard/stats`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -116,7 +117,7 @@ export default function Dashboard() {
       const token = localStorage.getItem("jwt");
       console.log("Token:", token);
       try {
-        const response = await axios.get("http://localhost:5000/api/Dashboard/users/allUsers", {
+        const response = await axios.get(`${BASE_URL}/api/Dashboard/users/allUsers`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -149,7 +150,7 @@ export default function Dashboard() {
     const token = localStorage.getItem("jwt");
     try {
       const response = await axios.post(
-        "http://localhost:5000/api/Dashboard/admins/addAdmin",
+        `${BASE_URL}/api/Dashboard/admins/addAdmin`,
         { fullName, email, password, role },
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -226,7 +227,7 @@ export default function Dashboard() {
 
   try {
     const response = await axios.post(
-      "http://localhost:5000/api/Dashboard/doctors/addDoctor",
+      `${BASE_URL}/api/Dashboard/doctors/addDoctor`,
       doctorData,
       { headers: { Authorization: `Bearer ${token}` } }
     );
@@ -259,7 +260,7 @@ export default function Dashboard() {
       const token = localStorage.getItem("jwt");
       console.log("Token:", token);
       try {
-        const response = await axios.get("http://localhost:5000/api/Dashboard/doctors/alldoctors", {
+        const response = await axios.get(`${BASE_URL}/api/Dashboard/doctors/alldoctors`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -286,7 +287,7 @@ export default function Dashboard() {
   const handleDelete = async (adminId) => {
     const token = localStorage.getItem("jwt");
     try {
-      const response = await axios.delete(`http://localhost:5000/api/Dashboard/admins/deleteAdmin/${adminId}`, {
+      const response = await axios.delete(`${BASE_URL}/api/Dashboard/admins/deleteAdmin/${adminId}`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -310,7 +311,7 @@ export default function Dashboard() {
         return;
       }
       try {
-        const response = await axios.get(`http://localhost:5000/api/Dashboard/admins/search?query=${searchQuery}`, {
+        const response = await axios.get(`${BASE_URL}/api/Dashboard/admins/search?query=${searchQuery}`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -338,7 +339,7 @@ export default function Dashboard() {
     const fetchAllAdmins = async () => {
       const token = localStorage.getItem("jwt");
       try {
-        const response = await axios.get("http://localhost:5000/api/Dashboard/admins/allAdmins", {
+        const response = await axios.get(`${BASE_URL}/api/Dashboard/admins/allAdmins`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -365,7 +366,7 @@ export default function Dashboard() {
     const token = localStorage.getItem("jwt");
     try {
       const response = await axios.delete(
-        `http://localhost:5000/api/Dashboard/doctors/deleteDoctor/${doctorId}`,
+        `${BASE_URL}/api/Dashboard/doctors/deleteDoctor/${doctorId}`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -386,9 +387,9 @@ export default function Dashboard() {
     const fetchDoctors = async () => {
       const token = localStorage.getItem("jwt");
       try {
-        let url = "http://localhost:5000/api/Dashboard/doctors/alldoctors";
+        let url = `${BASE_URL}/api/Dashboard/doctors/alldoctors`;
         if (doctorSearchQuery.trim().length > 0) {
-          url = `http://localhost:5000/api/doctors/doctors/search?specialty=${doctorSearchQuery}`;
+          url = `${BASE_URL}/api/doctors/doctors/search?specialty=${doctorSearchQuery}`;
         }
         const response = await axios.get(url, {
           headers: {
@@ -416,9 +417,9 @@ export default function Dashboard() {
     const fetchUsers = async () => {
       const token = localStorage.getItem("jwt");
       try {
-        let url = "http://localhost:5000/api/Dashboard/users/allUsers";
+        let url = `${BASE_URL}/api/Dashboard/users/allUsers`;
         if (userSearchQuery.trim().length > 0) {
-          url = `http://localhost:5000/api/Dashboard/users/search?query=${userSearchQuery}`;
+          url = `${BASE_URL}/api/Dashboard/users/search?query=${userSearchQuery}`;
         }
         const response = await axios.get(url, {
           headers: {
@@ -441,7 +442,7 @@ export default function Dashboard() {
     const token = localStorage.getItem("jwt");
     try {
       const response = await axios.delete(
-        `http://localhost:5000/api/Dashboard/users/deleteUser/${userId}`,
+        `${BASE_URL}/api/Dashboard/users/deleteUser/${userId}`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -467,7 +468,7 @@ export default function Dashboard() {
     const fetchProfileData = async () => {
       try {
         const response = await fetch(
-          "http://localhost:5000/api/Dashboard/profilesettings/myinfo",
+          `${BASE_URL}/api/Dashboard/profilesettings/myinfo`,
           {
             method: "GET",
             headers: {
@@ -506,7 +507,7 @@ export default function Dashboard() {
     e.preventDefault();
     try {
       const response = await fetch(
-        "http://localhost:5000/api/Dashboard/profilesettings/updateinfo",
+        `${BASE_URL}/api/Dashboard/profilesettings/updateinfo`,
         {
           method: "PUT",
           headers: {
@@ -541,7 +542,7 @@ export default function Dashboard() {
     }
     try {
       const response = await fetch(
-        "http://localhost:5000/api/Dashboard/profilesettings/changePassword",
+        `${BASE_URL}/api/Dashboard/profilesettings/changePassword`,
         {
           method: "PUT",
           headers: {
@@ -576,7 +577,7 @@ export default function Dashboard() {
     }
     try {
       const response = await fetch(
-        "http://localhost:5000/api/Dashboard/profilesettings/deleteAccount",
+        `${BASE_URL}/api/Dashboard/profilesettings/deleteAccount`,
         {
           method: "DELETE",
           headers: {

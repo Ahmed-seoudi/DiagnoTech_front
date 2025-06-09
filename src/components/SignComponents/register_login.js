@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import "./Sign.css";
+import { BASE_URL } from "../../config";
 
 const Sign = ({ defaultMode = "login" }) => {
   const [isLogin, setIsLogin] = useState(defaultMode === "login");
@@ -209,7 +210,7 @@ const Sign = ({ defaultMode = "login" }) => {
     setBackendError("");
 
     try {
-      const response = await fetch("http://127.0.0.1:5000/api/users/register", {
+      const response = await fetch(`${BASE_URL}/api/users/register`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -260,7 +261,7 @@ const Sign = ({ defaultMode = "login" }) => {
     setBackendError("");
 
     try {
-      const response = await fetch("http://127.0.0.1:5000/api/users/login", {
+      const response = await fetch(`${BASE_URL}/api/users/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(loginData),
