@@ -3,7 +3,6 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import { useNavigate, useLocation } from "react-router-dom";
 import { jsPDF } from "jspdf"; 
 import "./CheckSymptoms.css";
-import "../style.css";
 
 const DoctorSuggestion = ({ doctors }) => {
   const navigate = useNavigate();
@@ -13,18 +12,17 @@ const DoctorSuggestion = ({ doctors }) => {
   };
 
   return (
-    <div>
+    <div className="doctor-suggestions">
       <label className="custom-label">
         Doctor Suggestions
         <i className="bi bi-person-heart ms-2" style={{ fontSize: "1.2rem", color: "#3f78b5" }}></i>
       </label>
-      <div className="custom-textarea p-2" style={{ minHeight: "100px", overflowY: "auto" }}>
+      <div className="custom-textarea p-3">
         {Array.isArray(doctors) && doctors.length > 0 ? (
           doctors.map((doctor, index) => (
             <div
               key={index}
-              className="doctor-card border rounded p-2 shadow-sm mb-2 d-flex align-items-center gap-3"
-              style={{ cursor: "pointer", backgroundColor: "#f8f9fa" }}
+              className="doctor-card border rounded p-2 shadow-sm mb-3 d-flex align-items-center gap-3"
               onClick={() => handleDoctorClick(doctor)}
             >
               <i className="bi bi-person-circle" style={{ fontSize: "40px", color: "#007bff" }}></i>
@@ -57,7 +55,7 @@ const ReportPage = () => {
 
   useEffect(() => {
     if (!location.state?.reportData) {
-
+      // Handle missing report data if needed
     }
     document.body.classList.add("custom-report-body");
     return () => {
@@ -72,14 +70,13 @@ const ReportPage = () => {
       format: "a4",
     });
 
-    // Constants for layout
     const pageWidth = doc.internal.pageSize.getWidth();
     const margin = 15;
     const maxWidth = pageWidth - 2 * margin;
     let y = margin;
 
     // Header
-    doc.setFillColor(60, 120, 181); // Blue header background
+    doc.setFillColor(60, 120, 181);
     doc.rect(0, 0, pageWidth, 20, "F");
     doc.setFontSize(18);
     doc.setTextColor(255, 255, 255);
@@ -94,8 +91,7 @@ const ReportPage = () => {
     doc.setTextColor(0, 0, 0);
     doc.setFont("helvetica", "bold");
     doc.text("Disease", margin, y);
-    y += 2;
-    y += 6;
+    y += 8;
     doc.setFontSize(12);
     doc.setFont("helvetica", "normal");
     const diseaseText = reportData.disease || "No disease information available";
@@ -107,8 +103,7 @@ const ReportPage = () => {
     doc.setFontSize(14);
     doc.setFont("helvetica", "bold");
     doc.text("Description", margin, y);
-    y += 2;
-    y += 6;
+    y += 8;
     doc.setFontSize(12);
     doc.setFont("helvetica", "normal");
     const descriptionText = reportData.description || "No description available for this condition";
@@ -120,8 +115,7 @@ const ReportPage = () => {
     doc.setFontSize(14);
     doc.setFont("helvetica", "bold");
     doc.text("Precautions", margin, y);
-    y += 2;
-    y += 6;
+    y += 8;
     doc.setFontSize(12);
     doc.setFont("helvetica", "normal");
     if (reportData.precautions.length > 0) {
@@ -146,8 +140,7 @@ const ReportPage = () => {
       doc.setFontSize(14);
       doc.setFont("helvetica", "bold");
       doc.text("Doctor Suggestions", margin, y);
-      y += 2;
-      y += 6;
+      y += 8;
       doc.setFontSize(12);
       doc.setFont("helvetica", "normal");
       reportData.doctors.forEach((doctor, index) => {
@@ -172,13 +165,12 @@ const ReportPage = () => {
       doc.text(`Page ${i} of ${pageCount}`, pageWidth - margin - 20, doc.internal.pageSize.getHeight() - 10);
     }
 
-    // Save the PDF
     doc.save("Your_Medical_Report.pdf");
   };
 
   return (
     <div className="container py-5 custom-report">
-      <h1 className="text-center mb-4 report-title">Here's your report!</h1>
+      <h1 className="text-center mb-4 report-title">Your Medical Report</h1>
 
       {!reportData.disease && !reportData.description && reportData.precautions.length === 0 && reportData.doctors.length === 0 ? (
         <div className="alert alert-warning text-center" role="alert">
@@ -186,7 +178,7 @@ const ReportPage = () => {
         </div>
       ) : (
         <div className="row">
-          <div className="col-md-6 d-flex flex-column gap-3">
+          <div className="col-lg-6 d-flex flex-column gap-4">
             <div>
               <label className="custom-label">
                 Disease
@@ -206,7 +198,7 @@ const ReportPage = () => {
               </label>
               <textarea
                 className="custom-textarea"
-                rows="4"
+                rows="5"
                 value={reportData.description || 'No description available for this condition'}
                 disabled
               ></textarea>
@@ -230,30 +222,28 @@ const ReportPage = () => {
               )}
             </div>
           </div>
-          <div className="col-md-6 d-flex flex-column gap-3 align-items-end">
+          <div className="col-lg-6 d-flex flex-column gap-4">
             <div className="w-100">
               <DoctorSuggestion doctors={reportData.doctors} />
             </div>
-            <div className="w-100">
-              <button className="custom-btn-secondary w-100" onClick={() => navigate("/")}>
-                Go to home page
+            <div className="w-100 d-flex flex-column gap-3">
+              <button className="custom-btn-secondary" onClick={() => navigate("/")}>
+                Go to Home Page
               </button>
-              <button className="custom-btn-primary w-100 mt-3" onClick={downloadReportAsPDF}>
+              <button className="custom-btn-primary" onClick={downloadReportAsPDF}>
                 Download Report as PDF
               </button>
             </div>
-            <div className="d-flex justify-content-end gap-3 mt-4 w-100">
+            <div className="image-container d-none d-lg-flex justify-content-end gap-3">
               <img
                 src="/img/report1.jpeg"
                 alt="Medical report illustration"
-                className="custom-image img2"
-                onError={() => <span className="text-danger">Image not found</span>}
+                className="custom-image"
               />
               <img
                 src="/img/report2.jpeg"
                 alt="Health report illustration"
-                className="custom-image img1"
-                onError={() => <span className="text-danger">Image not found</span>}
+                className="custom-image"
               />
             </div>
           </div>
