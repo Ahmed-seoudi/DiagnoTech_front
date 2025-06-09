@@ -4,7 +4,7 @@ import "./HomePage.css";
 import "../style.css";
 import "bootstrap-icons/font/bootstrap-icons.css";
 import "bootstrap/dist/css/bootstrap.min.css";
-import { Container, Row, Col } from "react-bootstrap";
+import { Container, Row, Col, Navbar, Nav, NavDropdown, Form, InputGroup, Button, Carousel, Modal } from "react-bootstrap";
 import accurate from "../../img/accurate.png";
 import transport from "../../img/transport(1).png";
 import patient from "../../img/patient.png";
@@ -17,7 +17,7 @@ import dr from "../../img/close-up-people-wearing-lab-coats.jpg";
 import Guidelines from "../../img/close-up-hand-holding-pen-top-view.jpg";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
-import { FaChevronLeft, FaChevronRight } from "react-icons/fa";
+import { FaChevronLeft, FaChevronRight, FaArrowUp, FaArrowDown } from "react-icons/fa";
 import medicalreport from "../../img/medical-report-record-form-history-patient-concept.jpg";
 import doctorvisit from "../../img/doctor-writing-clipboard-with-hand-chin.jpg";
 import diseaseprevention from "../../img/Tips for disease prevention.jpg";
@@ -29,54 +29,61 @@ import clinic from "../../img/logo1.png";
 import company from "../../img/logo2.png";
 import alliance from "../../img/logo3.png";
 import faq from "../../img/9a1a0d69ebfa79f4228d2db72e15bde9.png";
-import { Carousel, Modal, Button } from "react-bootstrap";
 import footerImage from "../../img/530242319709347d08f803e333bc5d01.jpg";
-import { FaArrowUp, FaArrowDown } from "react-icons/fa";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faCaretDown , faUserCircle  } from '@fortawesome/free-solid-svg-icons';
+import { faCaretDown, faUserCircle, faCheckCircle, faChartBar, faNewspaper, faHandshake, faQuestionCircle, faArrowCircleDown } from '@fortawesome/free-solid-svg-icons';
 import 'bootstrap/dist/js/bootstrap.bundle.min.js';
-import { Navbar, Nav, NavDropdown , Form, InputGroup } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import axios from "axios";
-import heroImage from "../../img/modified_image_blue.jpg"
-import { faCheckCircle, faChartBar, faNewspaper, faHandshake, faQuestionCircle, faArrowCircleDown } from '@fortawesome/free-solid-svg-icons';
+import heroImage from "../../img/modified_image_blue.jpg";
 import { motion, useInView } from "framer-motion";
 import { MdHealthAndSafety } from "react-icons/md";
 import { BsSend, BsHeadset } from "react-icons/bs";
-import "./Chatbot.css"; 
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+import "./Chatbot.css";
+
+// HomePage Component
 const HomePage = () => {
-  const { isLoggedIn, logout } = useAuth(); 
+  const { isLoggedIn, logout } = useAuth();
   const navigate = useNavigate();
+
   useEffect(() => {
     document.body.classList.add('home-body');
     return () => {
       document.body.classList.remove('home-body');
     };
   }, []);
+
   const handleLogout = () => {
-    logout(); 
-    navigate('/'); 
+    logout();
+    navigate('/');
   };
+
   return (
     <div>
-      {isLoggedIn ? (
-        <button onClick={handleLogout}>Logout</button>
-      ) : (
-        <p>Please log in to see more content.</p>
-      )}
+      <Header />
+      <HeroImg />
+      <HowItWorks />
+      <Whu />
+      <Statistics />
+      <Tips />
+      <Partnerships />
+      <Faqsection />
+      <Footer />
+      <ScrollButtons />
+      <Chatbot />
     </div>
   );
 };
-export default HomePage;
-//////////////////////////////////Header-Section//////////////////////////////////////////////////////////////
+
+// Header Component
 export const Header = () => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
-  const { isLoggedIn, logout } = useAuth(); 
+  const { isLoggedIn, logout } = useAuth();
   const navigate = useNavigate();
   const [username, setUsername] = useState("");
+
   useEffect(() => {
     const handleScroll = () => {
       setScrolled(window.scrollY > 50);
@@ -84,12 +91,13 @@ export const Header = () => {
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
+
   const handleLogout = () => {
-    logout(); 
-    navigate('/'); 
+    logout();
+    navigate('/');
   };
 
-   useEffect(() => {
+  useEffect(() => {
     const fetchUser = async () => {
       try {
         const token = localStorage.getItem("jwt");
@@ -102,14 +110,12 @@ export const Header = () => {
           "http://127.0.0.1:5000/api/profile/user",
           {
             headers: {
-            Authorization: `Bearer ${token}`,
+              Authorization: `Bearer ${token}`,
             },
           }
         );
 
         if (response) {
-          console.log(response);
-
           const fullName = response.data.data.fullName.trim();
           const firstName = fullName.split(" ")[0];
           setUsername(firstName);
@@ -120,8 +126,7 @@ export const Header = () => {
     };
 
     fetchUser();
-  }, []);
-
+  }, []);
 
   return (
     <Navbar 
@@ -137,50 +142,50 @@ export const Header = () => {
         <Navbar.Toggle aria-controls="basic-navbar-nav" className="navbar-toggler-light" />
         <Navbar.Collapse id="basic-navbar-nav">
           <Nav className="mx-auto nav-links">
-          <NavDropdown 
-  title={<span style={{ color: 'black' }} className="home-dropdown-title">Home <FontAwesomeIcon icon={faCaretDown} /></span>} 
-  id="basic-nav-dropdown"
-  show={isDropdownOpen}
-  onToggle={setIsDropdownOpen}
-  className="custom-dropdown"
->
-  <NavDropdown.Item href="#why-choose-us">
-    <FontAwesomeIcon icon={faCheckCircle} style={{ color: 'gray', marginRight: '8px' }} />
-    Why Choose Us?
-  </NavDropdown.Item>
-  <div className="dropdown-divider"></div>
-  <NavDropdown.Item href="#Statistics-sec">
-    <FontAwesomeIcon icon={faChartBar} style={{ color: 'gray', marginRight: '8px' }} />
-    Statistics
-  </NavDropdown.Item>
-  <div className="dropdown-divider"></div>
-  <NavDropdown.Item href="#Tips-News">
-    <FontAwesomeIcon icon={faNewspaper} style={{ color: 'gray', marginRight: '8px' }} />
-    Tips & News
-  </NavDropdown.Item>
-  <div className="dropdown-divider"></div>
-  <NavDropdown.Item href="#partnership-sec">
-    <FontAwesomeIcon icon={faHandshake} style={{ color: 'gray', marginRight: '8px' }} />
-    Partnerships
-  </NavDropdown.Item>
-  <div className="dropdown-divider"></div>
-  <NavDropdown.Item href="#faq-sec">
-    <FontAwesomeIcon icon={faQuestionCircle} style={{ color: 'gray', marginRight: '8px' }} />
-    Frequently Asked Questions
-  </NavDropdown.Item>
-  <div className="dropdown-divider"></div>
-  <NavDropdown.Item href="#footer-sec">
-    <FontAwesomeIcon icon={faArrowCircleDown} style={{ color: 'gray', marginRight: '8px' }} />
-    Footer
-  </NavDropdown.Item>
-</NavDropdown>
+            <NavDropdown 
+              title={<span style={{ color: 'black' }} className="home-dropdown-title">Home <FontAwesomeIcon icon={faCaretDown} /></span>} 
+              id="basic-nav-dropdown"
+              show={isDropdownOpen}
+              onToggle={setIsDropdownOpen}
+              className="custom-dropdown"
+            >
+              <NavDropdown.Item href="#why-choose-us">
+                <FontAwesomeIcon icon={faCheckCircle} style={{ color: 'gray', marginRight: '8px' }} />
+                Why Choose Us?
+              </NavDropdown.Item>
+              <div className="dropdown-divider"></div>
+              <NavDropdown.Item href="#Statistics-sec">
+                <FontAwesomeIcon icon={faChartBar} style={{ color: 'gray', marginRight: '8px' }} />
+                Statistics
+              </NavDropdown.Item>
+              <div className="dropdown-divider"></div>
+              <NavDropdown.Item href="#Tips-News">
+                <FontAwesomeIcon icon={faNewspaper} style={{ color: 'gray', marginRight: '8px' }} />
+                Tips & News
+              </NavDropdown.Item>
+              <div className="dropdown-divider"></div>
+              <NavDropdown.Item href="#partnership-sec">
+                <FontAwesomeIcon icon={faHandshake} style={{ color: 'gray', marginRight: '8px' }} />
+                Partnerships
+              </NavDropdown.Item>
+              <div className="dropdown-divider"></div>
+              <NavDropdown.Item href="#faq-sec">
+                <FontAwesomeIcon icon={faQuestionCircle} style={{ color: 'gray', marginRight: '8px' }} />
+                Frequently Asked Questions
+              </NavDropdown.Item>
+              <div className="dropdown-divider"></div>
+              <NavDropdown.Item href="#footer-sec">
+                <FontAwesomeIcon icon={faArrowCircleDown} style={{ color: 'gray', marginRight: '8px' }} />
+                Footer
+              </NavDropdown.Item>
+            </NavDropdown>
             <Nav.Link href="/DoctorsList" className="about-us">Doctors List</Nav.Link>
             <Nav.Link href="#contact" className="contact-us">About Us</Nav.Link>
           </Nav>
-          <div className="d-flex align-items-center user-actions">
+          <div className="d-flex flex-column flex-md-row align-items-center user-actions">
             {isLoggedIn ? (
               <>
-                <Button className="auth-btn me-3" onClick={handleLogout}>
+                <Button className="auth-btn mb-2 mb-md-0 me-md-3" onClick={handleLogout}>
                   Logout
                 </Button>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
@@ -188,7 +193,7 @@ export const Header = () => {
                     icon={faUserCircle} 
                     className="user-icon" 
                     onClick={() => navigate('/profile')} 
-                    style={{ cursor: 'pointer' , color: 'rgb(0, 0, 0)'}} 
+                    style={{ cursor: 'pointer', color: 'rgb(0, 0, 0)'}} 
                   />
                   <span
                     style={{ fontWeight: 'bold', color: '#ffff', cursor: 'pointer' }}
@@ -202,7 +207,7 @@ export const Header = () => {
               </>
             ) : (
               <>
-                <Button className="auth-btn me-3" onClick={() => navigate('/register')}>
+                <Button className="auth-btn mb-2 mb-md-0 me-md-3" onClick={() => navigate('/register')}>
                   Register
                 </Button>
                 <Button className="auth-btn" onClick={() => navigate('/login')}>
@@ -216,10 +221,10 @@ export const Header = () => {
     </Navbar>
   );
 };
-// ////////////////////////////////////////////HeroImg-section///////////////////////////////////////////////
-export const HeroImg = () => {
 
-    const { isLoggedIn } = useAuth(); // خد حالة تسجيل الدخول من السياق
+// HeroImg Component
+export const HeroImg = () => {
+  const { isLoggedIn } = useAuth();
   const navigate = useNavigate();
 
   const handleStartClick = () => {
@@ -229,103 +234,147 @@ export const HeroImg = () => {
       navigate('/login');
     }
   };
-  
+
   return (
     <section className="hero-section">
       <Container>
         <Row className="align-items-center">
-          <Col md={6} className="hero-text position-relative">
+          <Col md={6} className="hero-text position-relative" style={{ paddingRight: '30px' }}>
             <div className="text-container">
               <h2>
-                Uncover the exact cause of your symptoms with the power of AI - your health starts with more accurate knowledge.
+                Uncover the exact cause of your symptoms
+                with the power of <strong>AI</strong> —
+                your <strong>health</strong> starts with more accurate <strong>knowledge</strong>.
               </h2>
             </div>
             <Button 
               className="book-demo d-flex align-items-center gap-2" 
-              onClick={handleStartClick}>
+              onClick={handleStartClick}
+              aria-label="Start checking your symptoms"
+            >
               Start Checking
               <MdHealthAndSafety size={22} />
             </Button>
-
           </Col>
-
-          <Col md={6} className="hero-image">
+          <Col md={6} className="hero-image" style={{ paddingLeft: '30px' }}>
             <img src={heroImage} alt="Illustration" className="img-fluid" />
           </Col>
         </Row>
+        <div className="scroll-indicator" onClick={() => window.scrollTo({ top: window.innerHeight, behavior: 'smooth' })}>
+          <FaArrowDown />
+        </div>
       </Container>
     </section>
   );
 };
-////////////////////////////Why-choose-us-section////////////////////////////////////////
+
+// HowItWorks Component
+export const HowItWorks = () => {
+  const steps = [
+    { title: "Enter Symptoms", description: "Use our AI-powered symptom checker to input your symptoms.", icon: faCheckCircle },
+    { title: "Get Diagnosis", description: "Receive a detailed analysis and potential conditions.", icon: faChartBar },
+    { title: "Connect with Doctors", description: "Find and consult with expert doctors in your area.", icon: faUserCircle },
+  ];
+
+  return (
+    <motion.div
+      className="how-it-works-container"
+      initial={{ opacity: 0, y: 50 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.8, ease: "easeOut" }}
+      viewport={{ once: true }}
+    >
+      <h2 className="how-it-works-title">How It Works</h2>
+      <div className="steps-grid">
+        {steps.map((step, index) => (
+          <motion.div
+            key={index}
+            className="step-card"
+            initial={{ opacity: 0, scale: 0.8 }}
+            whileInView={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.6, delay: index * 0.2, ease: "easeOut" }}
+            viewport={{ once: true }}
+          >
+            <FontAwesomeIcon icon={step.icon} size="2x" className="step-icon" />
+            <h3>{step.title}</h3>
+            <p>{step.description}</p>
+          </motion.div>
+        ))}
+      </div>
+    </motion.div>
+  );
+};
+
+// Why Choose Us Component
 export const Whu = () => {
   return (
     <motion.div
-    id="why-choose-us"
-    className="whu-container"
-    initial={{ opacity: 0, scale: 0.8 }}
-    whileInView={{ opacity: 1, scale: 1 }}
-    transition={{ duration: 0.8, ease: "easeOut" }}
-    viewport={{ once: true }}
-  >
-    <motion.h2
-      className="whu-title"
-      initial={{ opacity: 0, y: -30 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      transition={{ duration: 1, delay: 0.3, ease: "easeOut" }}  
+      id="why-choose-us"
+      className="whu-container"
+      initial={{ opacity: 0, scale: 0.8 }}
+      whileInView={{ opacity: 1, scale: 1 }}
+      transition={{ duration: 0.8, ease: "easeOut" }}
       viewport={{ once: true }}
     >
-      Why Choose Us ?
-    </motion.h2>
-    <motion.p
-      className="whu-subtitle"
-      initial={{ opacity: 0, y: -20 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      transition={{ duration: 1, delay: 0.5, ease: "easeOut" }}  
-      viewport={{ once: true }}
-    >
-      Get accurate, up-to-date medical information you can trust. Stay informed with clear, evidence-based health insights designed for you.
-    </motion.p>
-    <div className="whu-reasons">
-      {[
-        {
-          img: accurate,
-          title: "Accurate & Reliable Information",
-          text: "Our content is reviewed by medical professionals to ensure accuracy.",
-        },
-        {
-          img: transport,
-          title: "Comprehensive Services",
-          text: "From preventive care to specialized treatments, we offer a full range of medical services.",
-        },
-        {
-          img: patient,
-          title: "Trusted by Patients",
-          text: "Our patients trust us for reliable, professional, and ethical healthcare.",
-        },
-      ].map((item, index) => (
-        <motion.div
-          key={index}
-          className="whu-reason"
-          initial={{ opacity: 0, scale: 0.5, rotate: -10 }}
-          whileInView={{ opacity: 1, scale: 1, rotate: 0 }}
-          transition={{
-            duration: 0.6,  
-            delay: index * 0.2,  
-            ease: "backOut",
-          }}
-          viewport={{ once: true }}
-        >
-          <img src={item.img} alt={item.title} width="90" height="90" />
-          <p>{item.title}</p>
-          <p>{item.text}</p>
-        </motion.div>
-      ))}
-    </div>
-  </motion.div>
+      <motion.h2
+        className="whu-title"
+        initial={{ opacity: 0, y: -30 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        transition={{ duration: 1, delay: 0.3, ease: "easeOut" }}  
+        viewport={{ once: true }}
+      >
+        Why Choose Us ?
+      </motion.h2>
+      <motion.p
+        className="whu-subtitle"
+        initial={{ opacity: 0, y: -20 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        transition={{ duration: 1, delay: 0.5, ease: "easeOut" }}  
+        viewport={{ once: true }}
+      >
+        Get accurate, up-to-date medical information you can trust. Stay informed with clear, evidence-based health insights designed for you.
+      </motion.p>
+      <div className="whu-reasons">
+        {[
+          {
+            img: accurate,
+            title: "Accurate & Reliable Information",
+            text: "Our content is reviewed by medical professionals to ensure accuracy.",
+          },
+          {
+            img: transport,
+            title: "Comprehensive Services",
+            text: "From preventive care to specialized treatments, we offer a full range of medical services.",
+          },
+          {
+            img: patient,
+            title: "Trusted by Patients",
+            text: "Our patients trust us for reliable, professional, and ethical healthcare.",
+          },
+        ].map((item, index) => (
+          <motion.div
+            key={index}
+            className="whu-reason"
+            initial={{ opacity: 0, scale: 0.5, rotate: -10 }}
+            whileInView={{ opacity: 1, scale: 1, rotate: 0 }}
+            transition={{
+              duration: 0.6,  
+              delay: index * 0.2,  
+              ease: "backOut",
+            }}
+            viewport={{ once: true }}
+          >
+            <img src={item.img} alt={item.title} width="90" height="90" />
+            <p>{item.title}</p>
+            <p>{item.text}</p>
+          </motion.div>
+        ))}
+      </div>
+    </motion.div>
   );
 };
-/////////////////////////////////////Statistics-Section/////////////////////////////////////////////////////
+
+// Statistics Component
 export const Statistics = () => {
   return (
     <motion.div
@@ -346,7 +395,7 @@ export const Statistics = () => {
         Statistics
       </motion.h2>
       <div className="statistics-items">
-        {[ 
+        {[
           { img: HPatients, text: "350 +", desc: "Happy patients", alt: "happy patients" },
           { img: heart, text: "180 +", desc: "Saved hearts", alt: "saved hearts" },
           { img: Clients, text: "500 +", desc: "Happy clients", alt: "Happy Clients" },
@@ -369,7 +418,9 @@ export const Statistics = () => {
     </motion.div>
   );
 };
-////////////////////////////////////////////Tips & News-section/////////////////////////////////////////////////    //
+
+
+// Tips Component
 export const Tips = () => {
   const [show, setShow] = useState(false);
   const [selectedTip, setSelectedTip] = useState(null);
@@ -689,7 +740,8 @@ return (
   </motion.div>
 );
 };
-// /////////////////////////////Partenerships-section////////////////////////////////////
+
+// Partnerships Component
 export const Partnerships = () => {
   const partners = [
     { id: 1, img: visa },
@@ -697,6 +749,7 @@ export const Partnerships = () => {
     { id: 3, img: company },
     { id: 4, img: alliance },
   ];
+
   return (
     <motion.div
       id="partnership-sec"
@@ -730,7 +783,7 @@ export const Partnerships = () => {
             whileInView={{ opacity: 1, scale: 1, rotate: 0 }}
             transition={{
               duration: 0.6,
-              delay: index * 0.2, 
+              delay: index * 0.2,
               ease: "backOut",
             }}
             viewport={{ once: true }}
@@ -743,14 +796,15 @@ export const Partnerships = () => {
   );
 };
 
-// ///////////////////////////////////FAQ-Section////////////////////////////////////////////////////////////////////
+// FAQ Section Component
 export const Faqsection = () => {
   const faqs = [
-    { question: 'How do I enter my symptoms?', answer:' You can enter symptoms via the dedicated page, with an auto-complete feature for easy selection.' },
-    { question: 'Is my medical history kept?', answer: 'Yes, all previous symptoms and diagnoses are stored on your profile.'},
-    { question: 'How to determine the appropriate specialization?', answer:' Based on the symptoms you present, we determine the best medical specialty for your condition.' },
+    { question: 'How do I enter my symptoms?', answer: 'You can enter symptoms via the dedicated page, with an auto-complete feature for easy selection.' },
+    { question: 'Is my medical history kept?', answer: 'Yes, all previous symptoms and diagnoses are stored on your profile.' },
+    { question: 'How to determine the appropriate specialization?', answer: 'Based on the symptoms you present, we determine the best medical specialty for your condition.' },
     { question: 'Can I know doctors in many fields?', answer: 'Yes, you can easily find doctors in various fields through the website.' },
   ];
+
   return (
     <motion.div
       id="faq-sec"
@@ -791,7 +845,7 @@ export const Faqsection = () => {
                 whileInView={{ opacity: 1, scale: 1 }}
                 transition={{
                   duration: 0.6,
-                  delay: index * 0.2,  
+                  delay: index * 0.2,
                   ease: "backOut",
                 }}
                 viewport={{ once: true }}
@@ -823,214 +877,69 @@ export const Faqsection = () => {
           </div>
         </div>
       </div>
-      <style jsx>{`
-        .faq-container {
-          background:rgb(255, 255, 255);
-          padding: 50px 0;
-          margin-top: 70px;
-        }
-        .faq-title {
-          text-align: center;
-          font-size: 36px;
-          font-weight: bold;
-          word-spacing: 4px;
-          letter-spacing: 2px;
-          margin-top: -30px;
-        }
-        .faq-image {
-          width: 80%;
-          max-width: 400px;
-          object-fit: contain;
-          margin-top: -65px;
-        }
-        .accordion-button {
-          font-size: 1rem;
-          font-weight: bold;
-          color: #007bff;
-        }
-        .accordion-item {
-          margin-bottom: 15px;
-          border-radius: 12px;
-          box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-        }
-        .col-md-6 {
-          margin-top: 70px;
-          margin-left: -20px;
-        }
-        @media (max-width: 767px) {
-          .faq-container {
-            padding: 20px 0;
-          }
-          .faq-image {
-            width: 100%;
-            max-width: 350px;
-            margin-top: -20px;
-          }
-          .faq-title {
-            font-size: 2rem;
-          }
-          .col-md-6 {
-            margin-top: 20px;
-            margin-left: 0;
-          }
-        }
-      `}</style>
     </motion.div>
   );
 };
-////////////////////////////////Footer-section////////////////////////////////////////////////
+
+//Footer
 export const Footer = () => {
-  return (
-    <footer className="footer-container">
-      <div id="footer-sec" className="footer-wave">
-        <svg viewBox="0 0 1440 320" xmlns="http://www.w3.org/2000/svg">
-          <path fill="#e3f2fd" d="M0,224L48,218.7C96,213,192,203,288,181.3C384,160,480,128,576,144C672,160,768,224,864,234.7C960,245,1056,203,1152,181.3C1248,160,1344,160,1392,160L1440,160L1440,0L1392,0C1344,0,1248,0,1152,0C1056,0,960,0,864,0C768,0,672,0,576,0C480,0,384,0,288,0C192,0,96,0,48,0L0,0Z" />
-        </svg>
-      </div>
-      <div className="footer-image-overlay">
-        <img src={footerImage} alt="Decorative" className="footer-image" width="70px" height="70px" />
-      </div>
-      <Container>
-        <Row className="align-items-center text-center text-md-start footer-content">
-          <Col md={4} className="footer-section">
-            <img src={logo} alt="Logo" className="footer-logo" width="70px" height="70px" />
-            <h5>Learn More</h5>
-            <ul>
-              <li><a href="#">Our Blog</a></li>
-              <li><a href="#">Rover Guarantee</a></li>
-              <li><a href="#">Safety</a></li>
-              <li><a href="#">Q&A Community</a></li>
-            </ul>
-          </Col>
-          <Col md={4} className="footer-section">
-            <h5>About</h5>
-            <ul>
-              <li><a href="#">About Us</a></li>
-              <li><a href="#">Contact Us</a></li>
-              <li><a href="#">Press</a></li>
-              <li><a href="#">Careers</a></li>
-              <li><a href="#">Privacy Statement</a></li>
-              <li><a href="#">Cookie Policy</a></li>
-              <li><a href="#">Terms of Service</a></li>
-            </ul>
-          </Col>
-          <Col md={4} className="footer-section">
-            <h5>Need Help?</h5>
-            <ul>
-              <li><a href="#">Help Center</a></li>
-            </ul>
-            <div className="social-icons">
-              <a href="#"><i className="fab fa-facebook-f"></i></a>
-              <a href="#"><i className="fab fa-linkedin-in"></i></a>
-              <a href="#"><i className="fab fa-twitter"></i></a>
+      return (
+        <footer className="footer-container">
+          <div className="footer-wave">
+            <svg viewBox="0 0 1440 100" xmlns="http://www.w3.org/2000/svg">
+              <path 
+                fill="#217BF4" 
+                d="M0,70L60,60C120,50,240,30,360,35C480,40,600,60,720,65C840,70,960,60,1080,50C1200,40,1320,40,1380,40L1440,40L1440,0L1380,0C1320,0,1200,0,1080,0C960,0,840,0,720,0C600,0,480,0,360,0C240,0,120,0,60,0L0,0Z"
+              />
+            </svg>
+          </div>
+          <Container>
+            <Row className="footer-content">
+              <Col md={4} className="footer-section">
+                <h5>DiagnoTech</h5>
+                <p className="footer-description">
+                DiagnoTech offers innovative healthcare solutions to enhance diagnostics and patient care.
+                </p>
+                <div className="social-icons">
+                  <a href="#" aria-label="Facebook"><i className="fab fa-facebook-f"></i></a>
+                  <a href="#" aria-label="Twitter"><i className="fab fa-twitter"></i></a>
+                  <a href="#" aria-label="Instagram"><i className="fab fa-instagram"></i></a>
+                  <a href="#" aria-label="LinkedIn"><i className="fab fa-linkedin-in"></i></a>
+                </div>
+              </Col>
+              <Col md={4} className="footer-section">
+                <h5>Quick Links</h5>
+                <ul>
+                  <li><a href="#">Home</a></li>
+                  <li><a href="#">Services</a></li>
+                  <li><a href="#">Blog</a></li>
+                  <li><a href="#">Careers</a></li>
+                  <li><a href="#">FAQ</a></li>
+                </ul>
+              </Col>
+              <Col md={4} className="footer-section">
+                <h5>Contact Us</h5>
+                <ul>
+                  <li><a href="mailto:diagnotech@gmail.com">diagnotech@gmail.com</a></li>
+                  <li><a href="tel:+20100000000000">+20100000000000</a></li>
+                  <li>Fayoum</li>
+                </ul>
+              </Col>
+            </Row>
+            <div className="footer-bottom">
+              <p className="copyrights">
+                © 2025 DiagnoTech. All rights reserved. | <a href="#">Privacy Policy</a> | <a href="#">Terms of Use</a>
+              </p>
             </div>
-          </Col>
-        </Row>
-      </Container>
-      <div className="footer-bottom">
-        <p className="copyrights">&copy; 2024 Your Project Name. All Rights Reserved.</p>
-      </div>
-      <style>{`
-      body {
-  overflow-x: hidden;
-}
-        .footer-container {
-          background: linear-gradient(135deg, #e3f2fd, #ffffff);
-          padding: 100px 0 0;
-          position: relative;
-          overflow: hidden;
-          width: 100%;
-          margin-top: 50px;
-          display: flex;
-          flex-direction: column;
-          min-height: 100%;
-        }
-        .footer-wave {
-          position: absolute;
-          top: -20px;
-          left: 0;
-          width: 100%;
-          line-height: 0;
-        }
-        .footer-image-overlay {
-          position: absolute;
-          top:62px;
-          right: 20px;
-          z-index: 10;
-        }
-        .footer-image {
-          width: 200px;
-          height: auto;
-          border-radius: 50%;
-          box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-        }
-        .footer-logo {
-          max-width: 150px;
-          margin-bottom: 40px;
-        }
-        .footer-section h5 {
-          font-weight: bold;
-          margin-bottom: 40px;
-          color: #1976d2;
-        }
-        .footer-section ul {
-          list-style: none;
-          padding: 0;
-        }
-        .footer-section ul li {
-          margin-bottom: 10px;
-        }
-        .footer-section ul li a {
-          text-decoration: none;
-          color: #555;
-          transition: color 0.3s ease;
-        }
-        .footer-section ul li a:hover {
-          color: #1976d2;
-        }
-        .social-icons a {
-          margin-right: 15px;
-          font-size: 20px;
-          color: #1976d2;
-          transition: color 0.3s ease;
-        }
-        .social-icons a:hover {
-          color: #0d47a1;
-        }
-        .footer-content {
-          margin-top: 100px;
-          flex: 1;
-        }
-        .footer-bottom {
-          text-align: center;
-          padding-top: 20px;
-        }
-        @media (max-width: 768px) {
-          .footer-image-overlay {
-            position: static;
-            text-align: center;
-            margin-bottom: 20px;
-          }
-          .footer-image {
-            width: 150px;
-          }
-          .footer-section {
-            margin-bottom: 30px;
-          }
-          .footer-content {
-            margin-top: 50px;
-          }
-          .footer-bottom {
-            padding-top: 10px;
-          }
-        }
-      `}</style>
-    </footer>
-  );
-};
-// /////////////////////////////////ScrollButtons-Section//////////////////////////////////////////////
+          </Container>
+        </footer>
+      );
+    };
+
+// ScrollButtons Component
 export const ScrollButtons = () => {
   const [showScroll, setShowScroll] = useState(false);
+
   useEffect(() => {
     const checkScroll = () => {
       if (window.scrollY > 300) {
@@ -1042,67 +951,48 @@ export const ScrollButtons = () => {
     window.addEventListener("scroll", checkScroll);
     return () => window.removeEventListener("scroll", checkScroll);
   }, []);
+
   const scrollToTop = () => {
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
+
   const scrollToBottom = () => {
     window.scrollTo({ top: document.body.scrollHeight, behavior: "smooth" });
   };
+
   return (
     <div className="scroll-buttons">
       {showScroll && (
         <>
-          <button className="scroll-btn up" onClick={scrollToTop}>
+          <button className="scroll-btn up" onClick={scrollToTop} aria-label="Scroll to top">
             <FaArrowUp />
           </button>
-          <button className="scroll-btn down" onClick={scrollToBottom}>
+          <button className="scroll-btn down" onClick={scrollToBottom} aria-label="Scroll to bottom">
             <FaArrowDown />
           </button>
         </>
       )}
-      <style jsx>{`
-        .scroll-buttons {
-          position: fixed;
-          bottom: 30px;
-          right: 30px;
-          z-index: 1000;
-          display: flex;
-          flex-direction: column;
-          gap: 10px;
-        }
-        .scroll-btn {
-          width: 35px;
-          height: 35px;
-          border: none;
-          border-radius: 50%;
-          background: #007bff;
-          color: white;
-          cursor: pointer;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
-          transition: background 0.3s;
-        }
-        .scroll-btn:hover {
-          background: #0056b3;
-        }
-      `}</style>
     </div>
   );
 };
-/////////////////////////////////////////////////ChatBot/////////////////////////////////////////////////////////////
+
+// Chatbot Component
 export const Chatbot = () => {
   const [showChat, setShowChat] = useState(false);
   const [messages, setMessages] = useState([
-    { text: "Hello how can i help you", sender: "bot" }
+    { text: "Hello how can I help you", sender: "bot" }
   ]);
   const [inputMessage, setInputMessage] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [showIcon, setShowIcon] = useState(false);
   const messagesEndRef = useRef(null);
 
-  const handleClose = () => setShowChat(false);
-  const handleShow = () => setShowChat(true);
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setShowIcon(true);
+    }, 3000);
+    return () => clearTimeout(timer);
+  }, []);
 
   useEffect(() => {
     scrollToBottom();
@@ -1164,19 +1054,20 @@ export const Chatbot = () => {
 
   return (
     <>
-      <div className="chat-icon-container" onClick={handleShow}>
-        <div className="chat-icon">
-          <BsHeadset />
+      {showIcon && (
+        <div className="chat-icon-container" onClick={() => setShowChat(true)} aria-label="Open chatbot">
+          <div className="chat-icon">
+            <BsHeadset size={30} />
+          </div>
+          <div className="ai-assistant-bubble">
+            Hi I'm your medical AI assistant
+          </div>
         </div>
-        <div className="ai-assistant-bubble">
-          Hi I'm your medical AI assistant
-        </div>
-      </div>
+      )}
 
-      {/* Chat Modal */}
       <Modal
         show={showChat}
-        onHide={handleClose}
+        onHide={() => setShowChat(false)}
         centered
         className="chatbot-modal"
       >
@@ -1216,8 +1107,9 @@ export const Chatbot = () => {
                 value={inputMessage}
                 onChange={(e) => setInputMessage(e.target.value)}
                 autoFocus
+                aria-label="Type your message to the chatbot"
               />
-              <Button variant="primary" type="submit" disabled={isLoading}>
+              <Button variant="primary" type="submit" disabled={isLoading} aria-label="Send message">
                 <BsSend />
               </Button>
             </InputGroup>
@@ -1227,3 +1119,5 @@ export const Chatbot = () => {
     </>
   );
 };
+
+export default HomePage;
