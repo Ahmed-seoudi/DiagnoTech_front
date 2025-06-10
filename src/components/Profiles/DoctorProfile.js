@@ -280,7 +280,7 @@ const DoctorProfile = () => {
             style={{ width: "100px", height: "100px" }}>
             <span className="fs-1 text-white"><FontAwesomeIcon icon={faUserDoctor} /></span>
           </div>
-          <h2 className="mt-3">{doctorDetails.fullName || doctorDetails.Name}</h2>
+          <h2 className="mt-3">{doctorDetails.fullName || doctorDetails.name}</h2>
           <div className="mt-2 d-flex align-items-center">
             <div className="me-2 d-flex">
               {renderStars(Math.round(calculateAverageRating()))}
@@ -293,7 +293,7 @@ const DoctorProfile = () => {
         <div className="row g-3 profile-card p-4 mx-auto" style={{ maxWidth: "800px" }}>
           <div className="col-12 col-sm-6">
             <label htmlFor="fullname" className="form-label">Full Name</label>
-            <input id="fullname" type="text" className="form-control border-primary" value={doctorDetails.fullName || doctorDetails.Name || ''} readOnly />
+            <input id="fullname" type="text" className="form-control border-primary" value={doctorDetails.fullName || doctorDetails.name || ''} readOnly />
           </div>
           <div className="col-12 col-sm-6">
             <label htmlFor="specialization" className="form-label">Specialization</label>
