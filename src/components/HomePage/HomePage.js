@@ -133,66 +133,66 @@ export const Header = () => {
     <Navbar 
       expand="lg" 
       fixed="top" 
-      className={`header-container ${scrolled ? 'scrolled' : ''}`}
+      className={`home-header-container ${scrolled ? 'home-scrolled' : ''}`}
     >
       <Container fluid>
-        <Navbar.Brand onClick={() => navigate('/')} className="logo" style={{ cursor: 'pointer' }}>
+        <Navbar.Brand onClick={() => navigate('/')} className="home-logo" style={{ cursor: 'pointer' }}>
           <img src={logo} alt="website's logo" width="50" height="50" />
-          <span className="site-name">DiagnoTech</span>
+          <span className="home-site-name">DiagnoTech</span>
         </Navbar.Brand>
-        <Navbar.Toggle aria-controls="basic-navbar-nav" className="navbar-toggler-light" />
+        <Navbar.Toggle aria-controls="basic-navbar-nav" className="home-navbar-toggler-light" />
         <Navbar.Collapse id="basic-navbar-nav">
-          <Nav className="mx-auto nav-links">
+          <Nav className="mx-auto home-nav-links">
             <NavDropdown 
-              title={<span style={{ color: 'black' }} className="home-dropdown-title">Home <FontAwesomeIcon icon={faCaretDown} /></span>} 
+              title={<span style={{ color: 'black' }} className="home-home-dropdown-title">Home <FontAwesomeIcon icon={faCaretDown} /></span>} 
               id="basic-nav-dropdown"
               show={isDropdownOpen}
               onToggle={setIsDropdownOpen}
-              className="custom-dropdown"
+              className="home-custom-dropdown"
             >
               <NavDropdown.Item href="#why-choose-us">
                 <FontAwesomeIcon icon={faCheckCircle} style={{ color: 'gray', marginRight: '8px' }} />
                 Why Choose Us?
               </NavDropdown.Item>
-              <div className="dropdown-divider"></div>
+              <div className="home-dropdown-divider"></div>
               <NavDropdown.Item href="#Statistics-sec">
                 <FontAwesomeIcon icon={faChartBar} style={{ color: 'gray', marginRight: '8px' }} />
                 Statistics
               </NavDropdown.Item>
-              <div className="dropdown-divider"></div>
+              <div className="home-dropdown-divider"></div>
               <NavDropdown.Item href="#Tips-News">
                 <FontAwesomeIcon icon={faNewspaper} style={{ color: 'gray', marginRight: '8px' }} />
                 Tips & News
               </NavDropdown.Item>
-              <div className="dropdown-divider"></div>
+              <div className="home-dropdown-divider"></div>
               <NavDropdown.Item href="#partnership-sec">
                 <FontAwesomeIcon icon={faHandshake} style={{ color: 'gray', marginRight: '8px' }} />
                 Partnerships
               </NavDropdown.Item>
-              <div className="dropdown-divider"></div>
+              <div className="home-dropdown-divider"></div>
               <NavDropdown.Item href="#faq-sec">
                 <FontAwesomeIcon icon={faQuestionCircle} style={{ color: 'gray', marginRight: '8px' }} />
                 Frequently Asked Questions
               </NavDropdown.Item>
-              <div className="dropdown-divider"></div>
+              <div className="home-dropdown-divider"></div>
               <NavDropdown.Item href="#footer-sec">
                 <FontAwesomeIcon icon={faArrowCircleDown} style={{ color: 'gray', marginRight: '8px' }} />
                 Footer
               </NavDropdown.Item>
             </NavDropdown>
-            <Nav.Link href="/DoctorsList" className="about-us">Doctors List</Nav.Link>
-            <Nav.Link href="#contact" className="contact-us">About Us</Nav.Link>
+            <Nav.Link href="/DoctorsList" className="home-about-us">Doctors List</Nav.Link>
+            <Nav.Link href="#contact" className="home-contact-us">About Us</Nav.Link>
           </Nav>
-          <div className="d-flex flex-column flex-md-row align-items-center user-actions">
+          <div className="d-flex flex-column flex-md-row align-items-center home-user-actions">
             {isLoggedIn ? (
               <>
-                <Button className="auth-btn mb-2 mb-md-0 me-md-3" onClick={handleLogout}>
+                <Button className="home-auth-btn mb-2 mb-md-0 me-md-3" onClick={handleLogout}>
                   Logout
                 </Button>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                   <FontAwesomeIcon 
                     icon={faUserCircle} 
-                    className="user-icon" 
+                    className="home-user-icon" 
                     onClick={() => navigate('/profile')} 
                     style={{ cursor: 'pointer', color: 'rgb(0, 0, 0)'}} 
                   />
@@ -208,10 +208,10 @@ export const Header = () => {
               </>
             ) : (
               <>
-                <Button className="auth-btn mb-2 mb-md-0 me-md-3" onClick={() => navigate('/register')}>
+                <Button className="home-auth-btn mb-2 mb-md-0 me-md-3" onClick={() => navigate('/register')}>
                   Register
                 </Button>
-                <Button className="auth-btn" onClick={() => navigate('/login')}>
+                <Button className="home-auth-btn" onClick={() => navigate('/login')}>
                   Login
                 </Button>
               </>
@@ -237,11 +237,11 @@ export const HeroImg = () => {
   };
 
   return (
-    <section className="hero-section">
+    <section className="home-hero-section">
       <Container>
         <Row className="align-items-center">
-          <Col md={6} className="hero-text position-relative" style={{ paddingRight: '30px' }}>
-            <div className="text-container">
+          <Col md={6} className="home-hero-text position-relative" style={{ paddingRight: '30px' }}>
+            <div className="home-text-container">
               <h2>
                 Uncover the exact cause of your symptoms
                 with the power of <strong>AI</strong> —
@@ -249,7 +249,7 @@ export const HeroImg = () => {
               </h2>
             </div>
             <Button 
-              className="book-demo d-flex align-items-center gap-2" 
+              className="home-book-demo d-flex align-items-center gap-2" 
               onClick={handleStartClick}
               aria-label="Start checking your symptoms"
             >
@@ -257,11 +257,11 @@ export const HeroImg = () => {
               <MdHealthAndSafety size={22} />
             </Button>
           </Col>
-          <Col md={6} className="hero-image" style={{ paddingLeft: '30px' }}>
+          <Col md={6} className="home-hero-image" style={{ paddingLeft: '30px' }}>
             <img src={heroImage} alt="Illustration" className="img-fluid" />
           </Col>
         </Row>
-        <div className="scroll-indicator" onClick={() => window.scrollTo({ top: window.innerHeight, behavior: 'smooth' })}>
+        <div className="home-scroll-indicator" onClick={() => window.scrollTo({ top: window.innerHeight, behavior: 'smooth' })}>
           <FaArrowDown />
         </div>
       </Container>
@@ -279,24 +279,24 @@ export const HowItWorks = () => {
 
   return (
     <motion.div
-      className="how-it-works-container"
+      className="home-how-it-works-container"
       initial={{ opacity: 0, y: 50 }}
       whileInView={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.8, ease: "easeOut" }}
       viewport={{ once: true }}
     >
-      <h2 className="how-it-works-title">How It Works</h2>
-      <div className="steps-grid">
+      <h2 className="home-how-it-works-title">How It Works</h2>
+      <div className="home-steps-grid">
         {steps.map((step, index) => (
           <motion.div
             key={index}
-            className="step-card"
+            className="home-step-card"
             initial={{ opacity: 0, scale: 0.8 }}
             whileInView={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.6, delay: index * 0.2, ease: "easeOut" }}
             viewport={{ once: true }}
           >
-            <FontAwesomeIcon icon={step.icon} size="2x" className="step-icon" />
+            <FontAwesomeIcon icon={step.icon} size="2x" className="home-step-icon" />
             <h3>{step.title}</h3>
             <p>{step.description}</p>
           </motion.div>
@@ -311,14 +311,14 @@ export const Whu = () => {
   return (
     <motion.div
       id="why-choose-us"
-      className="whu-container"
+      className="home-whu-container"
       initial={{ opacity: 0, scale: 0.8 }}
       whileInView={{ opacity: 1, scale: 1 }}
       transition={{ duration: 0.8, ease: "easeOut" }}
       viewport={{ once: true }}
     >
       <motion.h2
-        className="whu-title"
+        className="home-whu-title"
         initial={{ opacity: 0, y: -30 }}
         whileInView={{ opacity: 1, y: 0 }}
         transition={{ duration: 1, delay: 0.3, ease: "easeOut" }}  
@@ -327,7 +327,7 @@ export const Whu = () => {
         Why Choose Us ?
       </motion.h2>
       <motion.p
-        className="whu-subtitle"
+        className="home-whu-subtitle"
         initial={{ opacity: 0, y: -20 }}
         whileInView={{ opacity: 1, y: 0 }}
         transition={{ duration: 1, delay: 0.5, ease: "easeOut" }}  
@@ -335,7 +335,7 @@ export const Whu = () => {
       >
         Get accurate, up-to-date medical information you can trust. Stay informed with clear, evidence-based health insights designed for you.
       </motion.p>
-      <div className="whu-reasons">
+      <div className="home-whu-reasons">
         {[
           {
             img: accurate,
@@ -355,7 +355,7 @@ export const Whu = () => {
         ].map((item, index) => (
           <motion.div
             key={index}
-            className="whu-reason"
+            className="home-whu-reason"
             initial={{ opacity: 0, scale: 0.5, rotate: -10 }}
             whileInView={{ opacity: 1, scale: 1, rotate: 0 }}
             transition={{
@@ -380,14 +380,14 @@ export const Statistics = () => {
   return (
     <motion.div
       id="Statistics-sec"
-      className="statistics-container"
+      className="home-statistics-container"
       initial={{ opacity: 0, y: 50 }}
       whileInView={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.8, ease: "easeOut" }}
       viewport={{ once: true }}
     >
       <motion.h2
-        className="statistics-title"
+        className="home-statistics-title"
         initial={{ opacity: 0, y: -30 }}
         whileInView={{ opacity: 1, y: 0 }}
         transition={{ duration: 1, delay: 0.2, ease: "easeOut" }}
@@ -395,7 +395,7 @@ export const Statistics = () => {
       >
         Statistics
       </motion.h2>
-      <div className="statistics-items">
+      <div className="home-statistics-items">
         {[
           { img: HPatients, text: "350 +", desc: "Happy patients", alt: "happy patients" },
           { img: heart, text: "180 +", desc: "Saved hearts", alt: "saved hearts" },
@@ -404,22 +404,21 @@ export const Statistics = () => {
         ].map((item, index) => (
           <motion.div
             key={index}
-            className="statistics-item"
+            className="home-statistics-item"
             initial={{ opacity: 0, scale: 0.5, rotate: -10 }}
             whileInView={{ opacity: 1, scale: 1, rotate: 0 }}
             transition={{ duration: 0.6, delay: index * 0.2, ease: "easeOut" }}
             viewport={{ once: true }}
           >
             <img src={item.img} alt={item.alt} width="90" height="90" />
-            <p className="statistics-text">{item.text}</p>
-            <p className="statistics-description">{item.desc}</p>
+            <p className="home-statistics-text">{item.text}</p>
+            <p className="home-statistics-description">{item.desc}</p>
           </motion.div>
         ))}
       </div>
     </motion.div>
   );
 };
-
 
 // Tips Component
 export const Tips = () => {
@@ -659,7 +658,7 @@ const cardVariants = {
   visible: {
     opacity: 1,
     y: 0,
-    transition: {
+   transition: {
       duration: 0.6,
       ease: "easeOut",
     },
@@ -674,15 +673,15 @@ return (
     animate={isInView ? "visible" : "hidden"}
     transition={{ duration: 0.8, ease: "easeOut" }}
   >
-    <h2 className="text-center tips-title mb-4">Tips & News</h2>
+    <h2 className="text-center home-tips-title mb-4">Tips & News</h2>
     <Carousel
       activeIndex={activeIndex}
       onSelect={(selectedIndex) => setActiveIndex(selectedIndex)}
       indicators={false}
       interval={null}
-      className="tips-carousel"
-      prevIcon={<FaChevronLeft className="custom-carousel-icon custom-prev-icon" />}
-      nextIcon={<FaChevronRight className="custom-carousel-icon custom-next-icon" />}
+      className="home-tips-carousel"
+      prevIcon={<FaChevronLeft className="home-custom-carousel-icon home-custom-prev-icon" />}
+      nextIcon={<FaChevronRight className="home-custom-carousel-icon home-custom-next-icon" />}
     >
       {Array.from({ length: totalSlides }).map((_, i) => (
         <Carousel.Item key={i}>
@@ -703,12 +702,12 @@ return (
                   ease: "easeOut",
                 }}
               >
-                <div className="card tip-card" onClick={() => handleShow(tip)}>
+                <div className="card home-tip-card" onClick={() => handleShow(tip)}>
                   <img src={tip.img} className="card-img-top" alt={tip.title} />
                   <div className="card-body text-center">
                     <h5 className="card-title mb-2">{tip.title}</h5>
                     <p className="card-text">{tip.description}</p>
-                    <button className="more-btn">Read</button>
+                    <button className="home-more-btn">Read</button>
                   </div>
                 </div>
               </motion.div>
@@ -717,11 +716,11 @@ return (
         </Carousel.Item>
       ))}
     </Carousel>
-    <div className="carousel-navigation text-center mt-4">
+    <div className="home-carousel-navigation text-center mt-4">
       {Array.from({ length: totalSlides }).map((_, index) => (
         <span
           key={index}
-          className={`nav-dot ${index === activeIndex ? "active" : ""}`}
+          className={`home-nav-dot ${index === activeIndex ? "home-active" : ""}`}
           onClick={() => setActiveIndex(index)}
         />
       ))}
@@ -732,7 +731,7 @@ return (
       </Modal.Header>
       <Modal.Body>
         <img src={selectedTip?.img} alt={selectedTip?.title} className="img-fluid mb-3" />
-        <p className="tip-details">{selectedTip?.details}</p>
+        <p className="home-tip-details">{selectedTip?.details}</p>
       </Modal.Body>
       <Modal.Footer>
         <Button variant="secondary" onClick={handleClose}>Close</Button>
@@ -754,14 +753,14 @@ export const Partnerships = () => {
   return (
     <motion.div
       id="partnership-sec"
-      className="container-fluid my-5 partnership-container"
+      className="container-fluid my-5 home-partnership-container"
       initial={{ opacity: 0, scale: 0.8 }}
       whileInView={{ opacity: 1, scale: 1 }}
       transition={{ duration: 0.8, ease: "easeOut" }}
       viewport={{ once: true }}
     >
       <motion.h2
-        className="text-center mb-4 partnership-title"
+        className="text-center mb-4 home-partnership-title"
         initial={{ opacity: 0, y: -30 }}
         whileInView={{ opacity: 1, y: 0 }}
         transition={{ duration: 1, delay: 0.3, ease: "easeOut" }}
@@ -770,7 +769,7 @@ export const Partnerships = () => {
         Partnerships
       </motion.h2>
       <motion.div
-        className="partnerships-grid"
+        className="home-partnerships-grid"
         initial={{ opacity: 0 }}
         whileInView={{ opacity: 1 }}
         transition={{ duration: 0.8, delay: 0.6, ease: "easeOut" }}
@@ -779,7 +778,7 @@ export const Partnerships = () => {
         {partners.map((partner, index) => (
           <motion.div
             key={partner.id}
-            className="partner-item"
+            className="home-partner-item"
             initial={{ opacity: 0, scale: 0.5, rotate: -10 }}
             whileInView={{ opacity: 1, scale: 1, rotate: 0 }}
             transition={{
@@ -789,7 +788,7 @@ export const Partnerships = () => {
             }}
             viewport={{ once: true }}
           >
-            <img src={partner.img} alt={`Partner ${partner.id}`} className="partner-img" />
+            <img src={partner.img} alt={`Partner ${partner.id}`} className="home-partner-img" />
           </motion.div>
         ))}
       </motion.div>
@@ -809,14 +808,14 @@ export const Faqsection = () => {
   return (
     <motion.div
       id="faq-sec"
-      className="faq-container"
+      className="home-faq-container"
       initial={{ opacity: 0, scale: 0.8 }}
       whileInView={{ opacity: 1, scale: 1 }}
       transition={{ duration: 0.8, ease: "easeOut" }}
       viewport={{ once: true }}
     >
       <motion.h2
-        className="faq-title"
+        className="home-faq-title"
         initial={{ opacity: 0, y: -30 }}
         whileInView={{ opacity: 1, y: 0 }}
         transition={{ duration: 1, delay: 0.3, ease: "easeOut" }}
@@ -829,7 +828,7 @@ export const Faqsection = () => {
           <motion.img
             src={faq}
             alt="FAQ"
-            className="faq-image"
+            className="home-faq-image"
             initial={{ opacity: 0, scale: 0.8 }}
             whileInView={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.8, delay: 0.4, ease: "easeOut" }}
@@ -841,7 +840,7 @@ export const Faqsection = () => {
             {faqs.map((faq, index) => (
               <motion.div
                 key={index}
-                className="accordion-item"
+                className="home-accordion-item"
                 initial={{ opacity: 0, scale: 0.5 }}
                 whileInView={{ opacity: 1, scale: 1 }}
                 transition={{
@@ -885,8 +884,8 @@ export const Faqsection = () => {
 //Footer
 export const Footer = () => {
       return (
-        <footer className="footer-container">
-          <div className="footer-wave">
+        <footer className="home-footer-container">
+          <div className="home-footer-wave">
             <svg viewBox="0 0 1440 100" xmlns="http://www.w3.org/2000/svg">
               <path 
                 fill="#217BF4" 
@@ -895,20 +894,20 @@ export const Footer = () => {
             </svg>
           </div>
           <Container>
-            <Row className="footer-content">
-              <Col md={4} className="footer-section">
+            <Row className="home-footer-content">
+              <Col md={4} className="home-footer-section">
                 <h5>DiagnoTech</h5>
-                <p className="footer-description">
+                <p className="home-footer-description">
                 DiagnoTech offers innovative healthcare solutions to enhance diagnostics and patient care.
                 </p>
-                <div className="social-icons">
+                <div className="home-social-icons">
                   <a href="#" aria-label="Facebook"><i className="fab fa-facebook-f"></i></a>
                   <a href="#" aria-label="Twitter"><i className="fab fa-twitter"></i></a>
                   <a href="#" aria-label="Instagram"><i className="fab fa-instagram"></i></a>
                   <a href="#" aria-label="LinkedIn"><i className="fab fa-linkedin-in"></i></a>
                 </div>
               </Col>
-              <Col md={4} className="footer-section">
+              <Col md={4} className="home-footer-section">
                 <h5>Quick Links</h5>
                 <ul>
                   <li><a href="#">Home</a></li>
@@ -918,7 +917,7 @@ export const Footer = () => {
                   <li><a href="#">FAQ</a></li>
                 </ul>
               </Col>
-              <Col md={4} className="footer-section">
+              <Col md={4} className="home-footer-section">
                 <h5>Contact Us</h5>
                 <ul>
                   <li><a href="mailto:diagnotech@gmail.com">diagnotech@gmail.com</a></li>
@@ -927,8 +926,8 @@ export const Footer = () => {
                 </ul>
               </Col>
             </Row>
-            <div className="footer-bottom">
-              <p className="copyrights">
+            <div className="home-footer-bottom">
+              <p className="home-copyrights">
                 © 2025 DiagnoTech. All rights reserved. | <a href="#">Privacy Policy</a> | <a href="#">Terms of Use</a>
               </p>
             </div>
@@ -962,13 +961,13 @@ export const ScrollButtons = () => {
   };
 
   return (
-    <div className="scroll-buttons">
+    <div className="home-scroll-buttons">
       {showScroll && (
         <>
-          <button className="scroll-btn up" onClick={scrollToTop} aria-label="Scroll to top">
+          <button className="home-scroll-btn home-up" onClick={scrollToTop} aria-label="Scroll to top">
             <FaArrowUp />
           </button>
-          <button className="scroll-btn down" onClick={scrollToBottom} aria-label="Scroll to bottom">
+          <button className="home-scroll-btn home-down" onClick={scrollToBottom} aria-label="Scroll to bottom">
             <FaArrowDown />
           </button>
         </>
@@ -1056,11 +1055,11 @@ export const Chatbot = () => {
   return (
     <>
       {showIcon && (
-        <div className="chat-icon-container" onClick={() => setShowChat(true)} aria-label="Open chatbot">
-          <div className="chat-icon">
+        <div className="home-chat-icon-container" onClick={() => setShowChat(true)} aria-label="Open chatbot">
+          <div className="home-chat-icon">
             <BsHeadset size={30} />
           </div>
-          <div className="ai-assistant-bubble">
+          <div className="home-ai-assistant-bubble">
             Hi I'm your medical AI assistant
           </div>
         </div>
@@ -1070,7 +1069,7 @@ export const Chatbot = () => {
         show={showChat}
         onHide={() => setShowChat(false)}
         centered
-        className="chatbot-modal"
+        className="home-chatbot-modal"
       >
         <Modal.Header closeButton>
           <Modal.Title>
@@ -1078,19 +1077,19 @@ export const Chatbot = () => {
             DiagnoTech Assistant
           </Modal.Title>
         </Modal.Header>
-        <Modal.Body className="chat-body">
-          <div className="messages-container">
+        <Modal.Body className="home-chat-body">
+          <div className="home-messages-container">
             {messages.map((msg, index) => (
               <div
                 key={index}
-                className={`message ${msg.sender === "bot" ? "bot" : "user"}`}
+                className={`home-message ${msg.sender === "bot" ? "home-bot" : "home-user"}`}
               >
                 {msg.sender === "bot" ? formatBotMessage(msg.text) : msg.text}
               </div>
             ))}
             {isLoading && (
-              <div className="message bot typing">
-                <div className="typing-indicator">
+              <div className="home-message home-bot home-typing">
+                <div className="home-typing-indicator">
                   <span></span>
                   <span></span>
                   <span></span>
@@ -1100,7 +1099,7 @@ export const Chatbot = () => {
             <div ref={messagesEndRef} />
           </div>
         </Modal.Body>
-        <Modal.Footer className="chat-footer">
+        <Modal.Footer className="home-chat-footer">
           <Form onSubmit={handleSendMessage} className="w-100">
             <InputGroup>
               <Form.Control

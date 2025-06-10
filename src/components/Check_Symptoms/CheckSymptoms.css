@@ -3,8 +3,9 @@
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
-    min-height: 100vh; /* Optional: to ensure it fills space */
+    max-height: 70vh; /* Optional: to ensure it fills space */
     margin-top:130px ;
+    
   }
   
 
@@ -78,7 +79,7 @@
 .custom-report-body {
   background-image: url(/public/img/report_page.jpg);
   margin-top: 100px;
-  min-height: 100vh;
+  min-height: 120vh;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -92,7 +93,6 @@
   margin: 30px auto;
   max-width: 1200px;
   width: 90%;
-  
 }
 
 .report-title {

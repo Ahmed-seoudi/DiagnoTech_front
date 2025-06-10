@@ -37,6 +37,10 @@
     background-color: transparent;
     border: none;
     cursor: pointer;
-    color: #e74c3c;
+background-color: #1E56A0;
     font-size: 16px;
   }
+.text-dark {
+    --bs-text-opacity: 1;
+    color: rgb(255 255 255) !important;
+}

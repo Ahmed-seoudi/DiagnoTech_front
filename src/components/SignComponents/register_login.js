@@ -452,10 +452,10 @@ const Sign = ({ defaultMode = "login" }) => {
               <span>Or</span>
             </div>
 
-            <button type="button" className="sign-social-btn sign-google-btn">
+            {/* <button type="button" className="sign-social-btn sign-google-btn">
               <img src="https://img.icons8.com/color/20/000000/google-logo.png" alt="google icon" />
               <span>Sign In with Google</span>
-            </button>
+            </button> */}
           </form>
           <div className="sign-switch-form-link">
             <p>
@@ -672,10 +672,10 @@ const Sign = ({ defaultMode = "login" }) => {
                 )}
               </button>
 
-              <button type="button" className="sign-social-btn sign-google-btn sign-social-btn2">
+              {/* <button type="button" className="sign-social-btn sign-google-btn sign-social-btn2">
                 <img src="https://img.icons8.com/color/20/000000/google-logo.png" alt="google icon" />
                 <span>Sign up with Google</span>
-              </button>
+              </button> */}
             </div>
           </form>
           <div className="sign-switch-form-link">

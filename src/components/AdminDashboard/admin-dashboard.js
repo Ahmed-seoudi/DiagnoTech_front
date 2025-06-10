@@ -182,76 +182,76 @@ export default function Dashboard() {
   const [isLoading, setIsLoading] = useState(false);
 
   const handleAddDoctor = async (e) => {
-  e.preventDefault();
-  setIsLoading(true);
+    e.preventDefault();
+    setIsLoading(true);
 
-  // Validate password match
-  if (doctorPassword !== doctorConfirmPassword) {
-    alert("Passwords do not match!");
-    setIsLoading(false);
-    return;
-  }
+    // Validate password match
+    if (doctorPassword !== doctorConfirmPassword) {
+      alert("Passwords do not match!");
+      setIsLoading(false);
+      return;
+    }
 
-  // Validate required fields
-  if (
-    !doctorFullName ||
-    !doctorEmail ||
-    !doctorPassword ||
-    !doctorSpecialization ||
-    !doctorLocation ||
-    !doctorPhoneNumber ||
-    !doctorAge ||
-    !doctorGender ||
-    !doctorExperience ||
-    !doctorGoogleMapsLink
-  ) {
-    alert("Please fill in all required fields!");
-    setIsLoading(false);
-    return;
-  }
+    // Validate required fields
+    if (
+      !doctorFullName ||
+      !doctorEmail ||
+      !doctorPassword ||
+      !doctorSpecialization ||
+      !doctorLocation ||
+      !doctorPhoneNumber ||
+      !doctorAge ||
+      !doctorGender ||
+      !doctorExperience ||
+      !doctorGoogleMapsLink
+    ) {
+      alert("Please fill in all required fields!");
+      setIsLoading(false);
+      return;
+    }
 
-  const token = localStorage.getItem("jwt");
-  const doctorData = {
-    fullName: doctorFullName,
-    email: doctorEmail,
-    password: doctorPassword,
-    specialty: doctorSpecialization,
-    clinicAddress: doctorLocation,
-    contact: doctorPhoneNumber,
-    age: parseInt(doctorAge), // Ensure age is sent as a number
-    gender: doctorGender,
-    experience: doctorExperience,
-    whatsappLink: `https://wa.me/${doctorPhoneNumber}`,
-    googleMapsLink: doctorGoogleMapsLink,
+    const token = localStorage.getItem("jwt");
+    const doctorData = {
+      fullName: doctorFullName,
+      email: doctorEmail,
+      password: doctorPassword,
+      specialty: doctorSpecialization,
+      clinicAddress: doctorLocation,
+      contact: doctorPhoneNumber,
+      age: parseInt(doctorAge), // Ensure age is sent as a number
+      gender: doctorGender,
+      experience: doctorExperience,
+      whatsappLink: `https://wa.me/${doctorPhoneNumber}`,
+      googleMapsLink: doctorGoogleMapsLink,
+    };
+
+    try {
+      const response = await axios.post(
+        `${BASE_URL}/api/Dashboard/doctors/addDoctor`,
+        doctorData,
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      console.log("API Response:", response.data);
+      alert("Doctor added successfully!");
+      // Reset form
+      setDoctorFullName("");
+      setDoctorEmail("");
+      setDoctorPassword("");
+      setDoctorConfirmPassword("");
+      setDoctorPhoneNumber("");
+      setDoctorLocation("");
+      setDoctorSpecialization("");
+      setDoctorGender("");
+      setDoctorAge("");
+      setDoctorExperience("");
+      setDoctorGoogleMapsLink("");
+    } catch (error) {
+      console.error("Error adding doctor:", error.response?.data || error.message);
+      alert(`Error adding doctor: ${error.response?.data?.message || error.message}`);
+    } finally {
+      setIsLoading(false);
+    }
   };
-
-  try {
-    const response = await axios.post(
-      `${BASE_URL}/api/Dashboard/doctors/addDoctor`,
-      doctorData,
-      { headers: { Authorization: `Bearer ${token}` } }
-    );
-    console.log("API Response:", response.data);
-    alert("Doctor added successfully!");
-    // Reset form
-    setDoctorFullName("");
-    setDoctorEmail("");
-    setDoctorPassword("");
-    setDoctorConfirmPassword("");
-    setDoctorPhoneNumber("");
-    setDoctorLocation("");
-    setDoctorSpecialization("");
-    setDoctorGender("");
-    setDoctorAge("");
-    setDoctorExperience("");
-    setDoctorGoogleMapsLink("");
-  } catch (error) {
-    console.error("Error adding doctor:", error.response?.data || error.message);
-    alert(`Error adding doctor: ${error.response?.data?.message || error.message}`);
-  } finally {
-    setIsLoading(false);
-  }
-};
 
   // /////////////View All Doctors/////////////////////////////////////////
   const [doctorData, setDoctorData] = useState([]);
@@ -284,6 +284,37 @@ export default function Dashboard() {
   const [searchResults, setSearchResults] = useState([]);
   const [adminData, setAdminData] = useState([]);
 
+  useEffect(() => {
+    const fetchAdmins = async () => {
+      const token = localStorage.getItem("jwt");
+      try {
+        // Fetch all admins by default
+        let url = `${BASE_URL}/api/Dashboard/admins/allAdmins`;
+        if (searchQuery.trim().length > 0) {
+          // If there's a search query, fetch filtered results
+          url = `${BASE_URL}/api/Dashboard/admins/search?query=${searchQuery}`;
+        }
+        const response = await axios.get(url, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        const data = response.data;
+        console.log("Admin Data:", data);
+        if (Array.isArray(data.data)) {
+          setSearchResults(data.data);
+        } else {
+          console.error("Admin Data is not an array", data);
+          setSearchResults([]);
+        }
+      } catch (error) {
+        console.error("Error fetching admins:", error.response?.data || error.message);
+        setSearchResults([]);
+      }
+    };
+    fetchAdmins();
+  }, [searchQuery]);
+
   const handleDelete = async (adminId) => {
     const token = localStorage.getItem("jwt");
     try {
@@ -293,6 +324,7 @@ export default function Dashboard() {
         },
       });
       if (response.status === 200) {
+        // Update search results after deletion
         const updatedResults = searchResults.filter((admin) => admin._id !== adminId);
         setSearchResults(updatedResults);
         console.log("Admin deleted successfully");
@@ -301,38 +333,6 @@ export default function Dashboard() {
       console.error("Error deleting admin:", error.response?.data || error.message);
     }
   };
-
-  useEffect(() => {
-    const fetchAdmins = async () => {
-      const token = localStorage.getItem("jwt");
-      console.log("Token:", token);
-      if (searchQuery.trim().length === 0) {
-        setSearchResults([]);
-        return;
-      }
-      try {
-        const response = await axios.get(`${BASE_URL}/api/Dashboard/admins/search?query=${searchQuery}`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-        const data = response.data;
-        console.log("Search Admin Data:", data);
-        if (Array.isArray(data.data)) {
-          setSearchResults(data.data);
-        } else {
-          console.error("Admin Data is not an array", data);
-        }
-      } catch (error) {
-        console.error("Error fetching admins:", error.response?.data || error.message);
-      }
-    };
-    if (searchQuery.trim().length > 0) {
-      fetchAdmins();
-    } else {
-      setSearchResults([]);
-    }
-  }, [searchQuery]);
 
   // //////////////////////////View All Admins/////////////////////////////////////////////////////
   useEffect(() => {
@@ -900,7 +900,7 @@ export default function Dashboard() {
               {adminData.map((admin) => {
                 const profileImage = admin.profilePicture
                   ? `http://localhost:5000${admin.profilePicture}`
-                  : "/Uploads/defaultProfilePic.png";
+                  : "/img/user.png";
                 return (
                   <div key={admin._id} className="col-md-4 col-lg-3 mb-4">
                     <div className="card shadow-lg border-0 rounded-4 h-100">
@@ -912,6 +912,7 @@ export default function Dashboard() {
                             className="rounded-circle"
                             width="80"
                             height="80"
+                            onError={(e) => (e.target.src = '/img/user.png')}
                           />
                         </div>
                         <h5 className="text-primary text-center mb-2">{admin.fullName}</h5>
@@ -1003,10 +1004,9 @@ export default function Dashboard() {
                       </select>
                       <label htmlFor="adminRole">Role</label>
                     </div>
-
                     <div className="d-grid">
-                      <button type="submit" className="btn btn-primary btn-lg rounded-pill shadow" disabled={loading}>
-                        {loading ? "Adding..." : "➕ Add Admin"}
+                      <button type="submit" className="btn btn-primary btn-lg rounded-pill shadow addadminbtn" disabled={loading}>
+                        {loading ? "Adding..." : "Add Admin"}
                       </button>
                     </div>
                   </form>
@@ -1029,10 +1029,11 @@ export default function Dashboard() {
                     src={
                       profileData?.profilePicture
                         ? `http://localhost:5000${profileData.profilePicture}`
-                        : "/Uploads/defaultProfilePic.png"
+                        : "/img/user.png"
                     }
                     alt="Profile"
                     className="admin-profile-avatar"
+                    onError={(e) => (e.target.src = '/img/user.png')}
                   />
                   <h3 className="admin-profile-name mt-3">{profileData?.fullName || "Loading..."}</h3>
                   <p className="admin-profile-role">{profileData?.role || "Loading..."}</p>
@@ -1062,10 +1063,11 @@ export default function Dashboard() {
                     src={
                       profileData?.profilePicture
                         ? `http://localhost:5000${profileData.profilePicture}`
-                        : "/Uploads/defaultProfilePic.png"
+                        : "/img/user.png"
                     }
                     alt="Profile"
                     className="admin-profile-avatar"
+                    onError={(e) => (e.target.src = '/img/user.png')}
                   />
                   <h4 className="mt-3">{profileData?.fullName || "Loading..."}</h4>
                   <p className="admin-profile-role">{profileData?.role || "Loading..."}</p>
@@ -1081,7 +1083,7 @@ export default function Dashboard() {
                       required
                     />
                   </div>
-                  <button type="submit" className="btn btn-primary w-100 mt-3">
+                  <button type="submit" className="btn w-100 mt-3 addadminbtn">
                     Save Changes
                   </button>
                 </form>
@@ -1122,7 +1124,7 @@ export default function Dashboard() {
                       required
                     />
                   </div>
-                  <button type="submit" className="btn btn-primary w-100 mt-3">
+                  <button type="submit" className="btn btn-primary w-100 mt-3 addadminbtn">
                     Save Changes
                   </button>
                   {message && <p className="mt-3 text-center">{message}</p>}
@@ -1160,7 +1162,7 @@ export default function Dashboard() {
                       required
                     />
                   </div>
-                  <button type="submit" className="btn btn-danger w-100 mt-3">
+                  <button type="submit" className="btn btn-primary w-100 mt-3 addadminbtn">
                     Delete Account
                   </button>
                 </form>
@@ -1182,61 +1184,59 @@ export default function Dashboard() {
                 />
                 <i className="bi bi-search position-absolute top-50 end-0 translate-middle-y me-3 text-primary"></i>
               </div>
-              {searchQuery.trim().length > 0 && (
-                <div className="row mt-4">
-                  {searchResults.length > 0 ? (
-                    searchResults.map((admin) => {
-                      const profileImage = admin.profilePicture
-                        ? `http://localhost:5000${admin.profilePicture}`
-                        : "/default-profile.png";
-                      return (
-                        <div key={admin._id} className="col-md-4 col-lg-3 mb-4">
-                          <div className="card shadow-lg border-0 rounded-4 h-100">
-                            <div className="admin-card-body d-flex flex-column">
-                              <div className="text-center mb-3">
-                                <img
-                                  src={profileImage}
-                                  alt="Admin"
-                                  className="rounded-circle"
-                                  width="80"
-                                  height="80"
-                                  onError={(e) => e.target.src = '/default-profile.png'}
-                                />
-                              </div>
-                              <h5 className="text-primary text-center mb-2">{admin.fullName}</h5>
-                              <h6 className="text-secondary text-center mb-2">{admin.email}</h6>
-                              <ul className="list-unstyled text-muted small">
-                                <li className="mb-2">
-                                  <i className="bi bi-briefcase-fill me-2 text-secondary"></i>
-                                  Role: {admin.role}
-                                </li>
-                              </ul>
-                              <div className="mt-auto text-center d-flex flex-column gap-2">
-                                <a
-                                  href={`mailto:${admin.email}`}
-                                  target="_blank"
-                                  rel="noreferrer"
-                                  className="btn btn-outline-primary btn-sm rounded-pill px-4 shadow-sm"
-                                >
-                                  Email Admin
-                                </a>
-                                <button
-                                  onClick={() => handleDelete(admin._id)}
-                                  className="btn btn-outline-danger btn-sm rounded-pill px-4 shadow-sm"
-                                >
-                                  Delete Admin
-                                </button>
-                              </div>
+              <div className="row mt-4">
+                {searchResults.length > 0 ? (
+                  searchResults.map((admin) => {
+                    const profileImage = admin.profilePicture
+                      ? `http://localhost:5000${admin.profilePicture}`
+                      : "/img/user.png";
+                    return (
+                      <div key={admin._id} className="col-md-4 col-lg-3 mb-4">
+                        <div className="card shadow-lg border-0 rounded-4 h-100">
+                          <div className="admin-card-body d-flex flex-column">
+                            <div className="text-center mb-3">
+                              <img
+                                src={profileImage}
+                                alt="Admin"
+                                className="rounded-circle"
+                                width="80"
+                                height="80"
+                                onError={(e) => (e.target.src = '/img/user.png')}
+                              />
+                            </div>
+                            <h5 className="text-primary text-center mb-2">{admin.fullName}</h5>
+                            <h6 className="text-secondary text-center mb-2">{admin.email}</h6>
+                            <ul className="list-unstyled text-muted small">
+                              <li className="mb-2">
+                                <i className="bi bi-briefcase-fill me-2 text-secondary"></i>
+                                Role: {admin.role}
+                              </li>
+                            </ul>
+                            <div className="mt-auto text-center d-flex flex-column gap-2">
+                              <a
+                                href={`mailto:${admin.email}`}
+                                target="_blank"
+                                rel="noreferrer"
+                                className="btn btn-outline-primary btn-sm rounded-pill px-4 shadow-sm"
+                              >
+                                Email Admin
+                              </a>
+                              <button
+                                onClick={() => handleDelete(admin._id)}
+                                className="btn btn-outline-primary btn-sm rounded-pill px-4 shadow-sm"
+                              >
+                                Delete Admin
+                              </button>
                             </div>
                           </div>
                         </div>
-                      );
-                    })
-                  ) : (
-                    <p>No admins found matching the query.</p>
-                  )}
-                </div>
-              )}
+                      </div>
+                    );
+                  })
+                ) : (
+                  <p className="text-center mt-4">No admins found.</p>
+                )}
+              </div>
             </div>
           )}
 
@@ -1292,212 +1292,211 @@ export default function Dashboard() {
 
           {/* //////////////////Add New Doc////////////////////// */}
           {currentView === "addDoctor" && (
-  <div className="mt-5 d-flex justify-content-center">
-    <motion.div
-      className="w-100"
-      style={{ maxWidth: "600px" }}
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ delay: 0.2 }}
-    >
-      <div className="card p-4 shadow-lg border-0 rounded-4">
-        <h4 className="mb-4 text-center text-primary">Add New Doctor</h4>
-        <form onSubmit={handleAddDoctor}>
-          {/* Full Name */}
-          <div className="form-floating mb-3">
-            <input
-              type="text"
-              className="form-control"
-              id="doctorFullName"
-              placeholder="Enter full name"
-              value={doctorFullName}
-              onChange={(e) => setDoctorFullName(e.target.value)}
-              required
-            />
-            <label htmlFor="doctorFullName">Full Name</label>
-          </div>
+            <div className="mt-5 d-flex justify-content-center">
+              <motion.div
+                className="w-100"
+                style={{ maxWidth: "600px" }}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.2 }}
+              >
+                <div className="card p-4 shadow-lg border-0 rounded-4">
+                  <h4 className="mb-4 text-center text-primary">Add New Doctor</h4>
+                  <form onSubmit={handleAddDoctor}>
+                    {/* Full Name */}
+                    <div className="form-floating mb-3">
+                      <input
+                        type="text"
+                        className="form-control"
+                        id="doctorFullName"
+                        placeholder="Enter full name"
+                        value={doctorFullName}
+                        onChange={(e) => setDoctorFullName(e.target.value)}
+                        required
+                      />
+                      <label htmlFor="doctorFullName">Full Name</label>
+                    </div>
 
-          {/* Email */}
-          <div className="form-floating mb-3">
-            <input
-              type="email"
-              className="form-control"
-              id="doctorEmail"
-              placeholder="Enter email"
-              value={doctorEmail}
-              onChange={(e) => setDoctorEmail(e.target.value)}
-              required
-            />
-            <label htmlFor="doctorEmail">Email</label>
-          </div>
+                    {/* Email */}
+                    <div className="form-floating mb-3">
+                      <input
+                        type="email"
+                        className="form-control"
+                        id="doctorEmail"
+                        placeholder="Enter email"
+                        value={doctorEmail}
+                        onChange={(e) => setDoctorEmail(e.target.value)}
+                        required
+                      />
+                      <label htmlFor="doctorEmail">Email</label>
+                    </div>
 
-          {/* Password */}
-          <div className="form-floating mb-3">
-            <input
-              type="password"
-              className="form-control"
-              id="doctorPassword"
-              placeholder="Enter password"
-              value={doctorPassword}
-              onChange={(e) => setDoctorPassword(e.target.value)}
-              required
-            />
-            <label htmlFor="doctorPassword">Password</label>
-          </div>
+                    {/* Password */}
+                    <div className="form-floating mb-3">
+                      <input
+                        type="password"
+                        className="form-control"
+                        id="doctorPassword"
+                        placeholder="Enter password"
+                        value={doctorPassword}
+                        onChange={(e) => setDoctorPassword(e.target.value)}
+                        required
+                      />
+                      <label htmlFor="doctorPassword">Password</label>
+                    </div>
 
-          {/* Confirm Password */}
-          <div className="form-floating mb-3">
-            <input
-              type="password"
-              className="form-control"
-              id="doctorConfirmPassword"
-              placeholder="Confirm password"
-              value={doctorConfirmPassword}
-              onChange={(e) => setDoctorConfirmPassword(e.target.value)}
-              required
-            />
-            <label htmlFor="doctorConfirmPassword">Confirm Password</label>
-          </div>
+                    {/* Confirm Password */}
+                    <div className="form-floating mb-3">
+                      <input
+                        type="password"
+                        className="form-control"
+                        id="doctorConfirmPassword"
+                        placeholder="Confirm password"
+                        value={doctorConfirmPassword}
+                        onChange={(e) => setDoctorConfirmPassword(e.target.value)}
+                        required
+                      />
+                      <label htmlFor="doctorConfirmPassword">Confirm Password</label>
+                    </div>
 
-          {/* Specialty */}
-          <div className="form-floating mb-3">
-            <select
-              className="form-select"
-              id="doctorSpecialty"
-              value={doctorSpecialization}
-              onChange={(e) => setDoctorSpecialization(e.target.value)}
-              required
-            >
-              <option value="" disabled>
-                Select specialty
-              </option>
-              <option value="Cardiology">Cardiology</option>
-              <option value="Dermatology">Dermatology</option>
-              <option value="Pediatrics">Pediatrics</option>
-              <option value="Neurology">Neurology</option>
-              <option value="Orthopedics">Orthopedics</option>
-              <option value="Psychiatry">Psychiatry</option>
-            </select>
-            <label htmlFor="doctorSpecialty">Specialty</label>
-          </div>
+                    {/* Specialty */}
+                    <div className="form-floating mb-3">
+                      <select
+                        className="form-select"
+                        id="doctorSpecialty"
+                        value={doctorSpecialization}
+                        onChange={(e) => setDoctorSpecialization(e.target.value)}
+                        required
+                      >
+                        <option value="" disabled>
+                          Select specialty
+                        </option>
+                        <option value="Cardiology">Cardiology</option>
+                        <option value="Dermatology">Dermatology</option>
+                        <option value="Pediatrics">Pediatrics</option>
+                        <option value="Neurology">Neurology</option>
+                        <option value="Orthopedics">Orthopedics</option>
+                        <option value="Psychiatry">Psychiatry</option>
+                      </select>
+                      <label htmlFor="doctorSpecialty">Specialty</label>
+                    </div>
 
-          {/* Clinic Address */}
-          <div className="form-floating mb-3">
-            <input
-              type="text"
-              className="form-control"
-              id="doctorClinicAddress"
-              placeholder="Enter clinic address"
-              value={doctorLocation}
-              onChange={(e) => setDoctorLocation(e.target.value)}
-              required
-            />
-            <label htmlFor="doctorClinicAddress">Clinic Address</label>
-          </div>
+                    {/* Clinic Address */}
+                    <div className="form-floating mb-3">
+                      <input
+                        type="text"
+                        className="form-control"
+                        id="doctorClinicAddress"
+                        placeholder="Enter clinic address"
+                        value={doctorLocation}
+                        onChange={(e) => setDoctorLocation(e.target.value)}
+                        required
+                      />
+                      <label htmlFor="doctorClinicAddress">Clinic Address</label>
+                    </div>
 
-          {/* Contact */}
-          <div className="form-floating mb-3">
-            <input
-              type="text"
-              className="form-control"
-              id="doctorContact"
-              placeholder="Enter contact number"
-              value={doctorPhoneNumber}
-              onChange={(e) => setDoctorPhoneNumber(e.target.value)}
-              required
-            />
-            <label htmlFor="doctorContact">Contact Number</label>
-          </div>
+                    {/* Contact */}
+                    <div className="form-floating mb-3">
+                      <input
+                        type="text"
+                        className="form-control"
+                        id="doctorContact"
+                        placeholder="Enter contact number"
+                        value={doctorPhoneNumber}
+                        onChange={(e) => setDoctorPhoneNumber(e.target.value)}
+                        required
+                      />
+                      <label htmlFor="doctorContact">Contact Number</label>
+                    </div>
 
-          {/* Age */}
-          <div className="form-floating mb-3">
-            <input
-              type="number"
-              className="form-control"
-              id="doctorAge"
-              placeholder="Enter age"
-              value={doctorAge}
-              onChange={(e) => setDoctorAge(e.target.value)}
-              required
-              min="18"
-            />
-            <label htmlFor="doctorAge">Age</label>
-          </div>
+                    {/* Age */}
+                    <div className="form-floating mb-3">
+                      <input
+                        type="number"
+                        className="form-control"
+                        id="doctorAge"
+                        placeholder="Enter age"
+                        value={doctorAge}
+                        onChange={(e) => setDoctorAge(e.target.value)}
+                        required
+                        min="18"
+                      />
+                      <label htmlFor="doctorAge">Age</label>
+                    </div>
 
-          {/* Gender */}
-          <div className="form-floating mb-3">
-            <select
-              className="form-select"
-              id="doctorGender"
-              value={doctorGender}
-              onChange={(e) => setDoctorGender(e.target.value)}
-              required
-            >
-              <option value="" disabled>
-                Select gender
-              </option>
-              <option value="male">Male</option>
-              <option value="female">Female</option>
-            </select>
-            <label htmlFor="doctorGender">Gender</label>
-          </div>
+                    {/* Gender */}
+                    <div className="form-floating mb-3">
+                      <select
+                        className="form-select"
+                        id="doctorGender"
+                        value={doctorGender}
+                        onChange={(e) => setDoctorGender(e.target.value)}
+                        required
+                      >
+                        <option value="" disabled>
+                          Select gender
+                        </option>
+                        <option value="male">Male</option>
+                        <option value="female">Female</option>
+                      </select>
+                      <label htmlFor="doctorGender">Gender</label>
+                    </div>
 
-          {/* Experience */}
-          <div className="form-floating mb-3">
-            <input
-              type="text"
-              className="form-control"
-              id="doctorExperience"
-              placeholder="Enter years of experience"
-              value={doctorExperience}
-              onChange={(e) => setDoctorExperience(e.target.value)}
-              required
-            />
-            <label htmlFor="doctorExperience">Experience (Years)</label>
-          </div>
+                    {/* Experience */}
+                    <div className="form-floating mb-3">
+                      <input
+                        type="text"
+                        className="form-control"
+                        id="doctorExperience"
+                        placeholder="Enter years of experience"
+                        value={doctorExperience}
+                        onChange={(e) => setDoctorExperience(e.target.value)}
+                        required
+                      />
+                      <label htmlFor="doctorExperience">Experience (Years)</label>
+                    </div>
 
-          {/* Google Maps Link */}
-          <div className="form-floating mb-3">
-            <input
-              type="url"
-              className="form-control"
-              id="doctorGoogleMapsLink"
-              placeholder="Enter Google Maps link"
-              value={doctorGoogleMapsLink}
-              onChange={(e) => setDoctorGoogleMapsLink(e.target.value)}
-              required
-            />
-            <label htmlFor="doctorGoogleMapsLink">Google Maps Link</label>
-          </div>
+                    {/* Google Maps Link */}
+                    <div className="form-floating mb-3">
+                      <input
+                        type="url"
+                        className="form-control"
+                        id="doctorGoogleMapsLink"
+                        placeholder="Enter Google Maps link"
+                        value={doctorGoogleMapsLink}
+                        onChange={(e) => setDoctorGoogleMapsLink(e.target.value)}
+                        required
+                      />
+                      <label htmlFor="doctorGoogleMapsLink">Google Maps Link</label>
+                    </div>
 
-          {/* WhatsApp Link */}
-          <div className="form-floating mb-3">
-            <input
-              type="text"
-              className="form-control"
-              id="doctorWhatsappLink"
-              placeholder="WhatsApp link will be generated"
-              value={doctorPhoneNumber ? `https://wa.me/${doctorPhoneNumber}` : ""}
-              readOnly
-            />
-            <label htmlFor="doctorWhatsappLink">WhatsApp Link</label>
-          </div>
+                    {/* WhatsApp Link */}
+                    <div className="form-floating mb-3">
+                      <input
+                        type="text"
+                        className="form-control"
+                        id="doctorWhatsappLink"
+                        placeholder="WhatsApp link will be generated"
+                        value={doctorPhoneNumber ? `https://wa.me/${doctorPhoneNumber}` : ""}
+                        readOnly
+                      />
+                      <label htmlFor="doctorWhatsappLink">WhatsApp Link</label>
+                    </div>
 
-          <div className="d-grid">
-            <button
-              type="submit"
-              className="btn btn-primary btn-lg rounded-pill shadow"
-              disabled={isLoading}
-            >
-              {isLoading ? "Adding..." : "➕ Add Doctor"}
-            </button>
-          </div>
-        </form>
-      </div>
-    </motion.div>
-  </div>
-)}
-
+                    <div className="d-grid">
+                      <button
+                        type="submit"
+                        className="btn btn-primary btn-lg rounded-pill shadow addadminbtn"
+                        disabled={isLoading}
+                      >
+                        {isLoading ? "Adding..." : "Add Doctor"}
+                      </button>
+                    </div>
+                  </form>
+                </div>
+              </motion.div>
+            </div>
+          )}
 
           {/* ///////////////////search doctor ////////////////////////////////////////////////////////////////////////////////*/}
           {currentView === "searchDoctor" && (
@@ -1534,7 +1533,7 @@ export default function Dashboard() {
                           <div className="mt-auto text-center">
                             <button
                               onClick={() => handleDeleteDoctor(doctor._id)}
-                              className="btn btn-outline-danger btn-sm rounded-pill px-4 shadow-sm"
+                              className="btn btn-outline-primary btn-sm rounded-pill px-4 shadow-sm"
                             >
                               Delete Doctor
                             </button>
@@ -1556,7 +1555,7 @@ export default function Dashboard() {
               {userData.map((user) => {
                 const profileImage = user.profilePicture
                   ? `http://localhost:5000${user.profilePicture}`
-                  : "/Uploads/defaultProfilePic.png";
+                  : "/img/user.png";
                 return (
                   <div key={user._id} className="col-md-4 col-lg-3 mb-4">
                     <div className="card shadow-lg border-0 rounded-4 h-100">
@@ -1568,6 +1567,7 @@ export default function Dashboard() {
                             className="rounded-circle shadow"
                             width="80"
                             height="80"
+                            onError={(e) => (e.target.src = '/img/user.png')}
                           />
                         </div>
                         <h5 className="text-primary text-center mb-2">{user.fullName}</h5>
@@ -1626,11 +1626,12 @@ export default function Dashboard() {
                             src={
                               user.profilePicture
                                 ? `http://localhost:5000${user.profilePicture}`
-                                : "/Uploads/defaultProfilePic.png"
+                                : "/img/user.png"
                             }
                             alt="Profile"
                             className="rounded-circle mb-3 mx-auto"
                             style={{ width: "80px", height: "80px", objectFit: "cover" }}
+                            onError={(e) => (e.target.src = '/img/user.png')}
                           />
                           <h5 className="text-primary text-center mb-2">{user.fullName}</h5>
                           <h6 className="text-secondary text-center mb-2">{user.email}</h6>
@@ -1639,7 +1640,7 @@ export default function Dashboard() {
                           <div className="mt-auto text-center">
                             <button
                               onClick={() => handleDeleteUser(user._id)}
-                              className="btn btn-outline-danger btn-sm rounded-pill px-4 shadow-sm"
+                              className="btn btn-outline-primary btn-sm rounded-pill px-4 shadow-sm"
                             >
                               Delete User
                             </button>
