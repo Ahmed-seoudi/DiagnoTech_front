@@ -61,7 +61,7 @@ const EditDoctorProfile = () => {
     };
 
     fetchDoctorData();
-  }, []);
+  }, [API_ENDPOINTS.doctor]);
 
   // Handle form input changes
   const handleInputChange = (e) => {

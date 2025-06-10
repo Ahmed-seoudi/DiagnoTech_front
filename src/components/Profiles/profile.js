@@ -247,7 +247,7 @@ const Profile = () => {
 
   const formatTime = (appointmentSlot) => {
     try {
-      const [date, time] = appointmentSlot.split(" ");
+      const [, time] = appointmentSlot.split(" ");
       const [hours, minutes] = time.split(":");
       const h = parseInt(hours, 10);
       const suffix = h >= 12 ? "PM" : "AM";
