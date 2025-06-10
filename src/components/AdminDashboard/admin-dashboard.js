@@ -1,18 +1,17 @@
-import { FaHome, FaUserShield, FaChartLine, FaUsers, FaFileMedical, FaUserMd, FaRegHospital } from 'react-icons/fa';
+/* eslint-disable jsx-a11y/anchor-is-valid */
+/* eslint-disable no-unused-vars */
+import { FaHome, FaUserShield, FaUsers, FaUserMd } from 'react-icons/fa';
 import { motion } from "framer-motion";
-import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, Legend, LineChart, Line, CartesianGrid } from 'recharts';
+import { XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, Legend, LineChart, Line, CartesianGrid } from 'recharts';
 import "./admin-dashboard.css";
-import { AreaChart, Area } from 'recharts';
 import { FaUserPlus } from 'react-icons/fa';
 import { FaTrash } from 'react-icons/fa';
 import { FaSearch } from 'react-icons/fa';
 import { FaUsersCog } from 'react-icons/fa';
 import React, { useState, useEffect } from "react";
 import axios from 'axios';
-import { FaUser, FaUserEdit, FaKey, FaTrashAlt, FaCog, FaChevronDown, FaChevronUp, FaEdit } from "react-icons/fa";
+import { FaUser, FaKey, FaCog, FaChevronDown, FaChevronUp, FaEdit } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
-import { FaTasks } from 'react-icons/fa';
-import { FaTools } from 'react-icons/fa';
 import { FaWrench } from 'react-icons/fa';
 import { AdminHeader } from "./admin-dashboard-header"
 import {
@@ -25,6 +24,7 @@ import {
 } from "react-icons/fa";
 import { BASE_URL } from "../../config";
 
+// eslint-disable-next-line no-unused-vars
 const areaData = [
   { month: "Jan", visits: 400 },
   { month: "Feb", visits: 300 },

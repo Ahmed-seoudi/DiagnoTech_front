@@ -1,3 +1,5 @@
+/* eslint-disable jsx-a11y/anchor-is-valid */
+/* eslint-disable no-unused-vars */
 import React, { useState, useRef, useEffect } from "react";
 import logo from "../../img/logo.png";
 import "./HomePage.css";
@@ -29,7 +31,6 @@ import clinic from "../../img/logo1.png";
 import company from "../../img/logo2.png";
 import alliance from "../../img/logo3.png";
 import faq from "../../img/9a1a0d69ebfa79f4228d2db72e15bde9.png";
-import footerImage from "../../img/530242319709347d08f803e333bc5d01.jpg";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCaretDown, faUserCircle, faCheckCircle, faChartBar, faNewspaper, faHandshake, faQuestionCircle, faArrowCircleDown } from '@fortawesome/free-solid-svg-icons';
 import 'bootstrap/dist/js/bootstrap.bundle.min.js';
@@ -45,6 +46,7 @@ import { BASE_URL } from "../../config";
 
 // HomePage Component
 const HomePage = () => {
+  // eslint-disable-next-line no-unused-vars
   const { isLoggedIn, logout } = useAuth();
   const navigate = useNavigate();
 
@@ -1005,7 +1007,7 @@ export const Chatbot = () => {
   const formatBotMessage = (text) => {
     const cleanedText = text.replace(/\*\*/g, '');
     return cleanedText.split(/(\b\w+\b)/g).map((part, index) => {
-      if (text.match(/\*\*[^\*]+\*\*/g)?.some(bold => bold.slice(2, -2) === part)) {
+      if (text.match(/\*\*[^*]+\*\*/g)?.some(bold => bold.slice(2, -2) === part)) {
         return <strong key={index}>{part}</strong>;
       }
       return part;

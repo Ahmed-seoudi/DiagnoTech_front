@@ -4,7 +4,7 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import './AdminHeader.css';
 import { FaSignOutAlt } from 'react-icons/fa';
 export const AdminHeader = () => {
-  const [username, setUsername] = useState('');
+  const [,setUsername] = useState('');
   const navigate = useNavigate();
   useEffect(() => {
     const storedName = localStorage.getItem('username');
